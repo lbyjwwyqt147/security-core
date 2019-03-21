@@ -85,9 +85,9 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         }
         PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         // 解密前端传入的加密参数
-       String curUserPassWord  = CsoftSecurityUtil.decryptRSADefault(PRIVATE_KEY_STR, record.getUserPassword());
+    //   String curUserPassWord  = CsoftSecurityUtil.decryptRSADefault(PRIVATE_KEY_STR, record.getUserPassword());
 
-        record.setUserPassword(passwordEncoder.encode(curUserPassWord));
+     //   record.setUserPassword(passwordEncoder.encode(curUserPassWord));
         UserAccounts userAccounts = DozerBeanMapperUtil.copyProperties(record, UserAccounts.class);
         UserAccounts saveObject = this.userAccountsRepository.save(userAccounts);
         if (saveObject == null || saveObject.getId() == null) {
