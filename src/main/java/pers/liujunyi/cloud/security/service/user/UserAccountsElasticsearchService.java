@@ -4,6 +4,9 @@ import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.service.BaseElasticsearchService;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
 
+import java.util.List;
+import java.util.Map;
+
 /***
  * 文件名称: UserAccountsElasticsearchService.java
  * 文件描述: 用户账户信息 Elasticsearch Service
@@ -31,4 +34,11 @@ public interface UserAccountsElasticsearchService extends BaseElasticsearchServi
      * @return
      */
     UserAccounts findFirstByUserAccountsOrMobilePhoneOrUserNumber(String userAccounts);
+
+    /**
+     * 根据id 获取用户信息 并转为 map
+     * @param ids
+     * @return  key = id  value = UserAccounts
+     */
+    Map<Long, UserAccounts> getUserAccountInfoToMap(List<Long> ids);
 }

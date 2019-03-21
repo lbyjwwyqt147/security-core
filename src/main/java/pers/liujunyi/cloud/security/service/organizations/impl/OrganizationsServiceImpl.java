@@ -13,7 +13,9 @@ import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
 import pers.liujunyi.cloud.common.util.UserUtils;
 import pers.liujunyi.cloud.security.domain.organizations.OrganizationsDto;
 import pers.liujunyi.cloud.security.entity.organizations.Organizations;
+import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
 import pers.liujunyi.cloud.security.repository.elasticsearch.organizations.OrganizationsElasticsearchRepository;
+import pers.liujunyi.cloud.security.repository.elasticsearch.organizations.StaffOrgElasticsearchRepository;
 import pers.liujunyi.cloud.security.repository.jpa.organizations.OrganizationsRepository;
 import pers.liujunyi.cloud.security.service.organizations.OrganizationsService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
@@ -39,6 +41,8 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
     private OrganizationsRepository organizationsRepository;
     @Autowired
     private OrganizationsElasticsearchRepository organizationsElasticsearchRepository;
+    @Autowired
+    private StaffOrgElasticsearchRepository staffOrgElasticsearchRepository;
     @Autowired
     private UserUtils userUtils;
 
@@ -85,6 +89,12 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
 
     @Override
     public ResultInfo updateStatus(Byte status, List<Long> ids) {
+        if (status.byteValue() == 1) {
+            List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByOrgIdIn(ids, super.getPageable(ids.size()));
+            if (!CollectionUtils.isEmpty(list)) {
+                ResultUtil.params("要禁用的组织机构正在被系统使用,不能被禁用");
+            }
+        }
         int count = this.organizationsRepository.setOrgStatusByIds(status, new Date(), ids);
         if (count > 0) {
             Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
@@ -103,6 +113,10 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
 
     @Override
     public ResultInfo batchDeletes(List<Long> ids) {
+        List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByOrgIdIn(ids, super.getPageable(ids.size()));
+        if (!CollectionUtils.isEmpty(list)) {
+            ResultUtil.params("要删除的组织机构正在被系统使用,不能被删除");
+        }
         long count = this.organizationsRepository.deleteByIdIn(ids);
         if (count > 0) {
             this.organizationsElasticsearchRepository.deleteByIdIn(ids);
@@ -113,6 +127,10 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
 
     @Override
     public ResultInfo singleDelete(Long id) {
+        List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByOrgId(id, super.getPageable(1));
+        if (!CollectionUtils.isEmpty(list)) {
+            ResultUtil.params("要删除的组织机构正在被系统使用,不能被删除");
+        }
         this.organizationsRepository.deleteById(id);
         this.organizationsElasticsearchRepository.deleteById(id);
         return ResultUtil.success();

@@ -3,6 +3,8 @@ package pers.liujunyi.cloud.security.repository.elasticsearch.user;
 import pers.liujunyi.cloud.common.repository.elasticsearch.BaseElasticsearchRepository;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
 
+import java.util.List;
+
 /***
  * 文件名称: UserAccountsElasticsearchRepository.java
  * 文件描述: 用户帐号信息 Elasticsearch Repository
@@ -76,4 +78,17 @@ public interface UserAccountsElasticsearchRepository extends BaseElasticsearchRe
      */
     UserAccounts findFirstByUserAccountsOrMobilePhoneOrUserNumber(String userAccounts);
 
+    /**
+     * 排除 指定 id
+     * @param ids
+     * @return
+     */
+    List<UserAccounts>  findByIdNotIn(List<Long> ids);
+
+    /**
+     * 根据用户状态 获取信息
+     * @param userStatus
+     * @return
+     */
+    List<UserAccounts> findByUserStatus(Byte userStatus);
 }

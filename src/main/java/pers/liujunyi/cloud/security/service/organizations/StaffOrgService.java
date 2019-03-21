@@ -21,14 +21,15 @@ public interface StaffOrgService extends BaseService<StaffOrg, Long> {
 
     /**
      * 保存数据
-     * @param record
+     * @param orgId  机构id
+     * @param staffIds 人员id
      * @return
      */
-    ResultInfo saveRecord(StaffOrg record);
+    ResultInfo saveRecord(Long orgId, List<Long> staffIds);
 
     /**
      * 修改状态
-     * @param status   0：已发布（可见）  1：不可见  2：草稿
+     * @param status   0：正常  1：禁用
      * @param ids
      * @return
      */
@@ -40,6 +41,13 @@ public interface StaffOrgService extends BaseService<StaffOrg, Long> {
      * @return
      */
     ResultInfo batchDeletes(List<Long> ids);
+
+    /**
+     * 单条删除
+     * @param id
+     * @return
+     */
+    ResultInfo singleDelete(Long id);
 
     /**
      * 同步数据到es中

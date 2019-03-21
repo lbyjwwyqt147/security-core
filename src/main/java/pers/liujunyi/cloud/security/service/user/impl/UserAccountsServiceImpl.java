@@ -13,6 +13,7 @@ import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.service.impl.BaseServiceImpl;
 import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
 import pers.liujunyi.cloud.security.domain.user.UserAccountsDto;
+import pers.liujunyi.cloud.security.domain.user.UserAccountsUpdateDto;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
 import pers.liujunyi.cloud.security.repository.elasticsearch.user.UserAccountsElasticsearchRepository;
 import pers.liujunyi.cloud.security.repository.jpa.user.UserAccountsRepository;
@@ -147,7 +148,14 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
     }
 
     @Override
-    public ResultInfo updateUserAccountsInfo(Long id, String userAccounts, String userNumber, String mobilePhone, String userMailbox) {
+    public ResultInfo updateUserAccountsInfo(UserAccountsUpdateDto userAccountsUpdate) {
+        Long id = userAccountsUpdate.getId();
+        String userAccounts = userAccountsUpdate.getUserAccounts();
+        String userNumber = userAccountsUpdate.getUserNumber();
+        String mobilePhone = userAccountsUpdate.getMobilePhone();
+        String userMailbox = userAccountsUpdate.getUserMailbox();
+        String userName = userAccountsUpdate.getUserName();
+        String userNickName = userAccountsUpdate.getUserNickName();
         UserAccounts accounts = this.getUserAccounts(id);
         Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
         Map<String, Object> docDataMap = new HashMap<>();
@@ -175,6 +183,14 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         if (StringUtils.isNotBlank(userMailbox)) {
             accounts.setUserMailbox(userMailbox);
             docDataMap.put("userMailbox", userMailbox);
+        }
+        if (StringUtils.isNotBlank(userName)) {
+            accounts.setUserName(userName);
+            docDataMap.put("userName", userName);
+        }
+        if (StringUtils.isNotBlank(userNickName)) {
+            accounts.setUserNickName(userNickName);
+            docDataMap.put("userNickName", userNickName);
         }
         accounts.setUpdateTime(new Date());
         UserAccounts saveObj = this.userAccountsRepository.save(accounts);

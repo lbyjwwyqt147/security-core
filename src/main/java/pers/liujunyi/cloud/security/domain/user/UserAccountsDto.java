@@ -45,6 +45,19 @@ public class UserAccountsDto extends BaseDto {
     @Pattern(regexp = RegexpUtils.ALNUM_CODE_REGEXP, message = "用户编号 " + RegexpUtils.ALNUM_CODE_MSG)
     private String userNumber;
 
+    /** 用户名称 */
+    @ApiModelProperty(value = "用户名称")
+    @NotBlank(message = "用户名称 必须填写")
+    @Length(min = 1, max = 32, message = "用户名称 最多可以输入32个字符")
+    @Pattern(regexp = RegexpUtils.ALNUM_NAME_REGEXP, message = "用户名称 " + RegexpUtils.ALNUM_NAME_MSG)
+    private String userName;
+
+    /** 用户昵称 */
+    @ApiModelProperty(value = "用户昵称")
+    @Length(min = 0, max = 20, message = "用户昵称 最多可以输入32个字符")
+    @Pattern(regexp = RegexpUtils.ALNUM_NAME_REGEXP, message = "用户编号 " + RegexpUtils.ALNUM_NAME_MSG)
+    private String userNickName;
+
     /** 用户密码 */
     @ApiModelProperty(value = "用户密码")
     @NotBlank(message = "密码 必须填写")

@@ -48,7 +48,7 @@ public class UserAccountsController extends BaseController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1")
     })
-    @PostMapping(value = "userAccounts/save")
+    @PostMapping(value = "ignore/userAccounts/save")
     @ApiVersion(1)
     public ResultInfo saveRecord(@Valid UserAccountsDto param) {
         return this.userAccountsService.saveRecord(param);

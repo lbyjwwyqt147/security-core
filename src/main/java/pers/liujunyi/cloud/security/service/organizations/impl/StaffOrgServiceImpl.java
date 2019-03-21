@@ -1,16 +1,22 @@
 package pers.liujunyi.cloud.security.service.organizations.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.repository.jpa.BaseRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
+import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.service.impl.BaseServiceImpl;
+import pers.liujunyi.cloud.security.entity.organizations.Organizations;
 import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
 import pers.liujunyi.cloud.security.repository.elasticsearch.organizations.StaffOrgElasticsearchRepository;
 import pers.liujunyi.cloud.security.repository.jpa.organizations.StaffOrgRepository;
 import pers.liujunyi.cloud.security.service.organizations.StaffOrgService;
+import pers.liujunyi.cloud.security.util.SecurityConstant;
 
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /***
  * 文件名称: StaffOrgServiceImpl.java
@@ -38,22 +44,88 @@ public class StaffOrgServiceImpl extends BaseServiceImpl<StaffOrg, Long> impleme
 
 
     @Override
-    public ResultInfo saveRecord(StaffOrg record) {
-      return null;
+    public ResultInfo saveRecord(Long orgId, List<Long> staffIds) {
+        List<StaffOrg> list = new LinkedList<>();
+        staffIds.stream().forEach(item -> {
+            StaffOrg staffOrg = new StaffOrg();
+            staffOrg.setOrgId(orgId);
+            staffOrg.setStaffId(item);
+            staffOrg.setStatus(SecurityConstant.ENABLE_STATUS);
+            list.add(staffOrg);
+        });
+        List<StaffOrg> saveObj = this.staffOrgRepository.saveAll(list);
+        if (!CollectionUtils.isEmpty(saveObj)) {
+            this.staffOrgElasticsearchRepository.saveAll(saveObj);
+            return ResultUtil.success();
+        }
+        return ResultUtil.fail();
     }
 
     @Override
     public ResultInfo updateStatus(Byte status, List<Long> ids) {
-        return null;
+        int count = this.staffOrgRepository.setStatusByIds(status, new Date(), ids);
+        if (count > 0) {
+            Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
+            Map<String, Object> docDataMap = new HashMap<>();
+            docDataMap.put("status", status);
+            docDataMap.put("updateTime", System.currentTimeMillis());
+            ids.stream().forEach(item -> {
+                sourceMap.put(String.valueOf(item), docDataMap);
+            });
+            // 更新 Elasticsearch 中的数据
+            super.updateBatchElasticsearchData(sourceMap);
+            return ResultUtil.success();
+        }
+        return ResultUtil.fail();
     }
 
     @Override
     public ResultInfo batchDeletes(List<Long> ids) {
-        return null;
+        long count = this.staffOrgRepository.deleteByIdIn(ids);
+        if (count > 0) {
+            this.staffOrgElasticsearchRepository.deleteByIdIn(ids);
+            return ResultUtil.success();
+        }
+        return ResultUtil.fail();
+    }
+
+    @Override
+    public ResultInfo singleDelete(Long id) {
+        this.staffOrgRepository.deleteById(id);
+        this.staffOrgElasticsearchRepository.deleteById(id);
+        return ResultUtil.success();
     }
 
     @Override
     public ResultInfo syncDataToElasticsearch() {
-        return null;
+        Sort sort =  new Sort(Sort.Direction.ASC, "id");
+        List<StaffOrg> list = this.staffOrgRepository.findAll(sort);
+        if (!CollectionUtils.isEmpty(list)) {
+            this.staffOrgElasticsearchRepository.deleteAll();
+            // 限制条数
+            int pointsDataLimit = 1000;
+            int size = list.size();
+            //判断是否有必要分批
+            if(pointsDataLimit < size){
+                //分批数
+                int part = size/pointsDataLimit;
+                for (int i = 0; i < part; i++) {
+                    //1000条
+                    List<StaffOrg> partList = new LinkedList<>(list.subList(0, pointsDataLimit));
+                    //剔除
+                    list.subList(0, pointsDataLimit).clear();
+                    this.staffOrgElasticsearchRepository.saveAll(partList);
+                }
+                //表示最后剩下的数据
+                if (!CollectionUtils.isEmpty(list)) {
+                    this.staffOrgElasticsearchRepository.saveAll(list);
+                }
+            } else {
+                this.staffOrgElasticsearchRepository.saveAll(list);
+            }
+        } else {
+            this.staffOrgElasticsearchRepository.deleteAll();
+        }
+        return ResultUtil.success();
     }
 }

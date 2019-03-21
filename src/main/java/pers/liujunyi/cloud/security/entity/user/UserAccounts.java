@@ -50,6 +50,12 @@ public class UserAccounts implements Serializable {
     /** 用户编号  */
     private String userNumber;
 
+    /** 用户名称 */
+    private String userName;
+
+    /** 用户昵称 */
+    private String userNickName;
+
     /** 用户密码 */
     @JSONField(serialize = false)
     private String userPassword;

@@ -3,6 +3,7 @@ package pers.liujunyi.cloud.security.service.user;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.service.BaseService;
 import pers.liujunyi.cloud.security.domain.user.UserAccountsDto;
+import pers.liujunyi.cloud.security.domain.user.UserAccountsUpdateDto;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
 
 import java.util.List;
@@ -62,14 +63,10 @@ public interface UserAccountsService extends BaseService<UserAccounts, Long> {
 
     /**
      * 更新  userAccounts   userPassword  mobilePhone  userMailbox  值
-     * @param id
-     * @param userAccounts  帐号
-     * @param userNumber    用户编号
-     * @param mobilePhone   手机号
-     * @param userMailbox   电子邮箱
+     * @param userAccountsUpdate
      * @return
      */
-    ResultInfo updateUserAccountsInfo(Long id, String userAccounts, String userNumber, String mobilePhone, String userMailbox);
+    ResultInfo updateUserAccountsInfo(UserAccountsUpdateDto userAccountsUpdate);
 
     /**
      * 批量删除

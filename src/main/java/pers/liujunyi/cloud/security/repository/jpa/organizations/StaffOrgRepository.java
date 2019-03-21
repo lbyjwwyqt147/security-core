@@ -34,4 +34,12 @@ public interface StaffOrgRepository extends BaseRepository<StaffOrg, Long> {
     int setStatusByIds(Byte status, Date updateTime, List<Long> ids);
 
 
+    /**
+     * 根据 staffId 删除
+     * @param staffId
+     * @return
+     */
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
+    @Modifying(clearAutomatically = true)
+    long deleteByStaffId(Long staffId);
 }
