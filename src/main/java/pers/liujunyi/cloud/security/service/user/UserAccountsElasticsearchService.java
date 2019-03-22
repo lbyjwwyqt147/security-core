@@ -41,4 +41,11 @@ public interface UserAccountsElasticsearchService extends BaseElasticsearchServi
      * @return  key = id  value = UserAccounts
      */
     Map<Long, UserAccounts> getUserAccountInfoToMap(List<Long> ids);
+
+    /**
+     * 根据id 获取用户名称 并转为 map
+     * @param ids
+     * @return  key = id  value = name
+     */
+    Map<Long, String> getUserNameToMap(List<Long> ids);
 }

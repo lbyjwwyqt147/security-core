@@ -1,5 +1,6 @@
 package pers.liujunyi.cloud.security.service.user.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -12,6 +13,7 @@ import pers.liujunyi.cloud.security.service.user.UserAccountsElasticsearchServic
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 
@@ -53,6 +55,19 @@ public class UserAccountsElasticsearchServiceImpl extends BaseElasticsearchServi
         if (!CollectionUtils.isEmpty(list)) {
           Map<Long, UserAccounts> map =  list.stream().collect(Collectors.toMap(UserAccounts::getId, UserAccounts -> UserAccounts));
           return  map;
+        }
+        return null;
+    }
+
+    @Override
+    public Map<Long, String> getUserNameToMap(List<Long> ids) {
+        List<UserAccounts> list = this.findByIdIn(ids);
+        if (!CollectionUtils.isEmpty(list)) {
+            Map<Long, String> map = new ConcurrentHashMap<>();
+            list.stream().forEach(item -> {
+                map.put(item.getId(), StringUtils.isNotBlank(item.getUserName()) ? item.getUserName() : item.getUserNickName());
+            });
+            return  map;
         }
         return null;
     }

@@ -20,10 +20,8 @@ import pers.liujunyi.cloud.security.repository.elasticsearch.organizations.Organ
 import pers.liujunyi.cloud.security.service.organizations.OrganizationsElasticsearchService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /***
@@ -103,14 +101,6 @@ public class OrganizationsElasticsearchServiceImpl extends BaseElasticsearchServ
         return fullName.toString();
     }
 
-    @Override
-    public String getOrgName(Long id) {
-        Organizations organizations = getOrganizations(id);
-        if (organizations != null) {
-            return organizations.getOrgName();
-        }
-        return "";
-    }
 
     @Override
     public Map<Long, String> findKeyIdValueNameByIdIn(List<Long> ids) {
@@ -128,6 +118,59 @@ public class OrganizationsElasticsearchServiceImpl extends BaseElasticsearchServ
             return ResultUtil.success(search);
         }
         return ResultUtil.fail();
+    }
+
+
+    @Override
+    public String getFullOrgName(Long id) {
+        String fullOrgName = null;
+        Organizations organizations = this.getOrganizations(id);
+        if (organizations != null){
+            if (organizations.getFullParent().equals("0")) {
+                fullOrgName = organizations.getOrgName();
+            } else {
+                fullOrgName = this.buildFullParenOrgName(organizations.getFullParent());
+                fullOrgName = fullOrgName + organizations.getOrgName();
+            }
+        }
+        return fullOrgName;
+    }
+
+    @Override
+    public String getOrgName(Long id) {
+        Organizations organizations = this.getOrganizations(id);
+        if (organizations != null) {
+            return organizations.getOrgName();
+        }
+        return null;
+    }
+
+    @Override
+    public Map<Long, String> fullOrgNameToMap(List<Long> ids) {
+        Map<Long, String> fullOrgNameMap = new ConcurrentHashMap<>();
+        List<Organizations> list = this.organizationsElasticsearchRepository.findByIdInOrderByIdAsc(ids, super.getPageable(ids.size()));
+        if (!CollectionUtils.isEmpty(list)) {
+            list.stream().forEach(item -> {
+                String fullOrgName = "";
+                if (item.getFullParent().equals("0")) {
+                    fullOrgName = item.getOrgName();
+                } else {
+                    fullOrgName = this.buildFullParenOrgName(item.getFullParent());
+                    fullOrgName = fullOrgName + item.getOrgName();
+                }
+                fullOrgNameMap.put(item.getId(), fullOrgName);
+            });
+        }
+        return fullOrgNameMap;
+    }
+
+    @Override
+    public Map<Long, String> orgNameToMap(List<Long> ids) {
+        List<Organizations> list = this.organizationsElasticsearchRepository.findByIdInOrderByIdAsc(ids, super.getPageable(ids.size()));
+        if (!CollectionUtils.isEmpty(list)) {
+            return list.stream().collect(Collectors.toMap(Organizations::getId, Organizations::getOrgName));
+        }
+        return null;
     }
 
     /**
@@ -174,5 +217,32 @@ public class OrganizationsElasticsearchServiceImpl extends BaseElasticsearchServ
             });
         }
         return ZtreeBuilder.buildListToTree(treeNodes);
+    }
+
+    /**
+     * 获取组织机构 全名称
+     * @param fullParent
+     * @return
+     */
+    private String buildFullParenOrgName(String fullParent){
+        StringBuffer fullParenOrgNameBuffer = new StringBuffer();
+        String[] parentIds = fullParent.split(":");
+        List<Long> parentIdList = new ArrayList<>();
+        for (String pid : parentIds) {
+            if (StringUtils.isNotBlank(pid) && !pid.equals("0")) {
+                parentIdList.add(Long.valueOf(pid));
+            }
+        }
+        if (!CollectionUtils.isEmpty(parentIdList)) {
+            List<Organizations> list = this.organizationsElasticsearchRepository.findByIdInOrderByIdAsc(parentIdList, super.getPageable(parentIdList.size()));
+            list.stream().forEach(item -> {
+                fullParenOrgNameBuffer.append(item.getOrgName()).append("-");
+            });
+        }
+        String fullParenOrgName = null;
+        if (fullParenOrgNameBuffer.length() > 0) {
+            fullParenOrgName = fullParenOrgName.toString();
+        }
+        return fullParenOrgName;
     }
 }

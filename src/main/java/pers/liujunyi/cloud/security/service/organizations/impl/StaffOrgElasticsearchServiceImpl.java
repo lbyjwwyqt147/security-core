@@ -13,15 +13,16 @@ import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.service.impl.BaseElasticsearchServiceImpl;
 import pers.liujunyi.cloud.security.domain.organizations.StaffOrgQueryDto;
 import pers.liujunyi.cloud.security.domain.organizations.StaffOrgVo;
-import pers.liujunyi.cloud.security.entity.organizations.Organizations;
 import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
 import pers.liujunyi.cloud.security.repository.elasticsearch.organizations.StaffOrgElasticsearchRepository;
+import pers.liujunyi.cloud.security.service.organizations.OrganizationsElasticsearchService;
 import pers.liujunyi.cloud.security.service.organizations.StaffOrgElasticsearchService;
 import pers.liujunyi.cloud.security.service.user.UserAccountsElasticsearchService;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
@@ -44,6 +45,8 @@ public class StaffOrgElasticsearchServiceImpl extends BaseElasticsearchServiceIm
     private StaffOrgElasticsearchRepository staffOrgElasticsearchRepository;
     @Autowired
     private UserAccountsElasticsearchService userAccountsElasticsearchService;
+    @Autowired
+    private OrganizationsElasticsearchService organizationsElasticsearchService;
 
     public StaffOrgElasticsearchServiceImpl(BaseElasticsearchRepository<StaffOrg, Long> baseElasticsearchRepository) {
         super(baseElasticsearchRepository);
@@ -53,6 +56,11 @@ public class StaffOrgElasticsearchServiceImpl extends BaseElasticsearchServiceIm
     @Override
     public List<StaffOrg> findByOrgIdAndStatus(Long orgId, Byte status) {
         return this.staffOrgElasticsearchRepository.findByOrgIdAndStatus(orgId, status, super.allPageable);
+    }
+
+    @Override
+    public List<StaffOrg> findByOrgIdIn(List<Long> orgIds) {
+        return null;
     }
 
     @Override
@@ -93,6 +101,78 @@ public class StaffOrgElasticsearchServiceImpl extends BaseElasticsearchServiceIm
         ResultInfo result = ResultUtil.success(resultDataList);
         result.setTotal(totalElements);
         return  result;
+    }
+
+    @Override
+    public List<StaffOrg> findByStaffIdIn(List<Long> staffIds) {
+        return this.staffOrgElasticsearchRepository.findByStaffIdIn(staffIds, super.getPageable(staffIds.size()));
+    }
+
+    @Override
+    public String getFullOrgName(Long staffId) {
+        return this.getOrgName(staffId, true);
+    }
+
+    @Override
+    public String getOrgName(Long staffId) {
+        return this.getOrgName(staffId, false);
+    }
+
+    @Override
+    public Map<Long, String> fullOrgNameToMap(List<Long> staffId) {
+        return this.getOrgNameToMap(staffId, true);
+    }
+
+    @Override
+    public Map<Long, String> orgNameToMap(List<Long> staffId) {
+        return this.getOrgNameToMap(staffId, false);
+    }
+
+    /**
+     * 获取人员机构名称
+     * @param staffId
+     * @param full
+     * @return
+     */
+    private Map<Long, String> getOrgNameToMap(List<Long> staffId, Boolean full) {
+        Map<Long, String> orgNameMap = new ConcurrentHashMap<>();
+        List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByStaffIdInOrderByIdAsc(staffId, super.getPageable(staffId.size()));
+        if (!CollectionUtils.isEmpty(list)) {
+            list.stream().forEach(item -> {
+                orgNameMap.put(item.getStaffId(), this.getOrgName(item.getStaffId(), full));
+            });
+        }
+        return orgNameMap;
+    }
+
+
+    /**
+     * 获取人员机构名称
+     * @param staffId
+     * @param full
+     * @return
+     */
+    private String getOrgName(Long staffId,  Boolean full) {
+        StringBuffer orgNameBuffer = new StringBuffer();
+        List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByStaffId(staffId, super.allPageable);
+        if (!CollectionUtils.isEmpty(list)) {
+            List<Long> orgIds = list.stream().map(StaffOrg::getOrgId).distinct().collect(Collectors.toList());
+            Map<Long, String> orgNameMap = null;
+            if (full) {
+                orgNameMap = this.organizationsElasticsearchService.fullOrgNameToMap(orgIds);
+            } else {
+                orgNameMap = this.organizationsElasticsearchService.orgNameToMap(orgIds);
+            }
+            if (!CollectionUtils.isEmpty(orgNameMap)) {
+                final Map<Long, String> map = orgNameMap;
+                orgIds.stream().forEach(item -> {
+                    if (map.get(item) != null) {
+                        orgNameBuffer.append(map.get(item)).append(";");
+                    }
+                });
+            }
+        }
+        return orgNameBuffer.toString();
     }
 
 }

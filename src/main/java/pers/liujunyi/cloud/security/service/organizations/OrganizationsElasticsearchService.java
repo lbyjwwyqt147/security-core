@@ -71,4 +71,27 @@ public interface OrganizationsElasticsearchService extends BaseElasticsearchServ
      * @return
      */
     ResultInfo selectById(Long id);
+
+
+    /**
+     * 根据 ID  获取 组织机构全名称
+     * @param id
+     * @return
+     */
+    String getFullOrgName(Long id);
+
+
+    /**
+     * 根据 ID  获取 组织机构全名称 返回 map
+     * @param ids
+     * @return 返回  map  key = id  valud  = 机构全名称
+     */
+    Map<Long, String> fullOrgNameToMap(List<Long> ids);
+
+    /**
+     * 根据 ID  获取 组织机构名称 返回 map
+     * @param ids
+     * @return 返回  map  key = id  valud  = 机构名称
+     */
+    Map<Long, String> orgNameToMap(List<Long> ids);
 }

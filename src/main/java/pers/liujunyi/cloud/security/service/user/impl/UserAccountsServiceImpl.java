@@ -86,6 +86,9 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         if (record.getUserStatus() == null) {
             record.setUserStatus(SecurityConstant.ENABLE_STATUS);
         }
+        if (StringUtils.isNotBlank(record.getUserNickName())) {
+            record.setUserNickName(record.getUserName());
+        }
         PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         // 解密前端传入的加密参数
     //   String curUserPassWord  = CsoftSecurityUtil.decryptRSADefault(PRIVATE_KEY_STR, record.getUserPassword());

@@ -6,6 +6,7 @@ import pers.liujunyi.cloud.security.domain.organizations.OrganizationsDto;
 import pers.liujunyi.cloud.security.entity.organizations.Organizations;
 
 import java.util.List;
+import java.util.Map;
 
 /***
  * 文件名称: OrganizationsService.java
@@ -54,5 +55,6 @@ public interface OrganizationsService extends BaseService<Organizations, Long> {
      * @return
      */
     ResultInfo syncDataToElasticsearch();
+
 
 }

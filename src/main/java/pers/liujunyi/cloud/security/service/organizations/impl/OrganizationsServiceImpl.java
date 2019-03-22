@@ -90,7 +90,7 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
     @Override
     public ResultInfo updateStatus(Byte status, List<Long> ids) {
         if (status.byteValue() == 1) {
-            List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByOrgIdIn(ids, super.getPageable(ids.size()));
+            List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByOrgIdInOrderByIdAsc(ids, super.getPageable(ids.size()));
             if (!CollectionUtils.isEmpty(list)) {
                 ResultUtil.params("要禁用的组织机构正在被系统使用,不能被禁用");
             }
@@ -113,7 +113,7 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
 
     @Override
     public ResultInfo batchDeletes(List<Long> ids) {
-        List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByOrgIdIn(ids, super.getPageable(ids.size()));
+        List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByOrgIdInOrderByIdAsc(ids, super.getPageable(ids.size()));
         if (!CollectionUtils.isEmpty(list)) {
             ResultUtil.params("要删除的组织机构正在被系统使用,不能被删除");
         }
@@ -169,6 +169,7 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
         return ResultUtil.success();
     }
 
+
     /**
      * 根据id 获取数据
      * @param id
@@ -181,6 +182,7 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
         }
         return null;
     }
+
 
     /**
      * 检测机构代码是否重复

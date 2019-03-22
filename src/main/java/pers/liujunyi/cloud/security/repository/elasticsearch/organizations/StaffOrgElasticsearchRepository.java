@@ -34,7 +34,16 @@ public interface StaffOrgElasticsearchRepository extends BaseElasticsearchReposi
      * @param  page
      * @return
      */
-    List<StaffOrg> findByOrgIdIn(List<Long> orgIds, Pageable page);
+    List<StaffOrg> findByOrgIdInOrderByIdAsc(List<Long> orgIds, Pageable page);
+
+    /**
+     * 根据 职工id 获取数据
+     * @param staffIds
+     * @param  page
+     * @return
+     */
+    List<StaffOrg> findByStaffIdIn(List<Long> staffIds, Pageable page);
+
 
     /**
      * 根据 职工id 获取数据
@@ -50,7 +59,7 @@ public interface StaffOrgElasticsearchRepository extends BaseElasticsearchReposi
      * @param  page
      * @return
      */
-    List<StaffOrg> findByStaffIdIn(List<Long> staffIds, Pageable page);
+    List<StaffOrg> findByStaffIdInOrderByIdAsc(List<Long> staffIds, Pageable page);
 
     /**
      * 根据 机构id 获取数据

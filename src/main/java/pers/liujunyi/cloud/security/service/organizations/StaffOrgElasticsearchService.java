@@ -1,13 +1,12 @@
 package pers.liujunyi.cloud.security.service.organizations;
 
-import org.springframework.data.domain.Pageable;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.service.BaseElasticsearchService;
-import pers.liujunyi.cloud.security.domain.organizations.OrganizationsQueryDto;
 import pers.liujunyi.cloud.security.domain.organizations.StaffOrgQueryDto;
 import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
 
 import java.util.List;
+import java.util.Map;
 
 
 /***
@@ -33,12 +32,11 @@ public interface StaffOrgElasticsearchService extends BaseElasticsearchService<S
     List<StaffOrg> findByOrgIdAndStatus(Long orgId, Byte status);
 
     /**
-     * 根据 职工id 获取数据
-     * @param staffId
-     * @param  status
+     * 根据 机构id 获取数据
+     * @param orgIds
      * @return
      */
-    List<StaffOrg> findByStaffIdAndStatus(Long staffId, Byte status);
+    List<StaffOrg> findByOrgIdIn(List<Long> orgIds);
 
     /**
      * 分页列表
@@ -47,5 +45,46 @@ public interface StaffOrgElasticsearchService extends BaseElasticsearchService<S
      */
     ResultInfo findPageGird(StaffOrgQueryDto query);
 
+    /**
+     * 根据 职工id 获取数据
+     * @param staffId
+     * @param status
+     * @return
+     */
+    List<StaffOrg> findByStaffIdAndStatus(Long staffId, Byte status);
 
+    /**
+     * 根据 职工id 获取数据
+     * @param staffIds
+     * @return
+     */
+    List<StaffOrg> findByStaffIdIn(List<Long> staffIds);
+
+    /**
+     * 根据员工ID  获取 组织机构全名称
+     * @param staffId
+     * @return
+     */
+    String getFullOrgName(Long staffId);
+
+    /**
+     * 根据员工ID  获取 组织机构名称
+     * @param staffId
+     * @return
+     */
+    String getOrgName(Long staffId);
+
+    /**
+     * 根据员工ID  获取 组织机构全名称 返回 map
+     * @param staffId
+     * @return 返回  map  key = staffId  valud  = 机构全名称
+     */
+    Map<Long, String> fullOrgNameToMap(List<Long> staffId);
+
+    /**
+     * 根据员工ID  获取 组织机构名称 返回 map
+     * @param staffId
+     * @return 返回  map  key = staffId  valud  = 机构名称
+     */
+    Map<Long, String> orgNameToMap(List<Long> staffId);
 }
