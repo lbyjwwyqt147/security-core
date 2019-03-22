@@ -6,6 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.repository.jpa.BaseRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
@@ -48,6 +49,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
     }
 
 
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Override
     public ResultInfo saveRecord(UserAccountsDto record) {
         String result = this.saveUserAccountsRecord(record);
@@ -63,6 +65,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         }
         return ResultUtil.success(result);
     }
+
 
     @Override
     public String saveUserAccountsRecord(UserAccountsDto record) {
@@ -97,6 +100,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         return String.valueOf(saveObject.getId());
     }
 
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Override
     public ResultInfo updateStatus(Byte status, List<Long> ids) {
         boolean success = this.updateUserAccountsStatus(status, ids);
@@ -124,13 +128,14 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         return false;
     }
 
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Override
     public ResultInfo updateUserPassWord(Long id, String historyPassWord, String currentPassWord) {
         UserAccounts userAccounts = this.getUserAccounts(id);
         if (userAccounts != null) {
             //检查历史密码是否正确
             PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-            boolean identical = passwordEncoder.matches(historyPassWord, userAccounts.getUserPassword());
+            boolean identical = historyPassWord.equals("忽略") ? true : passwordEncoder.matches(historyPassWord, userAccounts.getUserPassword());
             if (!identical) {
                 return ResultUtil.params("原始密码错误");
             }
@@ -142,7 +147,6 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
                 docDataMap.put("changePasswordTime", System.currentTimeMillis());
                 docDataMap.put("updateTime", System.currentTimeMillis());
                 sourceMap.put(String.valueOf(id), docDataMap);
-                // 更新 Elasticsearch 中的数据
                 super.updateBatchElasticsearchData(sourceMap);
                 return ResultUtil.success();
             }
@@ -150,6 +154,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         return ResultUtil.fail();
     }
 
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Override
     public ResultInfo updateUserAccountsInfo(UserAccountsUpdateDto userAccountsUpdate) {
         Long id = userAccountsUpdate.getId();
@@ -207,6 +212,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         return ResultUtil.fail();
     }
 
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Override
     public ResultInfo batchDeletes(List<Long> ids) {
         boolean success = this.batchDeletesUserAccounts(ids);
@@ -216,12 +222,14 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         return ResultUtil.fail();
     }
 
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Override
     public ResultInfo singleDelete(Long id) {
         this.userAccountsRepository.deleteById(id);
         this.userAccountsElasticsearchRepository.deleteById(id);
         return ResultUtil.success();
     }
+
 
     @Override
     public Boolean batchDeletesUserAccounts(List<Long> ids) {
