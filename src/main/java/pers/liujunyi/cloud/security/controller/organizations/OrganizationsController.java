@@ -112,7 +112,6 @@ public class OrganizationsController extends BaseController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1")
     })
-    @Encrypt
     @GetMapping(value = "table/organization/g")
     @ApiVersion(1)
     public ResultInfo findPageGrid(@Valid OrganizationsQueryDto query) {
