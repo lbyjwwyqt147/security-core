@@ -23,7 +23,7 @@ import java.util.List;
 public interface StaffOrgRepository extends BaseRepository<StaffOrg, Long> {
 
     /**
-     * 修改状态
+     * 根据 id 修改状态
      * @param status  0：正常  1：禁用
      * @param ids
      * @return
@@ -33,13 +33,41 @@ public interface StaffOrgRepository extends BaseRepository<StaffOrg, Long> {
     @Query("update StaffOrg u set u.status = ?1, u.updateTime = ?2 where u.id in (?3)")
     int setStatusByIds(Byte status, Date updateTime, List<Long> ids);
 
+    /**
+     * 根据 staffId 修改状态
+     * @param status  0：正常  1：禁用
+     * @param staffIds 职工id
+     * @return
+     */
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
+    @Modifying(clearAutomatically = true)
+    @Query("update StaffOrg u set u.status = ?1, u.updateTime = ?2 where u.staffId in (?3)")
+    int setStatusByStaffId(Byte status, Date updateTime, List<Long> staffIds);
 
     /**
      * 根据 staffId 删除
-     * @param staffId
+     * @param staffId 职工id
      * @return
      */
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
     long deleteByStaffId(Long staffId);
+
+    /**
+     * 根据 staffId 删除
+     * @param staffIds 职工id
+     * @return
+     */
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
+    @Modifying(clearAutomatically = true)
+    long deleteByStaffIdIn(List<Long> staffIds);
+
+    /**
+     * 根据 orgId 删除
+     * @param orgIds 组织机构id
+     * @return
+     */
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
+    @Modifying(clearAutomatically = true)
+    long deleteByOrgIdIn(List<Long> orgIds);
 }

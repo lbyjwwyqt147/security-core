@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import pers.liujunyi.cloud.common.query.elasticsearch.BaseEsQuery;
-import pers.liujunyi.cloud.common.query.jpa.annotation.MatchType;
 import pers.liujunyi.cloud.common.query.jpa.annotation.QueryCondition;
 
 /***
@@ -26,6 +25,7 @@ import pers.liujunyi.cloud.common.query.jpa.annotation.QueryCondition;
 @EqualsAndHashCode(callSuper = true)
 public class StaffOrgQueryDto extends BaseEsQuery {
 
+    private static final long serialVersionUID = 570038382505298728L;
     /** 机构id */
     @ApiModelProperty(value = "机构id")
     @QueryCondition()

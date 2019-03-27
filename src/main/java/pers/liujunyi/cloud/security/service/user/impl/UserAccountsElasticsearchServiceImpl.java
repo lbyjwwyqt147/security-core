@@ -2,11 +2,18 @@ package pers.liujunyi.cloud.security.service.user.impl;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import pers.liujunyi.cloud.common.encrypt.AesEncryptUtils;
 import pers.liujunyi.cloud.common.repository.elasticsearch.BaseElasticsearchRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
+import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.service.impl.BaseElasticsearchServiceImpl;
+import pers.liujunyi.cloud.security.domain.user.UserAccountsQueryDto;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
 import pers.liujunyi.cloud.security.repository.elasticsearch.user.UserAccountsElasticsearchRepository;
 import pers.liujunyi.cloud.security.service.user.UserAccountsElasticsearchService;
@@ -41,12 +48,19 @@ public class UserAccountsElasticsearchServiceImpl extends BaseElasticsearchServi
 
     @Override
     public ResultInfo userLogin(String userAccounts, String userPassword) {
-        return null;
+        UserAccounts accounts = this.userAccountsElasticsearchRepository.findFirstByUserAccountsOrMobilePhoneOrUserNumberAndUserPassword(userAccounts, userPassword);
+        if (accounts != null) {
+            if (accounts.getUserStatus().byteValue() == 1) {
+                return ResultUtil.params("账户已被禁用,请联系客服人员");
+            }
+            return ResultUtil.success();
+        }
+        return ResultUtil.fail();
     }
 
     @Override
     public UserAccounts findFirstByUserAccountsOrMobilePhoneOrUserNumber(String userAccounts) {
-        return null;
+        return this.userAccountsElasticsearchRepository.findFirstByUserAccountsOrMobilePhoneOrUserNumber(userAccounts);
     }
 
     @Override
@@ -70,5 +84,20 @@ public class UserAccountsElasticsearchServiceImpl extends BaseElasticsearchServi
             return  map;
         }
         return null;
+    }
+
+    @Override
+    public ResultInfo findPageGird(UserAccountsQueryDto query) {
+        // 排序方式
+        Sort sort =  new Sort(Sort.Direction.DESC, "registrationTime");
+        //分页参数
+        Pageable pageable = query.toPageable(sort);
+        // 查询数据
+        SearchQuery searchQuery = query.toSpecPageable(pageable);
+        Page<UserAccounts> searchPageResults = this.userAccountsElasticsearchRepository.search(searchQuery);
+        Long totalElements =  searchPageResults.getTotalElements();
+        ResultInfo result = ResultUtil.success(AesEncryptUtils.aesEncrypt(searchPageResults.getContent(), super.secretKey));
+        result.setTotal(totalElements);
+        return  result;
     }
 }

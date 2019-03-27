@@ -49,6 +49,7 @@ public interface StaffOrgService extends BaseService<StaffOrg, Long> {
      */
     ResultInfo singleDelete(Long id);
 
+
     /**
      * 同步数据到es中
      * @return

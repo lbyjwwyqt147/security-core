@@ -2,6 +2,7 @@ package pers.liujunyi.cloud.security.service.user;
 
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.service.BaseElasticsearchService;
+import pers.liujunyi.cloud.security.domain.user.UserAccountsQueryDto;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
 
 import java.util.List;
@@ -48,4 +49,11 @@ public interface UserAccountsElasticsearchService extends BaseElasticsearchServi
      * @return  key = id  value = name
      */
     Map<Long, String> getUserNameToMap(List<Long> ids);
+
+    /**
+     * 分页列表
+     * @param query
+     * @return
+     */
+    ResultInfo findPageGird(UserAccountsQueryDto query);
 }

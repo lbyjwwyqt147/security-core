@@ -21,6 +21,7 @@ import pers.liujunyi.cloud.common.vo.BaseVo;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class OrganizationsVo extends BaseVo {
+    private static final long serialVersionUID = -8838645540403216851L;
     /** 机构编号 */
     @ApiModelProperty(value = "机构编号")
     private String orgNumber;

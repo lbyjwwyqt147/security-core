@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pers.liujunyi.cloud.common.annotation.ApiVersion;
 import pers.liujunyi.cloud.common.controller.BaseController;
+import pers.liujunyi.cloud.common.encrypt.annotation.Decrypt;
+import pers.liujunyi.cloud.common.encrypt.annotation.Encrypt;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.vo.tree.ZtreeNode;
@@ -48,13 +50,15 @@ public class OrganizationsController extends BaseController {
      * @param param
      * @return
      */
-    @ApiOperation(value = "保存数据", notes = "适用于保存数据 请求示例：127.0.0.1:18080/api/v1/organization/save")
+    @ApiOperation(value = "保存数据", notes = "适用于保存数据 请求示例：127.0.0.1:18080/api/v1/organization/s")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1")
     })
-    @PostMapping(value = "organization/save")
+    @Decrypt
+    @Encrypt
+    @PostMapping(value = "organization/s")
     @ApiVersion(1)
-    public ResultInfo saveRecord(@Valid OrganizationsDto param) {
+    public ResultInfo saveRecord(@Valid @RequestBody OrganizationsDto param) {
         return this.organizationsService.saveRecord(param);
     }
 
@@ -64,16 +68,18 @@ public class OrganizationsController extends BaseController {
      * @param id
      * @return
      */
-    @ApiOperation(value = "单条删除数据", notes = "适用于单条删除数据 请求示例：127.0.0.1:18080/api/v1/organization/delete")
+    @ApiOperation(value = "单条删除数据", notes = "适用于单条删除数据 请求示例：127.0.0.1:18080/api/v1/organization/d")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
-            @ApiImplicitParam(name = "id", value = "id",  required = true, dataType = "Long")
+            @ApiImplicitParam(name = "id", value = "id",  required = true, dataType = "String")
     })
-    @DeleteMapping(value = "organization/delete")
+    @Encrypt
+    @Decrypt
+    @DeleteMapping(value = "organization/d")
     @ApiVersion(1)
     public ResultInfo singleDelete(@Valid @NotNull(message = "id 必须填写")
-                                       @RequestParam(name = "id", required = true) Long id) {
-        this.organizationsService.singleDelete(id);
+                                       @RequestParam(name = "id", required = true) String id) {
+        this.organizationsService.singleDelete(Long.valueOf(id));
         return ResultUtil.success();
     }
 
@@ -83,14 +89,16 @@ public class OrganizationsController extends BaseController {
      * @param param 　 多个id 用 , 隔开
      * @return
      */
-    @ApiOperation(value = "删除多条数据", notes = "适用于批量删除数据 请求示例：127.0.0.1:18080/api/v1/organization/batchDelete")
+    @ApiOperation(value = "删除多条数据", notes = "适用于批量删除数据 请求示例：127.0.0.1:18080/api/v1/organization/b/d")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String")
     })
-    @DeleteMapping(value = "organization/batchDelete")
+    @Encrypt
+    @Decrypt
+    @DeleteMapping(value = "organization/b/d")
     @ApiVersion(1)
-    public ResultInfo batchDelete(@Valid IdParamDto param) {
+    public ResultInfo batchDelete(@Valid @RequestBody IdParamDto param) {
         return this.organizationsService.batchDeletes(param.getIdList());
     }
 
@@ -100,11 +108,12 @@ public class OrganizationsController extends BaseController {
      * @param query
      * @return
      */
-    @ApiOperation(value = "分页列表数据", notes = "适用于分页grid 显示数据 请求示例：127.0.0.1:18080/api/v1/organization/grid")
+    @ApiOperation(value = "分页列表数据", notes = "适用于分页grid 显示数据 请求示例：127.0.0.1:18080/api/v1/table/organization/g")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1")
     })
-    @GetMapping(value = "table/organization/grid")
+    @Encrypt
+    @GetMapping(value = "table/organization/g")
     @ApiVersion(1)
     public ResultInfo findPageGrid(@Valid OrganizationsQueryDto query) {
         return this.organizationsElasticsearchService.findPageGird(query);
@@ -117,12 +126,12 @@ public class OrganizationsController extends BaseController {
      * @param id
      * @return
      */
-    @ApiOperation(value = "根据 pid 获取 组织机构tree 结构数据 (只包含正常数据 不包含禁用数据)", notes = "适用于tree 显示数据 请求示例：127.0.0.1:18080/api/v1/organization/tree")
+    @ApiOperation(value = "根据 pid 获取 组织机构tree 结构数据 (只包含正常数据 不包含禁用数据)", notes = "适用于tree 显示数据 请求示例：127.0.0.1:18080/api/v1/tree/organization/z")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "pid", value = "pid",  required = true, dataType = "Long")
     })
-    @GetMapping(value = "tree/organization/ztree")
+    @GetMapping(value = "tree/organization/z")
     @ApiVersion(1)
     public List<ZtreeNode> orgZTree(Long id) {
         return this.organizationsElasticsearchService.orgTree(id, SecurityConstant.ENABLE_STATUS);
@@ -134,12 +143,12 @@ public class OrganizationsController extends BaseController {
      * @param id
      * @return
      */
-    @ApiOperation(value = "根据 pid 获取 组织机构tree 结构数据 (包含禁用数据)", notes = "适用于tree 显示数据 请求示例：127.0.0.1:18080/api/v1/organization/tree")
+    @ApiOperation(value = "根据 pid 获取 组织机构tree 结构数据 (包含禁用数据)", notes = "适用于tree 显示数据 请求示例：127.0.0.1:18080/api/v1/tree/organization/all/z")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "pid", value = "pid",  required = true, dataType = "Long")
     })
-    @GetMapping(value = "tree/organization/all/ztree")
+    @GetMapping(value = "tree/organization/all/z")
     @ApiVersion(1)
     public List<ZtreeNode> orgAllZTree(Long id) {
         return this.organizationsElasticsearchService.orgTree(id, null);
@@ -151,12 +160,12 @@ public class OrganizationsController extends BaseController {
      * @param code
      * @return
      */
-    @ApiOperation(value = "根据 fullParentCode 获取 组织机构tree 结构数据", notes = "适用于tree 显示数据 请求示例：127.0.0.1:18080/api/v1/organization/tree")
+    @ApiOperation(value = "根据 fullParentCode 获取 组织机构tree 结构数据", notes = "适用于tree 显示数据 请求示例：127.0.0.1:18080/api/v1/tree/organization/p/z")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "code", value = "code",  required = true, dataType = "String")
     })
-    @GetMapping(value = "tree/organization/parentCode/ztree")
+    @GetMapping(value = "tree/organization/p/z")
     @ApiVersion(1)
     public List<ZtreeNode> orgParentCodeZTree(String code) {
         return this.organizationsElasticsearchService.orgFullParentCodeTree(code);
@@ -169,15 +178,17 @@ public class OrganizationsController extends BaseController {
      * @param param
      * @return
      */
-    @ApiOperation(value = "修改数据状态", notes = "适用于修改数据状态 请求示例：127.0.0.1:18080/api/v1/organization/status")
+    @ApiOperation(value = "修改数据状态", notes = "适用于修改数据状态 请求示例：127.0.0.1:18080/api/v1/organization/p")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String"),
             @ApiImplicitParam(name = "status", value = "status",  required = true, dataType = "integer")
     })
-    @PutMapping(value = "organization/status")
+    @Encrypt
+    @Decrypt
+    @PutMapping(value = "organization/p")
     @ApiVersion(1)
-    public ResultInfo updateDataStatus(@Valid IdParamDto param ) {
+    public ResultInfo updateDataStatus(@Valid @RequestBody IdParamDto param ) {
         return this.organizationsService.updateStatus(param.getStatus(), param.getIdList());
     }
 
@@ -187,12 +198,13 @@ public class OrganizationsController extends BaseController {
      * @param id
      * @return
      */
-    @ApiOperation(value = "根据id 获取详细信息", notes = "适用于根据id 获取详细信息 请求示例：127.0.0.1:18080/api/v1/organization/details/{id}")
+    @ApiOperation(value = "根据id 获取详细信息", notes = "适用于根据id 获取详细信息 请求示例：127.0.0.1:18080/api/v1/organization/d/{id}")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "id", value = "id", paramType = "path",   required = true, dataType = "Long")
     })
-    @GetMapping(value = "organization/details/{id}")
+    @Encrypt
+    @GetMapping(value = "organization/d/{id}")
     @ApiVersion(1)
     public ResultInfo findById(@PathVariable(name = "id") Long id) {
         return this.organizationsElasticsearchService.selectById(id);
