@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import pers.liujunyi.cloud.common.encrypt.AesEncryptUtils;
 import pers.liujunyi.cloud.common.repository.elasticsearch.BaseElasticsearchRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
@@ -73,7 +74,7 @@ public class OrganizationsElasticsearchServiceImpl extends BaseElasticsearchServ
             item.setFullName(fullName);
         });
         Long totalElements =  searchPageResults.getTotalElements();
-        ResultInfo result = ResultUtil.success(searchDataList);
+        ResultInfo result = ResultUtil.success(AesEncryptUtils.aesEncrypt(searchDataList, super.secretKey));
         result.setTotal(totalElements);
         return  result;
     }
