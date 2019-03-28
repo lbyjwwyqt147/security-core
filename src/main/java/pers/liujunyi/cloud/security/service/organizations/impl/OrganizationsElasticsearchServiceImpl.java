@@ -61,10 +61,8 @@ public class OrganizationsElasticsearchServiceImpl extends BaseElasticsearchServ
 
     @Override
     public ResultInfo findPageGird(OrganizationsQueryDto query) {
-        // 排序方式
-        Sort sort =  new Sort(Sort.Direction.ASC, "seq");
         //分页参数
-        Pageable pageable = query.toPageable(sort);
+        Pageable pageable = query.toPageable(Sort.Direction.ASC, "seq");
         // 查询数据
         SearchQuery searchQuery = query.toSpecPageable(pageable);
         Page<Organizations> searchPageResults = this.organizationsElasticsearchRepository.search(searchQuery);

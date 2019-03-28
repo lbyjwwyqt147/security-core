@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.elasticsearch.annotations.Document;
 import pers.liujunyi.cloud.common.entity.BaseEntity;
 
@@ -41,5 +42,9 @@ public class StaffOrg extends BaseEntity {
 
     /** 状态：0：正常  1：禁用 */
     private Byte status;
+
+    /** 版本号 */
+    @Version
+    private Integer version;
 
 }

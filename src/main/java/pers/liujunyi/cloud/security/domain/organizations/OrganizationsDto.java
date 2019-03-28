@@ -93,4 +93,7 @@ public class OrganizationsDto extends BaseDto {
     @Length(min = 0, max = 100, message = "attributeThree 最多可以输入100个字符")
     @Pattern(regexp = RegexpUtils.ALNUM_NAME_REGEXP, message = "attributeThree " + RegexpUtils.ALNUM_NAME_MSG)
     private String attributeThree;
+
+    /** 版本号 */
+    private Integer version;
 }

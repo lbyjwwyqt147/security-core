@@ -88,10 +88,8 @@ public class UserAccountsElasticsearchServiceImpl extends BaseElasticsearchServi
 
     @Override
     public ResultInfo findPageGird(UserAccountsQueryDto query) {
-        // 排序方式
-        Sort sort =  new Sort(Sort.Direction.DESC, "registrationTime");
         //分页参数
-        Pageable pageable = query.toPageable(sort);
+        Pageable pageable = query.toPageable(Sort.Direction.DESC, "registrationTime");
         // 查询数据
         SearchQuery searchQuery = query.toSpecPageable(pageable);
         Page<UserAccounts> searchPageResults = this.userAccountsElasticsearchRepository.search(searchQuery);

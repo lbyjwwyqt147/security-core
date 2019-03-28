@@ -76,10 +76,8 @@ public class StaffOrgElasticsearchServiceImpl extends BaseElasticsearchServiceIm
 
     @Override
     public ResultInfo findPageGird(StaffOrgQueryDto query) {
-        // 排序方式
-        Sort sort =  new Sort(Sort.Direction.ASC, "id");
         //分页参数
-        Pageable pageable = query.toPageable(sort);
+        Pageable pageable = query.toPageable(Sort.Direction.DESC, "updateTime");
         // 查询数据
         SearchQuery searchQuery = query.toSpecPageable(pageable);
         Page<StaffOrg> searchPageResults = this.staffOrgElasticsearchRepository.search(searchQuery);
