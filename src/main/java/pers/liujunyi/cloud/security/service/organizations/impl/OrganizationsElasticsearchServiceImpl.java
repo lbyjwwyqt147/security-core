@@ -149,7 +149,7 @@ public class OrganizationsElasticsearchServiceImpl extends BaseElasticsearchServ
     @Override
     public Map<Long, String> fullOrgNameToMap(List<Long> ids) {
         Map<Long, String> fullOrgNameMap = new ConcurrentHashMap<>();
-        List<Organizations> list = this.organizationsElasticsearchRepository.findByIdInOrderByIdAsc(ids, super.getPageable(ids.size()));
+        List<Organizations> list = this.organizationsElasticsearchRepository.findByIdIn(ids, super.getPageable(ids.size()));
         if (!CollectionUtils.isEmpty(list)) {
             list.stream().forEach(item -> {
                 String fullOrgName = "";
@@ -167,7 +167,7 @@ public class OrganizationsElasticsearchServiceImpl extends BaseElasticsearchServ
 
     @Override
     public Map<Long, String> orgNameToMap(List<Long> ids) {
-        List<Organizations> list = this.organizationsElasticsearchRepository.findByIdInOrderByIdAsc(ids, super.getPageable(ids.size()));
+        List<Organizations> list = this.organizationsElasticsearchRepository.findByIdIn(ids, super.getPageable(ids.size()));
         if (!CollectionUtils.isEmpty(list)) {
             return list.stream().collect(Collectors.toMap(Organizations::getId, Organizations::getOrgName));
         }
@@ -195,7 +195,7 @@ public class OrganizationsElasticsearchServiceImpl extends BaseElasticsearchServ
      */
     private Map<Long, String> getOrgNameMap(List<Long> ids) {
         if (!CollectionUtils.isEmpty(ids)) {
-            List<Organizations> list = this.organizationsElasticsearchRepository.findByIdInOrderByIdAsc(ids, super.getPageable(ids.size()));
+            List<Organizations> list = this.organizationsElasticsearchRepository.findByIdIn(ids, super.getPageable(ids.size()));
             if (!CollectionUtils.isEmpty(list)) {
                 return  list.stream().collect(Collectors.toMap(Organizations::getId, Organizations::getOrgName));
             }

@@ -72,7 +72,6 @@ public class OrganizationsDto extends BaseDto {
 
     /** 状态：0：正常  1：禁用 */
     @ApiModelProperty(value = "状态")
-    @NotNull(message = "状态 必须填写")
     @Min(value = 0, message = "状态 必须是数字类型")
     @Max(value = 127, message = "状态 最大值不能大于127")
     private Byte orgStatus;

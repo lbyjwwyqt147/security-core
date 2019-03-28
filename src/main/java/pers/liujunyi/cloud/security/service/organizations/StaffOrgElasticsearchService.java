@@ -39,6 +39,13 @@ public interface StaffOrgElasticsearchService extends BaseElasticsearchService<S
     List<StaffOrg> findByOrgIdIn(List<Long> orgIds);
 
     /**
+     * 根据 机构id 获取数据
+     * @param orgIds
+     * @return
+     */
+    List<StaffOrg> findByOrgIdInOrderByIdAsc(List<Long> orgIds);
+
+    /**
      * 分页列表
      * @param query
      * @return

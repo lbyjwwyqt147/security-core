@@ -72,11 +72,12 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
             Organizations parent = this.getOrganizations(record.getParentId());
             organizations.setFullParent(parent.getFullParent() + ":"  + parent.getId());
             organizations.setOrgLevel((byte)(parent.getOrgLevel() + 1));
-            organizations.setFullParentCode(StringUtils.isNotBlank(parent.getFullParentCode()) ? parent.getFullParentCode()   + ":" + parent.getOrgNumber() : parent.getOrgNumber());
+            String curFullParentCode = StringUtils.isNotBlank(parent.getFullParentCode() )&& !parent.getFullParentCode().equals("0") ? parent.getFullParentCode()   + ":" + record.getOrgNumber() : parent.getOrgNumber();
+            organizations.setFullParentCode(curFullParentCode);
         } else {
             organizations.setFullParent("0");
             organizations.setOrgLevel((byte) 1);
-            organizations.setFullParent(null);
+            organizations.setFullParent("0");
         }
         organizations.setFullName(record.getOrgName());
         Organizations saveObject = this.organizationsRepository.save(organizations);
@@ -90,7 +91,7 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
     @Override
     public ResultInfo updateStatus(Byte status, List<Long> ids) {
         if (status.byteValue() == 1) {
-            List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByOrgIdInOrderByIdAsc(ids, super.getPageable(ids.size()));
+            List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByOrgIdIn(ids, super.getPageable(ids.size()));
             if (!CollectionUtils.isEmpty(list)) {
                 ResultUtil.params("要禁用的组织机构正在被系统使用,不能被禁用");
             }
@@ -113,7 +114,7 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
 
     @Override
     public ResultInfo batchDeletes(List<Long> ids) {
-        List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByOrgIdInOrderByIdAsc(ids, super.getPageable(ids.size()));
+        List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByOrgIdIn(ids, super.getPageable(ids.size()));
         if (!CollectionUtils.isEmpty(list)) {
             ResultUtil.params("要删除的组织机构正在被系统使用,不能被删除");
         }

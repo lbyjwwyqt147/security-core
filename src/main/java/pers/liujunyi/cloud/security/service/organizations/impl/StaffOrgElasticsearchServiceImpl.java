@@ -61,7 +61,12 @@ public class StaffOrgElasticsearchServiceImpl extends BaseElasticsearchServiceIm
 
     @Override
     public List<StaffOrg> findByOrgIdIn(List<Long> orgIds) {
-        return null;
+        return this.staffOrgElasticsearchRepository.findByOrgIdIn(orgIds, super.getPageable(orgIds.size()));
+    }
+
+    @Override
+    public List<StaffOrg> findByOrgIdInOrderByIdAsc(List<Long> orgIds) {
+        return this.staffOrgElasticsearchRepository.findByOrgIdInOrderByIdAsc(orgIds, super.getPageable(orgIds.size()));
     }
 
     @Override
@@ -137,7 +142,7 @@ public class StaffOrgElasticsearchServiceImpl extends BaseElasticsearchServiceIm
      */
     private Map<Long, String> getOrgNameToMap(List<Long> staffId, Boolean full) {
         Map<Long, String> orgNameMap = new ConcurrentHashMap<>();
-        List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByStaffIdInOrderByIdAsc(staffId, super.getPageable(staffId.size()));
+        List<StaffOrg> list = this.findByStaffIdIn(staffId);
         if (!CollectionUtils.isEmpty(list)) {
             list.stream().forEach(item -> {
                 orgNameMap.put(item.getStaffId(), this.getOrgName(item.getStaffId(), full));
