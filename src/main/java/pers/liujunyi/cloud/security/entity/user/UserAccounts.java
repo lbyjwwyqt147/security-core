@@ -86,5 +86,5 @@ public class UserAccounts implements Serializable {
 
     /** 版本号 */
     @Version
-    private Integer version;
+    private Long version;
 }

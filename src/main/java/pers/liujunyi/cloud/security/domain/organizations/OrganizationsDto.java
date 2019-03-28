@@ -95,5 +95,5 @@ public class OrganizationsDto extends BaseDto {
     private String attributeThree;
 
     /** 版本号 */
-    private Integer version;
+    private Long version;
 }

@@ -45,6 +45,6 @@ public class StaffOrg extends BaseEntity {
 
     /** 版本号 */
     @Version
-    private Integer version;
+    private Long version;
 
 }
