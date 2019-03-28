@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.data.annotation.Version;
 import pers.liujunyi.cloud.common.vo.BaseVo;
 
 /***
@@ -59,4 +60,8 @@ public class OrganizationsVo extends BaseVo {
 
     /** 上级机构名称 */
     private String organizationParentName;
+
+    /** 版本号 */
+    private Long version;
+
 }
