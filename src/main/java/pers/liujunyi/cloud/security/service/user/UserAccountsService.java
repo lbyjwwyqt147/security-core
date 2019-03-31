@@ -43,6 +43,21 @@ public interface UserAccountsService extends BaseService<UserAccounts, Long> {
      */
     ResultInfo updateStatus(Byte status, List<Long> ids);
 
+    /**
+     * 修改状态
+     * @param status
+     * @param id
+     * @return
+     */
+    ResultInfo updateStatus(Byte status, Long id);
+
+    /**
+     * 修改状态
+     * @param status
+     * @param id
+     * @return
+     */
+    Boolean updateAccountsStatus(Byte status, Long id);
 
     /**
      * 修改用户状态

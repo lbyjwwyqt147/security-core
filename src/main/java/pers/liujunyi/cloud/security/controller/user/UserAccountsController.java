@@ -106,7 +106,7 @@ public class UserAccountsController extends BaseController {
      * @param param
      * @return
      */
-    @ApiOperation(value = "修改数据状态", notes = "适用于修改数据状态 请求示例：127.0.0.1:18080/api/v1/accounts/p")
+    @ApiOperation(value = "修改数据状态", notes = "适用于修改数据状态 请求示例：127.0.0.1:18080/api/v1/accounts/b/p")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String"),
@@ -114,10 +114,30 @@ public class UserAccountsController extends BaseController {
     })
     @Encrypt
     @Decrypt
-    @PutMapping(value = "accounts/p")
+    @PutMapping(value = "accounts/b/p")
     @ApiVersion(1)
     public ResultInfo updateDataStatus(@Valid @RequestBody IdParamDto param ) {
         return this.userAccountsService.updateStatus(param.getStatus(), param.getIdList());
+    }
+
+    /**
+     *  修改数据状态
+     *
+     * @param param
+     * @return
+     */
+    @ApiOperation(value = "修改数据状态", notes = "适用于修改数据状态 请求示例：127.0.0.1:18080/api/v1/accounts/p")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "id", value = "id",  required = true, dataType = "String"),
+            @ApiImplicitParam(name = "status", value = "status",  required = true, dataType = "integer")
+    })
+    @Encrypt
+    @Decrypt
+    @PutMapping(value = "accounts/p")
+    @ApiVersion(1)
+    public ResultInfo updateStatus(@Valid @RequestBody IdParamDto param ) {
+        return this.userAccountsService.updateStatus(param.getStatus(), param.getId());
     }
 
     /**

@@ -30,8 +30,22 @@ public interface StaffOrgRepository extends BaseRepository<StaffOrg, Long> {
      */
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
-    @Query("update StaffOrg u set u.status = ?1, u.updateTime = ?2 where u.id in (?3)")
+    @Query(value = "update StaffOrg u set u.status = ?1, u.update_time = ?2, u.data_version = data_version+1  where u.id in (?3)", nativeQuery = true)
     int setStatusByIds(Byte status, Date updateTime, List<Long> ids);
+
+
+    /**
+     * 修改状态
+     * @param orgStatus  0:启动 1：禁用
+     * @param id
+     * @param updateTime
+     * @param version
+     * @return
+     */
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update  StaffOrg u set u.status = ?1, u.update_time = ?2, u.data_version = data_version+1  where org.id = ?3 and u.data_version = ?4", nativeQuery = true)
+    int setStatusById(Byte orgStatus,Date updateTime, Long id, Long version);
 
     /**
      * 根据 staffId 修改状态
@@ -41,8 +55,19 @@ public interface StaffOrgRepository extends BaseRepository<StaffOrg, Long> {
      */
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
-    @Query("update StaffOrg u set u.status = ?1, u.updateTime = ?2 where u.staffId in (?3)")
-    int setStatusByStaffId(Byte status, Date updateTime, List<Long> staffIds);
+    @Query(value = "update StaffOrg u set u.status = ?1, u.update_time = ?2 , u.data_version = data_version+1 where u.staffId in (?3)", nativeQuery = true)
+    int setStatusByStaffIds(Byte status, Date updateTime, List<Long> staffIds);
+
+    /**
+     * 根据 staffId 修改状态
+     * @param status  0：正常  1：禁用
+     * @param staffId 职工id
+     * @return
+     */
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update StaffOrg u set u.status = ?1, u.update_time = ?2 , u.data_version = data_version+1 where u.staffId = ?3", nativeQuery = true)
+    int setStatusByStaffId(Byte status, Date updateTime, Long staffId);
 
     /**
      * 根据 staffId 删除

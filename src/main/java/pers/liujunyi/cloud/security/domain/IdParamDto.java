@@ -52,9 +52,15 @@ public class IdParamDto implements Serializable {
     @ApiModelProperty(value = "codes")
     private List<String> codeList;
 
+    /**  修改状态时前端传的json数组   格式必须是  [{id=1,dataVersion=}] */
+    @ApiModelProperty(value = "putParams")
+    private String putParams;
 
     @ApiModelProperty(value = "状态")
     private Byte status;
+
+    @ApiModelProperty(value = "版本号")
+    private Long dataVersion;
 
     public void setIds(String ids) {
         if (StringUtils.isNotBlank(ids)) {

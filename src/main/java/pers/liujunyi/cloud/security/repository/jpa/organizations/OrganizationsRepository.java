@@ -22,7 +22,7 @@ import java.util.List;
  */
 public interface OrganizationsRepository extends BaseRepository<Organizations, Long> {
     /**
-     * 修改状态
+     * 批量修改状态
      * @param orgStatus  0：正常  1：禁用
      * @param updateTime
      * @param ids
@@ -30,18 +30,21 @@ public interface OrganizationsRepository extends BaseRepository<Organizations, L
      */
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
-    @Query("update Organizations u set u.orgStatus = ?1, u.updateTime = ?2 where u.id in (?3)")
+    @Query(value = "update Organizations org set org.org_status = ?1, org.update_time = ?2, org.data_version = data_version+1  where org.id in (?3)", nativeQuery = true)
     int setOrgStatusByIds(Byte orgStatus, Date updateTime, List<Long> ids);
 
+
     /**
-     * 更新机构全名称
-     * @param fullName
-     * @param updateTime
+     * 修改状态
+     * @param orgStatus  0:启动 1：禁用
      * @param id
+     * @param updateTime
+     * @param version
      * @return
      */
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
-    @Query("update Organizations u set u.fullName = ?1,  u.updateTime = ?2 where u.id = ?3")
-    int updateFullNameById(String fullName, Date updateTime, Long id);
+    @Query(value = "update Organizations org set org.org_status = ?1, org.update_time = ?2, org.data_version = data_version+1  where org.id = ?3 and org.data_version = ?4", nativeQuery = true)
+    int setStatusById(Byte orgStatus,Date updateTime, Long id, Long version);
+
 }

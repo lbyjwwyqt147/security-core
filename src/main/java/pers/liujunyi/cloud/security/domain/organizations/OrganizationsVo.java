@@ -60,8 +60,4 @@ public class OrganizationsVo extends BaseVo {
 
     /** 上级机构名称 */
     private String organizationParentName;
-
-    /** 版本号 */
-    private Long version;
-
 }

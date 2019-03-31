@@ -32,9 +32,19 @@ public interface OrganizationsService extends BaseService<Organizations, Long> {
      * 修改状态
      * @param status   0：正常  1：禁用
      * @param ids
+     * @param putParams
      * @return
      */
-    ResultInfo updateStatus(Byte status, List<Long> ids);
+    ResultInfo updateStatus(Byte status, List<Long> ids, String putParams);
+
+    /**
+     * 修改状态
+     * @param status
+     * @param id
+     * @param version
+     * @return
+     */
+    ResultInfo updateStatus(Byte status, Long id, Long version);
 
     /**
      * 批量删除

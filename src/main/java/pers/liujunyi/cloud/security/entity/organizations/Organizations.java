@@ -6,13 +6,13 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.data.annotation.Version;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 import pers.liujunyi.cloud.common.entity.BaseEntity;
 
 import javax.persistence.Entity;
+import javax.persistence.Version;
 
 /***
  * 文件名称: Organizations.java
@@ -79,7 +79,6 @@ public class Organizations extends BaseEntity {
     @Field(type = FieldType.Keyword, index = false)
     private String attributeThree;
 
-    /** 版本号 */
     @Version
-    private Long version;
+    private Long dataVersion;
 }

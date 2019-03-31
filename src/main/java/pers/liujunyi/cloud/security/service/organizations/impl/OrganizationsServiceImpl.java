@@ -1,5 +1,7 @@
 package pers.liujunyi.cloud.security.service.organizations.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -89,7 +91,7 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
     }
 
     @Override
-    public ResultInfo updateStatus(Byte status, List<Long> ids) {
+    public ResultInfo updateStatus(Byte status, List<Long> ids,String putParams) {
         if (status.byteValue() == 1) {
             List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByOrgIdIn(ids, super.getPageable(ids.size()));
             if (!CollectionUtils.isEmpty(list)) {
@@ -98,14 +100,41 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
         }
         int count = this.organizationsRepository.setOrgStatusByIds(status, new Date(), ids);
         if (count > 0) {
+            JSONArray jsonArray = JSONArray.parseArray(putParams);
+            int jsonSize = jsonArray.size();
+            Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
+            for(int i = 0; i < jsonSize; i++){
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                Map<String, Object> docDataMap = new HashMap<>();
+                docDataMap.put("orgStatus", status);
+                docDataMap.put("updateTime", System.currentTimeMillis());
+                docDataMap.put("dataVersion", jsonObject.getLongValue("dataVersion") + 1);
+                sourceMap.put(jsonObject.getString("id"), docDataMap);
+            }
+            // 更新 Elasticsearch 中的数据
+            super.updateBatchElasticsearchData(sourceMap);
+            return ResultUtil.success();
+        }
+        return ResultUtil.fail();
+
+    }
+
+    @Override
+    public ResultInfo updateStatus(Byte status, Long id, Long version) {
+        if (status.byteValue() == 1) {
+            List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByOrgId(id, super.getPageable(1));
+            if (!CollectionUtils.isEmpty(list)) {
+                ResultUtil.params("要禁用的组织机构正在被系统使用,不能被禁用");
+            }
+        }
+        int count = this.organizationsRepository.setStatusById(status, new Date(), id, version);
+        if (count > 0) {
             Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
             Map<String, Object> docDataMap = new HashMap<>();
             docDataMap.put("orgStatus", status);
+            docDataMap.put("dataVersion", version + 1);
             docDataMap.put("updateTime", System.currentTimeMillis());
-            ids.stream().forEach(item -> {
-                sourceMap.put(String.valueOf(item), docDataMap);
-            });
-            // 更新 Elasticsearch 中的数据
+            sourceMap.put(String.valueOf(id), docDataMap);
             super.updateBatchElasticsearchData(sourceMap);
             return ResultUtil.success();
         }

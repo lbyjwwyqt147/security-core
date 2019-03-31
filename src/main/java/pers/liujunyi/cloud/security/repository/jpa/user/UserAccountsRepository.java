@@ -30,19 +30,20 @@ public interface UserAccountsRepository extends BaseRepository<UserAccounts, Lon
      */
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
-    @Query("update UserAccounts u set u.userStatus = ?1, u.updateTime = ?2 where u.id in (?3)")
+    @Query(value = "update UserAccounts u set u.user_status = ?1, u.update_time = ?2, u.data_version = data_version+1 where u.id in (?3)", nativeQuery = true)
     int setUserStatusByIds(Byte userStatus, Date updateTime, List<Long> ids);
 
     /**
-     * 修改用户类型
-     * @param userCategory  2：员工  3：顾客
-     * @param ids
+     * 修改状态
+     * @param userStatus  0：正常  1：禁用
+     * @param id
      * @return
      */
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
-    @Query("update UserAccounts u set u.userCategory = ?1, u.updateTime = ?2 where u.id in (?3)")
-    int setUserCategoryByIds(Byte userCategory, Date updateTime, List<Long> ids);
+    @Query(value = "update UserAccounts u set u.user_status = ?1, u.update_time = ?2, u.data_version = data_version+1 where u.id = (?3)", nativeQuery = true)
+    int setUserStatusById(Byte userStatus, Date updateTime, Long id);
+
 
     /**
      * 修改用户密码
@@ -52,7 +53,7 @@ public interface UserAccountsRepository extends BaseRepository<UserAccounts, Lon
      */
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
-    @Query("update UserAccounts u set u.userPassword = ?1, u.changePasswordTime = ?2, u.updateTime = ?2 where u.id = ?3")
+    @Query(value = "update UserAccounts u set u.user_password = ?1, u.change_passwordTime = ?2, u.update_time = ?2, u.data_version = data_version+1 where u.id = ?3", nativeQuery = true)
     int setUserPasswordById(String userPassword, Date time, Long id);
 
 }

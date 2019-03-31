@@ -114,6 +114,30 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
     }
 
     @Override
+    public ResultInfo updateStatus(Byte status, Long id) {
+        boolean success = this.updateAccountsStatus(status, id);
+        if (success) {
+            return ResultUtil.success();
+        }
+        return ResultUtil.fail();
+    }
+
+    @Override
+    public Boolean updateAccountsStatus(Byte status, Long id) {
+        int count = this.userAccountsRepository.setUserStatusById(status, new Date(), id);
+        if (count > 0) {
+            Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
+            Map<String, Object> docDataMap = new HashMap<>();
+            docDataMap.put("userStatus", status);
+            docDataMap.put("updateTime", System.currentTimeMillis());
+            sourceMap.put(String.valueOf(id), docDataMap);
+            // 更新 Elasticsearch 中的数据
+            super.updateBatchElasticsearchData(sourceMap);
+            return true;
+        }
+        return false;    }
+
+    @Override
     public Boolean updateUserAccountsStatus(Byte status, List<Long> ids) {
         int count = this.userAccountsRepository.setUserStatusByIds(status, new Date(), ids);
         if (count > 0) {
@@ -386,5 +410,4 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         }
         return false;
     }
-
 }
