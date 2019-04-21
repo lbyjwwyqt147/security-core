@@ -1,5 +1,7 @@
 package pers.liujunyi.cloud.security.service.user.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -62,6 +64,8 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
                 return ResultUtil.params("你绑定的手机号已被使用,请重新输入");
             case "0":
                 return ResultUtil.fail();
+            default:
+                break;
         }
         return ResultUtil.success(result);
     }
@@ -105,8 +109,8 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
 
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Override
-    public ResultInfo updateStatus(Byte status, List<Long> ids) {
-        boolean success = this.updateUserAccountsStatus(status, ids);
+    public ResultInfo updateStatus(Byte status, List<Long> ids, String putParams) {
+        boolean success = this.updateUserAccountsStatus(status, ids, putParams);
         if (success) {
             return ResultUtil.success();
         }
@@ -114,8 +118,8 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
     }
 
     @Override
-    public ResultInfo updateStatus(Byte status, Long id) {
-        boolean success = this.updateAccountsStatus(status, id);
+    public ResultInfo updateStatus(Byte status, Long id, Long dataVersion) {
+        boolean success = this.updateAccountsStatus(status, id, dataVersion);
         if (success) {
             return ResultUtil.success();
         }
@@ -123,13 +127,14 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
     }
 
     @Override
-    public Boolean updateAccountsStatus(Byte status, Long id) {
+    public Boolean updateAccountsStatus(Byte status, Long id, Long dataVersion) {
         int count = this.userAccountsRepository.setUserStatusById(status, new Date(), id);
         if (count > 0) {
             Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
             Map<String, Object> docDataMap = new HashMap<>();
             docDataMap.put("userStatus", status);
             docDataMap.put("updateTime", System.currentTimeMillis());
+            docDataMap.put("dataVersion", dataVersion + 1);
             sourceMap.put(String.valueOf(id), docDataMap);
             // 更新 Elasticsearch 中的数据
             super.updateBatchElasticsearchData(sourceMap);
@@ -138,17 +143,20 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         return false;    }
 
     @Override
-    public Boolean updateUserAccountsStatus(Byte status, List<Long> ids) {
+    public Boolean updateUserAccountsStatus(Byte status, List<Long> ids, String putParams) {
         int count = this.userAccountsRepository.setUserStatusByIds(status, new Date(), ids);
         if (count > 0) {
+            JSONArray jsonArray = JSONArray.parseArray(putParams);
+            int jsonSize = jsonArray.size();
             Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
-            Map<String, Object> docDataMap = new HashMap<>();
-            docDataMap.put("userStatus", status);
-            docDataMap.put("updateTime", System.currentTimeMillis());
-            ids.stream().forEach(item -> {
-                sourceMap.put(String.valueOf(item), docDataMap);
-            });
-            // 更新 Elasticsearch 中的数据
+            for(int i = 0; i < jsonSize; i++){
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                Map<String, Object> docDataMap = new HashMap<>();
+                docDataMap.put("userStatus", status);
+                docDataMap.put("updateTime", System.currentTimeMillis());
+                docDataMap.put("dataVersion", jsonObject.getLongValue("dataVersion") + 1);
+                sourceMap.put(jsonObject.getString("id"), docDataMap);
+            }
             super.updateBatchElasticsearchData(sourceMap);
             return true;
         }
@@ -157,7 +165,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
 
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Override
-    public ResultInfo updateUserPassWord(Long id, String historyPassWord, String currentPassWord) {
+    public ResultInfo updateUserPassWord(Long id, String historyPassWord, String currentPassWord, Long dataVersion) {
         UserAccounts userAccounts = this.getUserAccounts(id);
         if (userAccounts != null) {
             //检查历史密码是否正确
@@ -173,6 +181,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
                 docDataMap.put("userPassword", currentPassWord);
                 docDataMap.put("changePasswordTime", System.currentTimeMillis());
                 docDataMap.put("updateTime", System.currentTimeMillis());
+                docDataMap.put("dataVersion", dataVersion + 1);
                 sourceMap.put(String.valueOf(id), docDataMap);
                 super.updateBatchElasticsearchData(sourceMap);
                 return ResultUtil.success();

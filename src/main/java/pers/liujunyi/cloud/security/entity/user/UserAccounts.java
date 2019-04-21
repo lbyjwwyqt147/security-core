@@ -11,10 +11,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -83,5 +80,6 @@ public class UserAccounts implements Serializable {
     @Field(type = FieldType.Date, index = false)
     private Date updateTime;
 
+    @Version
     private Long dataVersion;
 }

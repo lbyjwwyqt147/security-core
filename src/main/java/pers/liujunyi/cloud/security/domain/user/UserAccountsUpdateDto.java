@@ -39,5 +39,7 @@ public class UserAccountsUpdateDto implements Serializable {
     /** 电子邮箱 */
     private String userMailbox;
 
+    /** 版本号  */
+    private Long dataVersion;
 
 }

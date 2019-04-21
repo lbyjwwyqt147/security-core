@@ -42,5 +42,4 @@ public class StaffOrg extends BaseEntity {
     /** 状态：0：正常  1：禁用 */
     private Byte status;
 
-    private Long dataVersion;
 }

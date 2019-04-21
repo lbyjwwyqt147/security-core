@@ -38,10 +38,20 @@ public interface UserAccountsService extends BaseService<UserAccounts, Long> {
     /**
      * 修改状态
      * @param status    0：正常  1：禁用
+     * @param putParams
      * @param ids
      * @return
      */
-    ResultInfo updateStatus(Byte status, List<Long> ids);
+    ResultInfo updateStatus(Byte status, List<Long> ids, String putParams);
+
+    /**
+     * 修改状态
+     * @param status
+     * @param id
+     * @param dataVersion
+     * @return
+     */
+    ResultInfo updateStatus(Byte status, Long id, Long dataVersion);
 
     /**
      * 修改状态
@@ -49,15 +59,7 @@ public interface UserAccountsService extends BaseService<UserAccounts, Long> {
      * @param id
      * @return
      */
-    ResultInfo updateStatus(Byte status, Long id);
-
-    /**
-     * 修改状态
-     * @param status
-     * @param id
-     * @return
-     */
-    Boolean updateAccountsStatus(Byte status, Long id);
+    Boolean updateAccountsStatus(Byte status, Long id, Long dataVersion);
 
     /**
      * 修改用户状态
@@ -65,7 +67,7 @@ public interface UserAccountsService extends BaseService<UserAccounts, Long> {
      * @param ids
      * @return
      */
-    Boolean updateUserAccountsStatus(Byte status, List<Long> ids);
+    Boolean updateUserAccountsStatus(Byte status, List<Long> ids, String putParams);
 
     /**
      * 修改密码
@@ -74,7 +76,7 @@ public interface UserAccountsService extends BaseService<UserAccounts, Long> {
      * @param currentPassWord  新密码
      * @return
      */
-    ResultInfo updateUserPassWord(Long id, String historyPassWord, String currentPassWord);
+    ResultInfo updateUserPassWord(Long id, String historyPassWord, String currentPassWord, Long dataVersion);
 
     /**
      * 更新  userAccounts   userPassword  mobilePhone  userMailbox  值

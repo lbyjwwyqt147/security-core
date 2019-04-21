@@ -30,7 +30,7 @@ public interface OrganizationsRepository extends BaseRepository<Organizations, L
      */
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
-    @Query(value = "update Organizations org set org.org_status = ?1, org.update_time = ?2, org.data_version = data_version+1  where org.id in (?3)", nativeQuery = true)
+    @Query(value = "update organizations org set org.org_status = ?1, org.update_time = ?2, org.data_version = data_version+1  where org.id in (?3)", nativeQuery = true)
     int setOrgStatusByIds(Byte orgStatus, Date updateTime, List<Long> ids);
 
 
@@ -44,7 +44,7 @@ public interface OrganizationsRepository extends BaseRepository<Organizations, L
      */
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
-    @Query(value = "update Organizations org set org.org_status = ?1, org.update_time = ?2, org.data_version = data_version+1  where org.id = ?3 and org.data_version = ?4", nativeQuery = true)
+    @Query(value = "update organizations org set org.org_status = ?1, org.update_time = ?2, org.data_version = data_version+1  where org.id = ?3 and org.data_version = ?4", nativeQuery = true)
     int setStatusById(Byte orgStatus,Date updateTime, Long id, Long version);
 
 }

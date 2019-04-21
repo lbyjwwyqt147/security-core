@@ -117,7 +117,7 @@ public class UserAccountsController extends BaseController {
     @PutMapping(value = "accounts/b/p")
     @ApiVersion(1)
     public ResultInfo updateDataStatus(@Valid @RequestBody IdParamDto param ) {
-        return this.userAccountsService.updateStatus(param.getStatus(), param.getIdList());
+        return this.userAccountsService.updateStatus(param.getStatus(), param.getIdList(), param.getPutParams());
     }
 
     /**
@@ -137,7 +137,7 @@ public class UserAccountsController extends BaseController {
     @PutMapping(value = "accounts/p")
     @ApiVersion(1)
     public ResultInfo updateStatus(@Valid @RequestBody IdParamDto param ) {
-        return this.userAccountsService.updateStatus(param.getStatus(), param.getId());
+        return this.userAccountsService.updateStatus(param.getStatus(), param.getId(), param.getDataVersion());
     }
 
     /**
@@ -162,8 +162,9 @@ public class UserAccountsController extends BaseController {
     public ResultInfo resetPassword(@Valid @NotNull(message = "id 必须填写")
                                         @RequestParam(name = "id", required = true) Long id, @NotBlank(message = "原始密码 必须填写")
     @RequestParam(name = "historyPassWord", required = true) String historyPassWord, @NotBlank(message = "新密码 必须填写")
-    @RequestParam(name = "currentPassWord", required = true) String currentPassWord) {
-        return this.userAccountsService.updateUserPassWord(id, historyPassWord, currentPassWord);
+    @RequestParam(name = "currentPassWord", required = true) String currentPassWord, @NotBlank(message = "版本号 必须填写")
+    @RequestParam(name = "dataVersion", required = true) Long dataVersion) {
+        return this.userAccountsService.updateUserPassWord(id, historyPassWord, currentPassWord, dataVersion);
     }
 
     /**
