@@ -10,6 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import pers.liujunyi.cloud.common.encrypt.AesEncryptUtils;
+import pers.liujunyi.cloud.common.encrypt.autoconfigure.EncryptProperties;
 import pers.liujunyi.cloud.common.repository.jpa.BaseRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
@@ -44,6 +46,8 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
     private UserAccountsRepository userAccountsRepository;
     @Autowired
     private UserAccountsElasticsearchRepository userAccountsElasticsearchRepository;
+    @Autowired
+    private EncryptProperties encryptProperties;
 
 
     public UserAccountsServiceImpl(BaseRepository<UserAccounts, Long> baseRepository) {
@@ -95,9 +99,8 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         }
         PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         // 解密前端传入的加密参数
-    //   String curUserPassWord  = CsoftSecurityUtil.decryptRSADefault(PRIVATE_KEY_STR, record.getUserPassword());
-
-     //   record.setUserPassword(passwordEncoder.encode(curUserPassWord));
+        String curUserPassWord = AesEncryptUtils.aesDecrypt(record.getUserPassword(), encryptProperties.getSecretKey());
+        record.setUserPassword(passwordEncoder.encode(curUserPassWord));
         UserAccounts userAccounts = DozerBeanMapperUtil.copyProperties(record, UserAccounts.class);
         UserAccounts saveObject = this.userAccountsRepository.save(userAccounts);
         if (saveObject == null || saveObject.getId() == null) {
@@ -128,7 +131,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
 
     @Override
     public Boolean updateAccountsStatus(Byte status, Long id, Long dataVersion) {
-        int count = this.userAccountsRepository.setUserStatusById(status, new Date(), id);
+        int count = this.userAccountsRepository.setUserStatusById(status, new Date(), id, dataVersion);
         if (count > 0) {
             Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
             Map<String, Object> docDataMap = new HashMap<>();
@@ -174,7 +177,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
             if (!identical) {
                 return ResultUtil.params("原始密码错误");
             }
-            int count = this.userAccountsRepository.setUserPasswordById(currentPassWord, new Date(), id);
+            int count = this.userAccountsRepository.setUserPasswordById(currentPassWord, new Date(), id, dataVersion);
             if (count > 0) {
                 Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
                 Map<String, Object> docDataMap = new HashMap<>();

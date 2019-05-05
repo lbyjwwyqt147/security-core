@@ -74,7 +74,7 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
             Organizations parent = this.getOrganizations(record.getParentId());
             organizations.setFullParent(parent.getFullParent() + ":"  + parent.getId());
             organizations.setOrgLevel((byte)(parent.getOrgLevel() + 1));
-            String curFullParentCode = StringUtils.isNotBlank(parent.getFullParentCode() )&& !parent.getFullParentCode().equals("0") ? parent.getFullParentCode()   + ":" + record.getOrgNumber() : parent.getOrgNumber();
+            String curFullParentCode = StringUtils.isNotBlank(parent.getFullParentCode()) && !parent.getFullParentCode().equals("0") ? parent.getFullParentCode() + ":" + record.getOrgNumber() : parent.getOrgNumber();
             organizations.setFullParentCode(curFullParentCode);
         } else {
             organizations.setFullParent("0");
@@ -86,6 +86,7 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
         if (saveObject == null || saveObject.getId() == null) {
             return ResultUtil.fail();
         }
+        saveObject.setDataVersion(saveObject.getDataVersion() + 1);
         this.organizationsElasticsearchRepository.save(saveObject);
         return ResultUtil.success(saveObject.getId());
     }
@@ -150,6 +151,11 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
         long count = this.organizationsRepository.deleteByIdIn(ids);
         if (count > 0) {
             this.organizationsElasticsearchRepository.deleteByIdIn(ids);
+            try {
+                Thread.sleep(1000L);
+            } catch (InterruptedException var15) {
+                var15.printStackTrace();
+            }
             return ResultUtil.success();
         }
         return ResultUtil.fail();

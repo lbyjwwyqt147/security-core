@@ -21,7 +21,6 @@ import pers.liujunyi.cloud.security.service.organizations.OrganizationsService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /***
@@ -65,7 +64,7 @@ public class OrganizationsController extends BaseController {
     /**
      * 单条删除数据
      *
-     * @param id
+     * @param param
      * @return
      */
     @ApiOperation(value = "单条删除数据", notes = "适用于单条删除数据 请求示例：127.0.0.1:18080/api/v1/organization/d")
@@ -77,9 +76,8 @@ public class OrganizationsController extends BaseController {
     @Decrypt
     @DeleteMapping(value = "organization/d")
     @ApiVersion(1)
-    public ResultInfo singleDelete(@Valid @NotNull(message = "id 必须填写")
-                                       @RequestParam(name = "id", required = true) String id) {
-        this.organizationsService.singleDelete(Long.valueOf(id));
+    public ResultInfo singleDelete(@Valid @RequestBody IdParamDto param) {
+        this.organizationsService.singleDelete(Long.valueOf(param.getId()));
         return ResultUtil.success();
     }
 
