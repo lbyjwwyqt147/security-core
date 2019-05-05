@@ -86,7 +86,6 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
         if (saveObject == null || saveObject.getId() == null) {
             return ResultUtil.fail();
         }
-        saveObject.setDataVersion(saveObject.getDataVersion() + 1);
         this.organizationsElasticsearchRepository.save(saveObject);
         return ResultUtil.success(saveObject.getId());
     }
