@@ -243,6 +243,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         UserAccounts saveObj = this.userAccountsRepository.save(accounts);
         if (saveObj != null) {
             docDataMap.put("updateTime", System.currentTimeMillis());
+            docDataMap.put("dataVersion", userAccountsUpdate.getDataVersion() + 1);
             sourceMap.put(String.valueOf(id), docDataMap);
             // 更新 Elasticsearch 中的数据
             super.updateBatchElasticsearchData(sourceMap);
