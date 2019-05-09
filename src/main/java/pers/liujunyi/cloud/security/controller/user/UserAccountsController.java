@@ -54,7 +54,7 @@ public class UserAccountsController extends BaseController {
     })
     @Encrypt
     @Decrypt
-    @PostMapping(value = "ignore/accounts/s")
+    @PostMapping(value = "accounts/s")
     @ApiVersion(1)
     public ResultInfo saveRecord(@Valid @RequestBody UserAccountsDto param) {
         return this.userAccountsService.saveRecord(param);
@@ -73,7 +73,7 @@ public class UserAccountsController extends BaseController {
     })
     @Encrypt
     @Decrypt
-    @DeleteMapping(value = "accounts/d")
+    @DeleteMapping(value = "intrude/accounts/d")
     @ApiVersion(1)
     public ResultInfo singleDelete(@Valid @NotNull(message = "id 必须填写")
                                        @RequestParam(name = "id", required = true) String id) {
@@ -94,7 +94,7 @@ public class UserAccountsController extends BaseController {
     })
     @Decrypt
     @Encrypt
-    @DeleteMapping(value = "accounts/b/d")
+    @DeleteMapping(value = "intrude/accounts/b/d")
     @ApiVersion(1)
     public ResultInfo batchDelete(@Valid @RequestBody IdParamDto param) {
         return this.userAccountsService.batchDeletes(param.getIdList());
@@ -114,7 +114,7 @@ public class UserAccountsController extends BaseController {
     })
     @Encrypt
     @Decrypt
-    @PutMapping(value = "accounts/b/p")
+    @PutMapping(value = "intrude/accounts/b/p")
     @ApiVersion(1)
     public ResultInfo updateDataStatus(@Valid @RequestBody IdParamDto param ) {
         return this.userAccountsService.updateStatus(param.getStatus(), param.getIdList(), param.getPutParams());
@@ -134,7 +134,7 @@ public class UserAccountsController extends BaseController {
     })
     @Encrypt
     @Decrypt
-    @PutMapping(value = "accounts/p")
+    @PutMapping(value = "intrude/accounts/p")
     @ApiVersion(1)
     public ResultInfo updateStatus(@Valid @RequestBody IdParamDto param ) {
         return this.userAccountsService.updateStatus(param.getStatus(), param.getId(), param.getDataVersion());
@@ -157,7 +157,7 @@ public class UserAccountsController extends BaseController {
     })
     @Encrypt
     @Decrypt
-    @PutMapping(value = "accounts/r/p")
+    @PutMapping(value = "intrude/accounts/r/p")
     @ApiVersion(1)
     public ResultInfo resetPassword(@Valid @NotNull(message = "id 必须填写")
                                         @RequestParam(name = "id", required = true) Long id, @NotBlank(message = "原始密码 必须填写")
@@ -194,7 +194,7 @@ public class UserAccountsController extends BaseController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
     })
-    @PostMapping(value = "accounts/sync")
+    @PostMapping(value = "intrude/accounts/sync")
     @ApiVersion(1)
     public ResultInfo syncDataToElasticsearch() {
         return this.userAccountsService.syncDataToElasticsearch();

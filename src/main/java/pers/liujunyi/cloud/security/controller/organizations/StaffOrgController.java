@@ -57,7 +57,7 @@ public class StaffOrgController extends BaseController {
     })
     @Decrypt
     @Encrypt
-    @PostMapping(value = "staffOrg/s")
+    @PostMapping(value = "intrude/staffOrg/s")
     @ApiVersion(1)
     public ResultInfo saveRecord(@Valid @NotNull(message = "组织机构 必须选择")
                                      @RequestParam(name = "orgId", required = true) Long orgId, @NotNull(message = "人员 必须选择")
@@ -78,7 +78,7 @@ public class StaffOrgController extends BaseController {
     })
     @Encrypt
     @Decrypt
-    @DeleteMapping(value = "staffOrg/d")
+    @DeleteMapping(value = "intrude/staffOrg/d")
     @ApiVersion(1)
     public ResultInfo singleDelete(@Valid @NotNull(message = "id 必须填写")
                                        @RequestParam(name = "id", required = true) String id) {
@@ -99,7 +99,7 @@ public class StaffOrgController extends BaseController {
     })
     @Encrypt
     @Decrypt
-    @DeleteMapping(value = "staffOrg/b/d")
+    @DeleteMapping(value = "intrude/staffOrg/b/d")
     @ApiVersion(1)
     public ResultInfo batchDelete(@Valid @RequestBody IdParamDto param) {
         return this.staffOrgService.batchDeletes(param.getIdList());
@@ -136,7 +136,7 @@ public class StaffOrgController extends BaseController {
     })
     @Encrypt
     @Decrypt
-    @PutMapping(value = "staffOrg/p")
+    @PutMapping(value = "intrude/staffOrg/p")
     @ApiVersion(1)
     public ResultInfo updateDataStatus(@Valid @RequestBody IdParamDto param ) {
         return this.staffOrgService.updateStatus(param.getStatus(), param.getIdList());
@@ -152,7 +152,7 @@ public class StaffOrgController extends BaseController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
     })
-    @PostMapping(value = "staffOrg/sync")
+    @PostMapping(value = "intrude/staffOrg/sync")
     @ApiVersion(1)
     public ResultInfo syncDataToElasticsearch() {
         return this.staffOrgService.syncDataToElasticsearch();
