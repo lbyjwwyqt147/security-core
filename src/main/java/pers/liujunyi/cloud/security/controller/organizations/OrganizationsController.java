@@ -55,7 +55,7 @@ public class OrganizationsController extends BaseController {
     })
     @Decrypt
     @Encrypt
-    @PostMapping(value = "intrude/organization/s")
+    @PostMapping(value = "verify/organization/s")
     @ApiVersion(1)
     public ResultInfo saveRecord(@Valid @RequestBody OrganizationsDto param) {
         return this.organizationsService.saveRecord(param);
@@ -74,7 +74,7 @@ public class OrganizationsController extends BaseController {
     })
     @Encrypt
     @Decrypt
-    @DeleteMapping(value = "intrude/organization/d")
+    @DeleteMapping(value = "verify/organization/d")
     @ApiVersion(1)
     public ResultInfo singleDelete(@Valid @RequestBody IdParamDto param) {
         this.organizationsService.singleDelete(Long.valueOf(param.getId()));
@@ -94,7 +94,7 @@ public class OrganizationsController extends BaseController {
     })
     @Encrypt
     @Decrypt
-    @DeleteMapping(value = "intrude/organization/b/d")
+    @DeleteMapping(value = "verify/organization/d/b")
     @ApiVersion(1)
     public ResultInfo batchDelete(@Valid @RequestBody IdParamDto param) {
         return this.organizationsService.batchDeletes(param.getIdList());
@@ -183,7 +183,7 @@ public class OrganizationsController extends BaseController {
     })
     @Encrypt
     @Decrypt
-    @PutMapping(value = "intrude/organization/b/p")
+    @PutMapping(value = "verify/organization/p/b")
     @ApiVersion(1)
     public ResultInfo updateDataStatus(@Valid @RequestBody IdParamDto param ) {
         return this.organizationsService.updateStatus(param.getStatus(), param.getIdList(), param.getPutParams());
@@ -203,7 +203,7 @@ public class OrganizationsController extends BaseController {
     })
     @Encrypt
     @Decrypt
-    @PutMapping(value = "intrude/organization/p")
+    @PutMapping(value = "verify/organization/p")
     @ApiVersion(1)
     public ResultInfo updateStatus(@Valid @RequestBody IdParamDto param ) {
         return this.organizationsService.updateStatus(param.getStatus(), param.getId(), param.getDataVersion());
@@ -220,7 +220,7 @@ public class OrganizationsController extends BaseController {
             @ApiImplicitParam(name = "id", value = "id", paramType = "path",   required = true, dataType = "Long")
     })
     @Encrypt
-    @GetMapping(value = "intrude/organization/d/{id}")
+    @GetMapping(value = "table/organization/g/{id}")
     @ApiVersion(1)
     public ResultInfo findById(@PathVariable(name = "id") Long id) {
         return this.organizationsElasticsearchService.selectById(id);
@@ -235,7 +235,7 @@ public class OrganizationsController extends BaseController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
     })
-    @PostMapping(value = "intrude/organization/sync")
+    @PostMapping(value = "verify/organization/sync")
     @ApiVersion(1)
     public ResultInfo syncDataToElasticsearch() {
         return this.organizationsService.syncDataToElasticsearch();
