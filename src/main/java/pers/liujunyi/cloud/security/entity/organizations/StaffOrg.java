@@ -39,6 +39,12 @@ public class StaffOrg extends BaseEntity {
     /** 职工id */
     private Long staffId;
 
+    /** 完整的层级Id */
+    private String fullParent;
+
+    /** 机构编号 */
+    private String orgNumber;
+
     /** 状态：0：正常  1：禁用 */
     private Byte status;
 

@@ -212,6 +212,10 @@ public class OrganizationsElasticsearchServiceImpl extends BaseElasticsearchServ
         if (!CollectionUtils.isEmpty(list)){
             list.stream().forEach(item -> {
                 ZtreeNode zTreeNode = new ZtreeNode(item.getId(), item.getParentId(), item.getOrgName());
+                Map<String, String> attributesMap = new ConcurrentHashMap<>();
+                attributesMap.put("fullParent", item.getFullParent());
+                attributesMap.put("orgNumber", item.getOrgNumber());
+                zTreeNode.setOtherAttributes(attributesMap);
                 treeNodes.add(zTreeNode);
             });
         }
