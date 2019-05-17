@@ -55,28 +55,28 @@ public interface StaffOrgService extends BaseService<StaffOrg, Long> {
      * @param orgId
      * @return
      */
-    int deleteByOrgId(Long orgId);
+    long deleteByOrgId(Long orgId);
 
     /**
      * 根据机构id删除
      * @param orgIds
      * @return
      */
-    int deleteByOrgIds(List<Long> orgIds);
+    long deleteByOrgIds(List<Long> orgIds);
 
     /**
      * 根据职工id单条删除
      * @param staffId
      * @return
      */
-    int deleteByStaffId(Long staffId);
+    long deleteByStaffId(Long staffId);
 
     /**
      * 根据职工id删除
      * @param staffIds
      * @return
      */
-    int deleteByStaffIds(List<Long> staffIds);
+    long deleteByStaffIds(List<Long> staffIds);
 
     /**
      * 同步数据到es中

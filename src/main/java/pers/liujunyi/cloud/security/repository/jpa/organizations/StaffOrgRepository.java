@@ -95,4 +95,13 @@ public interface StaffOrgRepository extends BaseRepository<StaffOrg, Long> {
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
     long deleteByOrgIdIn(List<Long> orgIds);
+
+    /**
+     * 根据 orgId 删除
+     * @param orgId 机构id
+     * @return
+     */
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
+    @Modifying(clearAutomatically = true)
+    long deleteByOrgId(Long orgId);
 }

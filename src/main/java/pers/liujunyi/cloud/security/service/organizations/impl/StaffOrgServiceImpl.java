@@ -77,7 +77,7 @@ public class StaffOrgServiceImpl extends BaseServiceImpl<StaffOrg, Long> impleme
     }
 
     @Override
-    public ResultInfo batchDeletes(List<Long> ids) {
+    public ResultInfo deleteBatch(List<Long> ids) {
         long count = this.staffOrgRepository.deleteByIdIn(ids);
         if (count > 0) {
             this.staffOrgElasticsearchRepository.deleteByIdIn(ids);
@@ -87,10 +87,46 @@ public class StaffOrgServiceImpl extends BaseServiceImpl<StaffOrg, Long> impleme
     }
 
     @Override
-    public ResultInfo singleDelete(Long id) {
+    public ResultInfo deleteSingle(Long id) {
         this.staffOrgRepository.deleteById(id);
         this.staffOrgElasticsearchRepository.deleteById(id);
         return ResultUtil.success();
+    }
+
+    @Override
+    public long deleteByOrgId(Long orgId) {
+        long count = this.staffOrgRepository.deleteByOrgId(orgId);
+        if (count > 0) {
+            this.staffOrgElasticsearchRepository.deleteByOrgId(orgId);
+        }
+        return count;
+    }
+
+    @Override
+    public long deleteByOrgIds(List<Long> orgIds) {
+        long count = this.staffOrgRepository.deleteByOrgIdIn(orgIds);
+        if (count > 0) {
+            this.staffOrgElasticsearchRepository.deleteByOrgIdIn(orgIds);
+        }
+        return count;
+    }
+
+    @Override
+    public long deleteByStaffId(Long staffId) {
+        long count = this.staffOrgRepository.deleteByStaffId(staffId);
+        if (count > 0) {
+            this.staffOrgElasticsearchRepository.deleteByStaffId(staffId);
+        }
+        return count;
+    }
+
+    @Override
+    public long deleteByStaffIds(List<Long> staffIds) {
+        long count = this.staffOrgRepository.deleteByStaffIdIn(staffIds);
+        if (count > 0) {
+            this.staffOrgElasticsearchRepository.deleteByStaffIdIn(staffIds);
+        }
+        return count;
     }
 
     @Override

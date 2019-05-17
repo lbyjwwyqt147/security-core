@@ -90,8 +90,29 @@ public interface StaffOrgElasticsearchRepository extends BaseElasticsearchReposi
 
     /**
      * 根据 staffId 删除
-     * @param staffId
+     * @param staffId 职工id
      * @return
      */
     long deleteByStaffId(Long staffId);
+
+    /**
+     * 根据 staffId 删除
+     * @param staffIds 职工id
+     * @return
+     */
+    long deleteByStaffIdIn(List<Long> staffIds);
+
+    /**
+     * 根据 orgId 删除
+     * @param orgIds 组织机构id
+     * @return
+     */
+    long deleteByOrgIdIn(List<Long> orgIds);
+
+    /**
+     * 根据 orgId 删除
+     * @param orgId 机构id
+     * @return
+     */
+    long deleteByOrgId(Long orgId);
 }
