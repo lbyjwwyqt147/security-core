@@ -77,6 +77,38 @@ public class StaffOrgServiceImpl extends BaseServiceImpl<StaffOrg, Long> impleme
     }
 
     @Override
+    public int updateStatusByStaffIds(Byte status, List<Long> staffIds) {
+        int count = this.staffOrgRepository.setStatusByStaffIds(status, new Date(), staffIds);
+        if (count > 0) {
+            Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
+            Map<String, Object> docDataMap = new HashMap<>();
+            docDataMap.put("status", status);
+            docDataMap.put("updateTime", System.currentTimeMillis());
+            staffIds.stream().forEach(item -> {
+                sourceMap.put(String.valueOf(item), docDataMap);
+            });
+            super.updateBatchElasticsearchData(sourceMap);
+        }
+        return count;
+    }
+
+    @Override
+    public int updateStatusByOrgIds(Byte status, List<Long> orgIds) {
+        int count = this.staffOrgRepository.setStatusByOrgIds(status, new Date(), orgIds);
+        if (count > 0) {
+            Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
+            Map<String, Object> docDataMap = new HashMap<>();
+            docDataMap.put("status", status);
+            docDataMap.put("updateTime", System.currentTimeMillis());
+            orgIds.stream().forEach(item -> {
+                sourceMap.put(String.valueOf(item), docDataMap);
+            });
+            super.updateBatchElasticsearchData(sourceMap);
+        }
+        return count;
+    }
+
+    @Override
     public ResultInfo deleteBatch(List<Long> ids) {
         long count = this.staffOrgRepository.deleteByIdIn(ids);
         if (count > 0) {

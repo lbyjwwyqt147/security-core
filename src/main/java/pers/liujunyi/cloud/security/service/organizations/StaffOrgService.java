@@ -36,6 +36,22 @@ public interface StaffOrgService extends BaseService<StaffOrg, Long> {
     ResultInfo updateStatus(Byte status, List<Long> ids);
 
     /**
+     * 根据职工id 修改状态
+     * @param status   0：正常  1：禁用
+     * @param staffIds
+     * @return
+     */
+    int updateStatusByStaffIds(Byte status, List<Long> staffIds);
+
+    /**
+     * 根据 机构id 修改状态
+     * @param status   0：正常  1：禁用
+     * @param orgIds
+     * @return
+     */
+    int updateStatusByOrgIds(Byte status, List<Long> orgIds);
+
+    /**
      * 批量删除
      * @param ids
      * @return

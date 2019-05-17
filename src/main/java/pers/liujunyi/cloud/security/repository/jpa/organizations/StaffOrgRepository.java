@@ -59,15 +59,15 @@ public interface StaffOrgRepository extends BaseRepository<StaffOrg, Long> {
     int setStatusByStaffIds(Byte status, Date updateTime, List<Long> staffIds);
 
     /**
-     * 根据 staffId 修改状态
+     * 根据 orgId 修改状态
      * @param status  0：正常  1：禁用
-     * @param staffId 职工id
+     * @param orgIds 机构 id
      * @return
      */
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
-    @Query(value = "update StaffOrg u set u.status = ?1, u.update_time = ?2 , u.data_version = data_version+1 where u.staffId = ?3", nativeQuery = true)
-    int setStatusByStaffId(Byte status, Date updateTime, Long staffId);
+    @Query(value = "update StaffOrg u set u.status = ?1, u.update_time = ?2 , u.data_version = data_version+1 where u.orgId = ?3", nativeQuery = true)
+    int setStatusByOrgIds(Byte status, Date updateTime, List<Long> orgIds);
 
     /**
      * 根据 staffId 删除
