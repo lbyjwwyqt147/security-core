@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import pers.liujunyi.cloud.common.query.elasticsearch.BaseEsQuery;
+import pers.liujunyi.cloud.common.query.jpa.annotation.MatchType;
 import pers.liujunyi.cloud.common.query.jpa.annotation.QueryCondition;
 
 /***
@@ -30,6 +31,16 @@ public class StaffOrgQueryDto extends BaseEsQuery {
     @ApiModelProperty(value = "机构id")
     @QueryCondition()
     private Long orgId;
+
+    /** 完整的层级Id */
+    @ApiModelProperty(value = "完整的层级Id")
+    @QueryCondition(func = MatchType.like)
+    private String fullParent;
+
+    /** 机构编号 */
+    @ApiModelProperty(value = "机构编号")
+    @QueryCondition()
+    private String orgNumber;
 
     /** 用户名称 */
     @ApiModelProperty(value = "用户名称")

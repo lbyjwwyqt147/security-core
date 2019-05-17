@@ -8,7 +8,6 @@ import pers.liujunyi.cloud.common.repository.jpa.BaseRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.service.impl.BaseServiceImpl;
-import pers.liujunyi.cloud.security.entity.organizations.Organizations;
 import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
 import pers.liujunyi.cloud.security.repository.elasticsearch.organizations.StaffOrgElasticsearchRepository;
 import pers.liujunyi.cloud.security.repository.jpa.organizations.StaffOrgRepository;
@@ -44,14 +43,12 @@ public class StaffOrgServiceImpl extends BaseServiceImpl<StaffOrg, Long> impleme
 
 
     @Override
-    public ResultInfo saveRecord(Long orgId, List<Long> staffIds) {
+    public ResultInfo saveRecord(StaffOrg org, List<Long> staffIds) {
         List<StaffOrg> list = new LinkedList<>();
         staffIds.stream().forEach(item -> {
-            StaffOrg staffOrg = new StaffOrg();
-            staffOrg.setOrgId(orgId);
-            staffOrg.setStaffId(item);
-            staffOrg.setStatus(SecurityConstant.ENABLE_STATUS);
-            list.add(staffOrg);
+            org.setStaffId(item);
+            org.setStatus(SecurityConstant.ENABLE_STATUS);
+            list.add(org);
         });
         List<StaffOrg> saveObj = this.staffOrgRepository.saveAll(list);
         if (!CollectionUtils.isEmpty(saveObj)) {

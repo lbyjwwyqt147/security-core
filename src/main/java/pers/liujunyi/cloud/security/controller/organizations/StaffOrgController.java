@@ -1,5 +1,6 @@
 package pers.liujunyi.cloud.security.controller.organizations;
 
+import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -15,6 +16,7 @@ import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.util.SystemUtils;
 import pers.liujunyi.cloud.security.domain.IdParamDto;
 import pers.liujunyi.cloud.security.domain.organizations.StaffOrgQueryDto;
+import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
 import pers.liujunyi.cloud.security.service.organizations.StaffOrgElasticsearchService;
 import pers.liujunyi.cloud.security.service.organizations.StaffOrgService;
 
@@ -44,14 +46,14 @@ public class StaffOrgController extends BaseController {
     /**
      * 保存数据
      *
-     * @param orgId
+     * @param org
      * @param staffIds
      * @return
      */
     @ApiOperation(value = "保存数据", notes = "适用于保存数据 请求示例：127.0.0.1:18080/api/v1/staffOrg/s")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
-            @ApiImplicitParam(name = "orgId", value = "机构id",  required = true, dataType = "Long"),
+            @ApiImplicitParam(name = "org", value = "机构 接收参数格式 json 字符串   {orgId=机构id,orgNumber=机构编号,fullParent=机构父id}",  required = true, dataType = "String"),
             @ApiImplicitParam(name = "staffIds", value = "人员id 多个用,隔开",  required = true, dataType = "String")
 
     })
@@ -60,9 +62,9 @@ public class StaffOrgController extends BaseController {
     @PostMapping(value = "verify/staffOrg/s")
     @ApiVersion(1)
     public ResultInfo saveRecord(@Valid @NotNull(message = "组织机构 必须选择")
-                                     @RequestParam(name = "orgId", required = true) Long orgId, @NotNull(message = "人员 必须选择")
+                                     @RequestParam(name = "org", required = true) String org, @NotNull(message = "人员 必须选择")
     @RequestParam(name = "staffIds", required = true) String staffIds) {
-        return this.staffOrgService.saveRecord(orgId, SystemUtils.idToLong(staffIds));
+        return this.staffOrgService.saveRecord(JSON.parseObject(org, StaffOrg.class), SystemUtils.idToLong(staffIds));
     }
 
     /**

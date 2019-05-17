@@ -21,11 +21,11 @@ public interface StaffOrgService extends BaseService<StaffOrg, Long> {
 
     /**
      * 保存数据
-     * @param orgId  机构id
+     * @param org  机构
      * @param staffIds 人员id
      * @return
      */
-    ResultInfo saveRecord(Long orgId, List<Long> staffIds);
+    ResultInfo saveRecord(StaffOrg org, List<Long> staffIds);
 
     /**
      * 修改状态
