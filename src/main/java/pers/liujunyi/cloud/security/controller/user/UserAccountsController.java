@@ -77,7 +77,7 @@ public class UserAccountsController extends BaseController {
     @ApiVersion(1)
     public ResultInfo singleDelete(@Valid @NotNull(message = "id 必须填写")
                                        @RequestParam(name = "id", required = true) String id) {
-        this.userAccountsService.singleDelete(Long.valueOf(id));
+        this.userAccountsService.deleteSingle(Long.valueOf(id));
         return ResultUtil.success();
     }
 
@@ -97,7 +97,7 @@ public class UserAccountsController extends BaseController {
     @DeleteMapping(value = "verify/accounts/d/b")
     @ApiVersion(1)
     public ResultInfo batchDelete(@Valid @RequestBody IdParamDto param) {
-        return this.userAccountsService.batchDeletes(param.getIdList());
+        return this.userAccountsService.deleteBatch(param.getIdList());
     }
 
     /**

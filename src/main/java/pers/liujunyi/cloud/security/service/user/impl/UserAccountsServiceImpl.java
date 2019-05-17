@@ -254,8 +254,8 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
 
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Override
-    public ResultInfo batchDeletes(List<Long> ids) {
-        boolean success = this.batchDeletesUserAccounts(ids);
+    public ResultInfo deleteBatch(List<Long> ids) {
+        boolean success = this.deleteByUserAccounts(ids);
         if (success) {
             return ResultUtil.success();
         }
@@ -264,7 +264,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
 
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Override
-    public ResultInfo singleDelete(Long id) {
+    public ResultInfo deleteSingle(Long id) {
         this.userAccountsRepository.deleteById(id);
         this.userAccountsElasticsearchRepository.deleteById(id);
         return ResultUtil.success();
@@ -272,7 +272,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
 
 
     @Override
-    public Boolean batchDeletesUserAccounts(List<Long> ids) {
+    public Boolean deleteByUserAccounts(List<Long> ids) {
         long count = this.userAccountsRepository.deleteByIdIn(ids);
         if (count > 0) {
             this.userAccountsElasticsearchRepository.deleteByIdIn(ids);

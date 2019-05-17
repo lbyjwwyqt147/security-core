@@ -6,7 +6,6 @@ import pers.liujunyi.cloud.security.domain.organizations.OrganizationsDto;
 import pers.liujunyi.cloud.security.entity.organizations.Organizations;
 
 import java.util.List;
-import java.util.Map;
 
 /***
  * 文件名称: OrganizationsService.java
@@ -51,14 +50,14 @@ public interface OrganizationsService extends BaseService<Organizations, Long> {
      * @param ids
      * @return
      */
-    ResultInfo batchDeletes(List<Long> ids);
+    ResultInfo deleteBatch(List<Long> ids);
 
     /**
      * 单条删除
      * @param id
      * @return
      */
-    ResultInfo singleDelete(Long id);
+    ResultInfo deleteSingle(Long id);
 
     /**
      * 同步数据到es中

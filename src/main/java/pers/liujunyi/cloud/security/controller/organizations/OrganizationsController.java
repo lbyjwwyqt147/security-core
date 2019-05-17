@@ -77,7 +77,7 @@ public class OrganizationsController extends BaseController {
     @DeleteMapping(value = "verify/organization/d")
     @ApiVersion(1)
     public ResultInfo singleDelete(@Valid @RequestBody IdParamDto param) {
-        this.organizationsService.singleDelete(Long.valueOf(param.getId()));
+        this.organizationsService.deleteSingle(Long.valueOf(param.getId()));
         return ResultUtil.success();
     }
 
@@ -97,7 +97,7 @@ public class OrganizationsController extends BaseController {
     @DeleteMapping(value = "verify/organization/d/b")
     @ApiVersion(1)
     public ResultInfo batchDelete(@Valid @RequestBody IdParamDto param) {
-        return this.organizationsService.batchDeletes(param.getIdList());
+        return this.organizationsService.deleteBatch(param.getIdList());
     }
 
     /**

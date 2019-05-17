@@ -142,7 +142,7 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
     }
 
     @Override
-    public ResultInfo batchDeletes(List<Long> ids) {
+    public ResultInfo deleteBatch(List<Long> ids) {
         List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByOrgIdIn(ids, super.getPageable(ids.size()));
         if (!CollectionUtils.isEmpty(list)) {
             ResultUtil.params("要删除的组织机构正在被系统使用,不能被删除");
@@ -161,7 +161,7 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
     }
 
     @Override
-    public ResultInfo singleDelete(Long id) {
+    public ResultInfo deleteSingle(Long id) {
         List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByOrgId(id, super.getPageable(1));
         if (!CollectionUtils.isEmpty(list)) {
             ResultUtil.params("要删除的组织机构正在被系统使用,不能被删除");

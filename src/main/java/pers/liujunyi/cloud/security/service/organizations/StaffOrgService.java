@@ -40,15 +40,43 @@ public interface StaffOrgService extends BaseService<StaffOrg, Long> {
      * @param ids
      * @return
      */
-    ResultInfo batchDeletes(List<Long> ids);
+    ResultInfo deleteBatch(List<Long> ids);
 
     /**
      * 单条删除
      * @param id
      * @return
      */
-    ResultInfo singleDelete(Long id);
+    ResultInfo deleteSingle(Long id);
 
+
+    /**
+     * 根据机构id单条删除
+     * @param orgId
+     * @return
+     */
+    int deleteByOrgId(Long orgId);
+
+    /**
+     * 根据机构id删除
+     * @param orgIds
+     * @return
+     */
+    int deleteByOrgIds(List<Long> orgIds);
+
+    /**
+     * 根据职工id单条删除
+     * @param staffId
+     * @return
+     */
+    int deleteByStaffId(Long staffId);
+
+    /**
+     * 根据职工id删除
+     * @param staffIds
+     * @return
+     */
+    int deleteByStaffIds(List<Long> staffIds);
 
     /**
      * 同步数据到es中

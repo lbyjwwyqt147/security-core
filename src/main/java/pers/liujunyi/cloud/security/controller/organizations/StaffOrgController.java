@@ -84,7 +84,7 @@ public class StaffOrgController extends BaseController {
     @ApiVersion(1)
     public ResultInfo singleDelete(@Valid @NotNull(message = "id 必须填写")
                                        @RequestParam(name = "id", required = true) String id) {
-        this.staffOrgService.singleDelete(Long.valueOf(id));
+        this.staffOrgService.deleteSingle(Long.valueOf(id));
         return ResultUtil.success();
     }
 
@@ -104,7 +104,7 @@ public class StaffOrgController extends BaseController {
     @DeleteMapping(value = "verify/staffOrg/d/b")
     @ApiVersion(1)
     public ResultInfo batchDelete(@Valid @RequestBody IdParamDto param) {
-        return this.staffOrgService.batchDeletes(param.getIdList());
+        return this.staffOrgService.deleteBatch(param.getIdList());
     }
 
     /**
