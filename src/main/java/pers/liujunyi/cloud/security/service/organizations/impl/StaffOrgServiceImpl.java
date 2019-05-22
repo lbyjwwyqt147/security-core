@@ -16,6 +16,7 @@ import pers.liujunyi.cloud.security.util.SecurityConstant;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /***
  * 文件名称: StaffOrgServiceImpl.java
@@ -78,34 +79,32 @@ public class StaffOrgServiceImpl extends BaseServiceImpl<StaffOrg, Long> impleme
 
     @Override
     public int updateStatusByStaffIds(Byte status, List<Long> staffIds) {
-        int count = this.staffOrgRepository.setStatusByStaffIds(status, new Date(), staffIds);
-        if (count > 0) {
-            Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
-            Map<String, Object> docDataMap = new HashMap<>();
-            docDataMap.put("status", status);
-            docDataMap.put("updateTime", System.currentTimeMillis());
-            staffIds.stream().forEach(item -> {
-                sourceMap.put(String.valueOf(item), docDataMap);
-            });
-            super.updateBatchElasticsearchData(sourceMap);
-        }
-        return count;
+        final String executeMethod  = status == 0 ? "updateByStaffIdQueryEnable" : "updateByStaffIdQueryDisable";
+        AtomicInteger count = new AtomicInteger(0);
+        staffIds.stream().forEach(item -> {
+            Map<String, Object> params = new ConcurrentHashMap<>();
+            params.put("staffId", item);
+            boolean success = super.updateByQueryElasticsearchData("StaffOrg.xml", executeMethod, params);
+            if (success) {
+                count.getAndSet(1);
+            }
+        });
+        return count.get();
     }
 
     @Override
     public int updateStatusByOrgIds(Byte status, List<Long> orgIds) {
-        int count = this.staffOrgRepository.setStatusByOrgIds(status, new Date(), orgIds);
-        if (count > 0) {
-            Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
-            Map<String, Object> docDataMap = new HashMap<>();
-            docDataMap.put("status", status);
-            docDataMap.put("updateTime", System.currentTimeMillis());
-            orgIds.stream().forEach(item -> {
-                sourceMap.put(String.valueOf(item), docDataMap);
-            });
-            super.updateBatchElasticsearchData(sourceMap);
-        }
-        return count;
+        final String executeMethod = status == 0 ? "updateByOrgIdQueryEnable" : "updateByOrgIdQueryDisable";
+        AtomicInteger count = new AtomicInteger(0);
+        orgIds.stream().forEach(item -> {
+            Map<String, Object> params = new ConcurrentHashMap<>();
+            params.put("orgId", item);
+            boolean success = super.updateByQueryElasticsearchData("StaffOrg.xml", executeMethod, params);
+            if (success) {
+                count.getAndSet(1);
+            }
+        });
+        return count.get();
     }
 
     @Override
