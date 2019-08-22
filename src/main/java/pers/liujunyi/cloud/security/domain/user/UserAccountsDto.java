@@ -93,4 +93,6 @@ public class UserAccountsDto extends BaseDto {
     /** 注册时间  */
     private Date registrationTime;
 
+    /** 注册来源  1:录入职工信息时,自动注册  2：用户自助注册 */
+    private Byte registeredSource;
 }

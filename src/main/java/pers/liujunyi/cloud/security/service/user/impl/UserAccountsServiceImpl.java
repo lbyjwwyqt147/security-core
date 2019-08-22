@@ -94,13 +94,17 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         if (record.getUserStatus() == null) {
             record.setUserStatus(SecurityConstant.ENABLE_STATUS);
         }
-        if (StringUtils.isNotBlank(record.getUserNickName())) {
+        if (StringUtils.isBlank(record.getUserNickName())) {
             record.setUserNickName(record.getUserName());
         }
         PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-        // 解密前端传入的加密参数
-        String curUserPassWord = AesEncryptUtils.aesDecrypt(record.getUserPassword(), encryptProperties.getSecretKey());
-        record.setUserPassword(passwordEncoder.encode(curUserPassWord));
+        if (record.getRegisteredSource() != null && record.getRegisteredSource() == 1) {
+            record.setUserPassword(passwordEncoder.encode(record.getUserPassword()));
+        } else {
+            // 解密前端传入的加密参数
+            String curUserPassWord = AesEncryptUtils.aesDecrypt(record.getUserPassword(), encryptProperties.getSecretKey());
+            record.setUserPassword(passwordEncoder.encode(curUserPassWord));
+        }
         UserAccounts userAccounts = DozerBeanMapperUtil.copyProperties(record, UserAccounts.class);
         UserAccounts saveObject = this.userAccountsRepository.save(userAccounts);
         if (saveObject == null || saveObject.getId() == null) {

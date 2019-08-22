@@ -1,6 +1,7 @@
 package pers.liujunyi.cloud.security.entity.user;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -70,14 +71,17 @@ public class UserAccounts implements Serializable {
     private Byte userCategory;
 
     /** 注册时间  */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date registrationTime;
 
     /** 最后修改密码时间 */
     @Field(type = FieldType.Date, index = false)
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date changePasswordTime;
 
     /** 修改时间  */
     @Field(type = FieldType.Date, index = false)
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date updateTime;
 
     @Version

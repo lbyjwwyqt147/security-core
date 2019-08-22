@@ -56,6 +56,7 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
 
     @Override
     public ResultInfo saveRecord(OrganizationsDto record) {
+        boolean add = record.getId() != null ? true : false;
         if (this.checkOrgNumberRepetition(record.getOrgNumber(), record.getId())) {
             return ResultUtil.params("机构代码重复,请重新输入！");
         }
@@ -85,6 +86,9 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
         Organizations saveObject = this.organizationsRepository.save(organizations);
         if (saveObject == null || saveObject.getId() == null) {
             return ResultUtil.fail();
+        }
+        if (!add) {
+            saveObject.setDataVersion(saveObject.getDataVersion() + 1);
         }
         this.organizationsElasticsearchRepository.save(saveObject);
         return ResultUtil.success(saveObject.getId());
