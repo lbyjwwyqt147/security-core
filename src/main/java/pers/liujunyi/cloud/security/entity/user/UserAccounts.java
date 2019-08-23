@@ -86,4 +86,6 @@ public class UserAccounts implements Serializable {
 
     @Version
     private Long dataVersion;
+
+    private Long lessee;
 }
