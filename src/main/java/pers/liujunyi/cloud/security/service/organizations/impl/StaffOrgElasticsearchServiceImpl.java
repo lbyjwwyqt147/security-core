@@ -14,12 +14,14 @@ import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.service.impl.BaseElasticsearchServiceImpl;
 import pers.liujunyi.cloud.security.domain.organizations.StaffOrgQueryDto;
 import pers.liujunyi.cloud.security.domain.organizations.StaffOrgVo;
+import pers.liujunyi.cloud.security.entity.organizations.Organizations;
 import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
 import pers.liujunyi.cloud.security.repository.elasticsearch.organizations.StaffOrgElasticsearchRepository;
 import pers.liujunyi.cloud.security.service.organizations.OrganizationsElasticsearchService;
 import pers.liujunyi.cloud.security.service.organizations.StaffOrgElasticsearchService;
 import pers.liujunyi.cloud.security.service.user.UserAccountsElasticsearchService;
+import pers.liujunyi.cloud.security.util.SecurityConstant;
 
 import java.util.List;
 import java.util.Map;
@@ -130,6 +132,34 @@ public class StaffOrgElasticsearchServiceImpl extends BaseElasticsearchServiceIm
     @Override
     public Map<Long, String> orgNameToMap(List<Long> staffId) {
         return this.getOrgNameToMap(staffId, false);
+    }
+
+    @Override
+    public List<Organizations> getOrgInfoByStaffId(Long staffId) {
+        List<StaffOrg> staffOrgList = this.findByStaffIdAndStatus(staffId, SecurityConstant.ENABLE_STATUS);
+        if (!CollectionUtils.isEmpty(staffOrgList)) {
+            List<Long> orgIds = staffOrgList.stream().map(StaffOrg::getOrgId).distinct().collect(Collectors.toList());
+            // 获取机构信息
+            List<Organizations> organizationsList = this.organizationsElasticsearchService.findByIdIn(orgIds);
+            return organizationsList;
+        }
+        return null;
+    }
+
+    @Override
+    public Map<Long, List<Organizations>> getOrgInfoByStaffIdIn(List<Long> staffId) {
+        Map<Long, List<Organizations>> orgMap = new ConcurrentHashMap<>();
+        List<StaffOrg> staffOrgList = this.findByStaffIdIn(staffId);
+        if (!CollectionUtils.isEmpty(staffOrgList)) {
+            Map<Long, List<StaffOrg>> groupMap = staffOrgList.stream().collect(Collectors.groupingBy(StaffOrg::getStaffId));
+            for (Map.Entry<Long, List<StaffOrg>> entry : groupMap.entrySet()) {
+                List<Long> orgIds = entry.getValue().stream().map(StaffOrg::getOrgId).distinct().collect(Collectors.toList());
+                // 获取机构信息
+                List<Organizations> organizationsList = this.organizationsElasticsearchService.findByIdIn(orgIds);
+                orgMap.put(entry.getKey(), organizationsList);
+            }
+        }
+        return orgMap;
     }
 
     /**

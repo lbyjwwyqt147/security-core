@@ -3,6 +3,7 @@ package pers.liujunyi.cloud.security.service.organizations;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.service.BaseElasticsearchService;
 import pers.liujunyi.cloud.security.domain.organizations.StaffOrgQueryDto;
+import pers.liujunyi.cloud.security.entity.organizations.Organizations;
 import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
 
 import java.util.List;
@@ -94,4 +95,18 @@ public interface StaffOrgElasticsearchService extends BaseElasticsearchService<S
      * @return 返回  map  key = staffId  valud  = 机构名称
      */
     Map<Long, String> orgNameToMap(List<Long> staffId);
+
+    /**
+     * 根据员工ID 获取所属组织机构信息
+     * @param staffId
+     * @return 返回  机构信息
+     */
+    List<Organizations> getOrgInfoByStaffId(Long staffId);
+
+    /**
+     * 根据员工ID 获取所属组织机构信息
+     * @param staffId
+     * @return 返回  map  key = staffId  valud  = 机构信息
+     */
+    Map<Long, List<Organizations>> getOrgInfoByStaffIdIn(List<Long> staffId);
 }
