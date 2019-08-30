@@ -59,13 +59,26 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
     @Override
     public ResultInfo saveRecord(UserAccountsDto record) {
         String result = this.saveUserAccountsRecord(record);
+        boolean registeredSource  = record.getRegisteredSource() != null && record.getRegisteredSource() == 1;
         switch (result) {
             case "-10":
-                return ResultUtil.params("帐号重复,请重新输入");
+                if (registeredSource) {
+                    return ResultUtil.params("员工手机号："+record.getUserAccounts()+"已被录入,请重新输入");
+                } else {
+                    return ResultUtil.params("账号已经被注册,请重新输入");
+                }
             case "-20":
-                return ResultUtil.params("用户编号重复,请重新输入");
+                if (registeredSource) {
+                    return ResultUtil.params("员工编号："+record.getUserNumber()+"已经存在,请重新输入");
+                } else {
+                    return ResultUtil.params("用户编号重复,请重新输入");
+                }
             case "-30":
-                return ResultUtil.params("你绑定的手机号已被使用,请重新输入");
+                if (registeredSource) {
+                    return ResultUtil.params("员工手机号："+record.getMobilePhone()+"已被录入,请重新输入");
+                } else {
+                    return ResultUtil.params("你绑定的手机号已被使用,请重新输入");
+                }
             case "0":
                 return ResultUtil.fail();
             default:
@@ -207,26 +220,39 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         String userMailbox = userAccountsUpdate.getUserMailbox();
         String userName = userAccountsUpdate.getUserName();
         String userNickName = userAccountsUpdate.getUserNickName();
+        boolean registeredSource  = userAccountsUpdate.getRegisteredSource() != null && userAccountsUpdate.getRegisteredSource() == 1;
         UserAccounts accounts = this.getUserAccounts(id);
         Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
         Map<String, Object> docDataMap = new HashMap<>();
         if (StringUtils.isNotBlank(userAccounts) ) {
             if ( this.checkUserAccountsRepetition(userAccounts, id)) {
-                return ResultUtil.params("帐号重复,请重新输入");
+                if (registeredSource) {
+                    return ResultUtil.params("员工手机号："+userAccounts+"已被录入,请重新输入");
+                } else {
+                    return ResultUtil.params("账号已经被注册,请重新输入");
+                }
             }
             accounts.setUserAccounts(userAccounts);
             docDataMap.put("userAccounts", userAccounts);
         }
         if (StringUtils.isNotBlank(userNumber) ) {
             if ( this.checkUserNumberRepetition(userNumber, id)) {
-                return ResultUtil.params("用户编号重复,请重新输入");
+                if (registeredSource) {
+                    return ResultUtil.params("员工编号："+userNumber+"已经存在,请重新输入");
+                } else {
+                    return ResultUtil.params("用户编号重复,请重新输入");
+                }
             }
             accounts.setUserNumber(userNumber);
             docDataMap.put("userNumber", userNumber);
         }
         if (StringUtils.isNotBlank(mobilePhone) ) {
             if ( this.checkMobilePhoneRepetition(mobilePhone, id)) {
-                return ResultUtil.params("你绑定的手机号已被使用,请重新输入");
+                if (registeredSource) {
+                    return ResultUtil.params("员工手机号："+mobilePhone+"已被录入,请重新输入");
+                } else {
+                    return ResultUtil.params("你绑定的手机号已被使用,请重新输入");
+                }
             }
             accounts.setMobilePhone(mobilePhone);
             docDataMap.put("mobilePhone", mobilePhone);
@@ -427,4 +453,5 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         }
         return false;
     }
+
 }
