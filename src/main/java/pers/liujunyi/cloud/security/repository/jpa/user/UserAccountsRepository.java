@@ -41,7 +41,7 @@ public interface UserAccountsRepository extends BaseRepository<UserAccounts, Lon
      */
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
-    @Query(value = "update user_accounts u set u.user_status = ?1, u.update_time = ?2, u.data_version = data_version+1 where u.id = ?3 and org.data_version = ?4", nativeQuery = true)
+    @Query(value = "update user_accounts u set u.user_status = ?1, u.update_time = ?2, u.data_version = data_version+1 where u.id = ?3 and u.data_version = ?4", nativeQuery = true)
     int setUserStatusById(Byte userStatus, Date updateTime, Long id, Long version);
 
 
@@ -53,7 +53,7 @@ public interface UserAccountsRepository extends BaseRepository<UserAccounts, Lon
      */
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
-    @Query(value = "update user_accounts u set u.user_password = ?1, u.change_passwordTime = ?2, u.update_time = ?2, u.data_version = data_version+1 where u.id = ?3 and org.data_version = ?4 ", nativeQuery = true)
+    @Query(value = "update user_accounts u set u.user_password = ?1, u.change_passwordTime = ?2, u.update_time = ?2, u.data_version = data_version+1 where u.id = ?3 and u.data_version = ?4 ", nativeQuery = true)
     int setUserPasswordById(String userPassword, Date time, Long id, Long version);
 
 }
