@@ -1,6 +1,7 @@
 package pers.liujunyi.cloud.security.service.organizations.impl;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -55,6 +56,7 @@ public class OrganizationsElasticsearchServiceImpl extends BaseElasticsearchServ
 
     @Override
     public List<ZtreeNode> orgFullParentCodeTree(String fullParentCode) {
+        fullParentCode = QueryParser.escape(fullParentCode).trim().replace(" ","");
         List<Organizations> list = this.organizationsElasticsearchRepository.findByFullParentCodeLikeAndOrgStatusOrderBySeqAsc(fullParentCode,  SecurityConstant.ENABLE_STATUS, super.allPageable);
         return this.startBuilderZtree(list);
     }
