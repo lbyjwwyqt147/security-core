@@ -69,14 +69,14 @@ public interface UserAccountsElasticsearchRepository extends BaseElasticsearchRe
      * @param userPassword
      * @return
      */
-    UserAccounts findFirstByUserAccountsOrMobilePhoneOrUserNumberAndUserPassword(String userAccounts, String userPassword);
+    UserAccounts findFirstByUserAccountsOrMobilePhoneOrUserNumberAndUserPassword(String userAccounts, String mobilePhone, String userNumber, String userPassword);
 
     /**
      * 根据 userAccounts  mobilePhone  userNumber   任意一个获取信息
      * @param userAccounts
      * @return
      */
-    UserAccounts findFirstByUserAccountsOrMobilePhoneOrUserNumber(String userAccounts);
+    UserAccounts findFirstByUserAccountsOrMobilePhoneOrUserNumber(String userAccounts, String mobilePhone, String userNumber);
 
     /**
      * 排除 指定 id

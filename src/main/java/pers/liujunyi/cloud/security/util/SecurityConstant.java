@@ -10,6 +10,7 @@ public class SecurityConstant {
     /** 启用状态 */
     public static final Byte ENABLE_STATUS = 0;
     public static final String DATA_GRID_MESSAGE = "无数据";
+    public static final String RESOURCE_ID = "resource_id";
 
     /**
      * 数据状态值

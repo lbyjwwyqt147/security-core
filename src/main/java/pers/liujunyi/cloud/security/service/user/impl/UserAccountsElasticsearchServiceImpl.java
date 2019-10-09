@@ -48,7 +48,7 @@ public class UserAccountsElasticsearchServiceImpl extends BaseElasticsearchServi
 
     @Override
     public ResultInfo userLogin(String userAccounts, String userPassword) {
-        UserAccounts accounts = this.userAccountsElasticsearchRepository.findFirstByUserAccountsOrMobilePhoneOrUserNumberAndUserPassword(userAccounts, userPassword);
+        UserAccounts accounts = this.userAccountsElasticsearchRepository.findFirstByUserAccountsOrMobilePhoneOrUserNumberAndUserPassword(userAccounts, userAccounts, userAccounts, userPassword);
         if (accounts != null) {
             if (accounts.getUserStatus().byteValue() == 1) {
                 return ResultUtil.params("账户已被禁用,请联系客服人员");
@@ -60,7 +60,7 @@ public class UserAccountsElasticsearchServiceImpl extends BaseElasticsearchServi
 
     @Override
     public UserAccounts findFirstByUserAccountsOrMobilePhoneOrUserNumber(String userAccounts) {
-        return this.userAccountsElasticsearchRepository.findFirstByUserAccountsOrMobilePhoneOrUserNumber(userAccounts);
+        return this.userAccountsElasticsearchRepository.findFirstByUserAccountsOrMobilePhoneOrUserNumber(userAccounts, userAccounts, userAccounts);
     }
 
     @Override

@@ -142,7 +142,7 @@ public class OrganizationsController extends BaseController {
      */
     @ApiOperation(value = "根据 pid 获取 组织机构tree 结构数据 (包含禁用数据)", notes = "适用于tree 显示数据 请求示例：127.0.0.1:18080/api/v1/tree/organization/all/z")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "pid", value = "pid",  required = true, dataType = "Long")
     })
     @GetMapping(value = "tree/organization/all/z")
@@ -159,7 +159,7 @@ public class OrganizationsController extends BaseController {
      */
     @ApiOperation(value = "根据 fullParentCode 获取 组织机构tree 结构数据", notes = "适用于tree 显示数据 请求示例：127.0.0.1:18080/api/v1/tree/organization/p/z")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "code", value = "code",  required = true, dataType = "String")
     })
     @GetMapping(value = "tree/organization/p/z")
@@ -177,7 +177,7 @@ public class OrganizationsController extends BaseController {
      */
     @ApiOperation(value = "修改数据状态", notes = "适用于修改数据状态 请求示例：127.0.0.1:18080/api/v1/organization/b/p")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String"),
             @ApiImplicitParam(name = "status", value = "status",  required = true, dataType = "integer")
     })
@@ -197,7 +197,7 @@ public class OrganizationsController extends BaseController {
      */
     @ApiOperation(value = "修改数据状态", notes = "适用于修改数据状态 请求示例：127.0.0.1:18080/api/v1/organization/p")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String"),
             @ApiImplicitParam(name = "status", value = "status",  required = true, dataType = "integer")
     })
@@ -216,7 +216,7 @@ public class OrganizationsController extends BaseController {
      */
     @ApiOperation(value = "根据id 获取详细信息", notes = "适用于根据id 获取详细信息 请求示例：127.0.0.1:18080/api/v1/organization/d/{id}")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "id", value = "id", paramType = "path",   required = true, dataType = "Long")
     })
     @Encrypt
@@ -233,7 +233,7 @@ public class OrganizationsController extends BaseController {
      */
     @ApiOperation(value = "同步数据", notes = "同步数据 请求示例：127.0.0.1:18080/api/v1/organization/sync")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
     })
     @PostMapping(value = "verify/organization/sync")
     @ApiVersion(1)

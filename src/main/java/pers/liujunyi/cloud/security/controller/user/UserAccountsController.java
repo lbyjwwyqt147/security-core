@@ -50,7 +50,7 @@ public class UserAccountsController extends BaseController {
      */
     @ApiOperation(value = "注册账户", notes = "适用于注册账户 请求示例：127.0.0.1:18080/api/v1/ignore/accounts/s")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1")
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1")
     })
     @Encrypt
     @Decrypt
@@ -68,7 +68,7 @@ public class UserAccountsController extends BaseController {
      */
     @ApiOperation(value = "单条删除数据", notes = "适用于单条删除数据 请求示例：127.0.0.1:18080/api/v1/accounts/d")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "id", value = "id",  required = true, dataType = "Long")
     })
     @Encrypt
@@ -89,7 +89,7 @@ public class UserAccountsController extends BaseController {
      */
     @ApiOperation(value = "删除多条数据", notes = "适用于批量删除数据 请求示例：127.0.0.1:18080/api/v1/accounts/b/d")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String")
     })
     @Decrypt
@@ -108,7 +108,7 @@ public class UserAccountsController extends BaseController {
      */
     @ApiOperation(value = "修改数据状态", notes = "适用于修改数据状态 请求示例：127.0.0.1:18080/api/v1/accounts/b/p")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String"),
             @ApiImplicitParam(name = "status", value = "status",  required = true, dataType = "integer")
     })
@@ -128,7 +128,7 @@ public class UserAccountsController extends BaseController {
      */
     @ApiOperation(value = "修改数据状态", notes = "适用于修改数据状态 请求示例：127.0.0.1:18080/api/v1/accounts/p")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "id", value = "id",  required = true, dataType = "String"),
             @ApiImplicitParam(name = "status", value = "status",  required = true, dataType = "integer")
     })
@@ -150,7 +150,7 @@ public class UserAccountsController extends BaseController {
      */
     @ApiOperation(value = "修改重置密码", notes = "适用于重置密码 请求示例：127.0.0.1:18080/api/v1/accounts/r/p")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "id", value = "id",  required = true, dataType = "integer"),
             @ApiImplicitParam(name = "historyPassWord", value = "原始密码",  required = true, dataType = "String"),
             @ApiImplicitParam(name = "currentPassWord", value = "新密码",  required = true, dataType = "String")
@@ -176,7 +176,7 @@ public class UserAccountsController extends BaseController {
 
     @ApiOperation(value = "分页列表数据(数据加密处理)", notes = "适用于分页grid 显示数据 请求示例：127.0.0.1:18080/api/v1/table/accounts/g")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1")
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1")
     })
     @GetMapping(value = "table/accounts/g")
     @ApiVersion(1)
@@ -192,7 +192,7 @@ public class UserAccountsController extends BaseController {
      */
     @ApiOperation(value = "同步数据", notes = "同步数据 请求示例：127.0.0.1:18080/api/v1/accounts/sync")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
     })
     @PostMapping(value = "verify/accounts/sync")
     @ApiVersion(1)
