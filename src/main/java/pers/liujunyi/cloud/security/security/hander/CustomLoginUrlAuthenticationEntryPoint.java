@@ -1,7 +1,6 @@
 package pers.liujunyi.cloud.security.security.hander;
 
 import lombok.extern.log4j.Log4j2;
-import org.frameworkset.spi.InitializingBean;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -30,14 +29,8 @@ import java.util.Map;
  */
 @Log4j2
 @Component
-public class CustomLoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoint,
-        InitializingBean {
+public class CustomLoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-
-    }
 
     @Override
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
@@ -54,5 +47,10 @@ public class CustomLoginUrlAuthenticationEntryPoint implements AuthenticationEnt
         map.put("timestamp", DateTimeUtils.getCurrentDateTimeAsString());
         httpServletResponse.setStatus(HttpServletResponse.SC_GATEWAY_TIMEOUT);
         ResultUtil.writeJavaScript(httpServletResponse, map);
+    }
+
+    public static boolean isAjaxRequest(HttpServletRequest request) {
+        String ajaxFlag = request.getHeader("X-Requested-With");
+        return ajaxFlag != null && "XMLHttpRequest".equals(ajaxFlag);
     }
 }

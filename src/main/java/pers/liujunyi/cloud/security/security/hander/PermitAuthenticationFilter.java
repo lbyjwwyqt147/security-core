@@ -3,6 +3,8 @@ package pers.liujunyi.cloud.security.security.hander;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -72,6 +74,11 @@ public class PermitAuthenticationFilter extends OAuth2AuthenticationProcessingFi
         log.info(" **************** 开始权限认证 ******************** ");
         String curRequestURI = "当前访问的URL地址：" + request.getRequestURI();
         try {
+            // 如果是OPTIONS则结束请求
+            if (HttpMethod.OPTIONS.toString().equals(request.getMethod())) {
+                response.setStatus(HttpStatus.NO_CONTENT.value());
+                filterChain.doFilter(request, response);
+            }
             Authentication authentication = this.tokenExtractor.extract(request);
             if (authentication == null) {
                 if (this.stateless && this.isAuthenticated()) {

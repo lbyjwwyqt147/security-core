@@ -59,19 +59,19 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-
         // 配置那些资源需要保护的
         http.authorizeRequests()   //authorizeRequests　配置权限　顺序为先配置需要放行的url 在配置需要权限的url，最后再配置.anyRequest().authenticated()
-                .antMatchers("/oauth/**", "/user/login", "/api/v1/out", "/api/verify/ignore/**").permitAll()   //无条件放行的资源
+                .antMatchers("/oauth/**", "/api/user/login", "/api/v1/user/login", "/api/v1/out", "/api/v1/verify/ignore/**", "/api/v1/table/**").permitAll()   //无条件放行的资源
+                //.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 //.antMatchers(excludeAntMatchers.split(",")).permitAll()   //无条件放行的资源
                 .antMatchers("/api/**").authenticated()     //需要保护的资源
                 .anyRequest().authenticated()  //其他资源都受保护
                 .and()
                 .exceptionHandling().accessDeniedHandler(customAccessDeniedHandler())  //权限认证失败业务处理
-                .authenticationEntryPoint(customAuthenticationEntryPoint())  //认证失败的业务处理
+                .authenticationEntryPoint(authenticationEntryPoint())  //认证失败的业务处理
                 .and()
                 .formLogin()
-                .loginProcessingUrl("/user/login")  //指定登陆url
+                .loginProcessingUrl("/api/user/login")  //指定登陆url
                 .successHandler(customLoginSuccessHandler())  //登陆成功处理类
                 .failureHandler(customLoginFailHandler())  //登陆失败处理类
                 .permitAll();

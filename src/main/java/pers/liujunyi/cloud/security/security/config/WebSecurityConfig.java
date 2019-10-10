@@ -47,15 +47,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        // 开启允许iframe 嵌套
+       // http.headers().frameOptions().disable();
         http.csrf().disable()// 关闭跨站检测
+                //.cors()  //开启跨域
+               // .and()
                 .authorizeRequests()   //authorizeRequests　配置权限　顺序为先配置需要放行的url 在配置需要权限的url，最后再配置.anyRequest().authenticated()
-                .antMatchers("/oauth/**", "/user/login", "/api/v1/out", "/api/verify/ignore/**").permitAll()   //无条件放行的资源
-               // .antMatchers(excludeAntMatchers.split(",")).permitAll()   //无条件放行的资源
+                .antMatchers("/oauth/**", "/api/v1/user/login", "/api/user/login", "/api/v1/out", "/api/v1/verify/ignore/**", "/api/v1/table/**").permitAll()   //无条件放行的资源
+                //.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                // .antMatchers(excludeAntMatchers.split(",")).permitAll()   //无条件放行的资源
                 .antMatchers("/api/**").authenticated()     //需要保护的资源
                 .anyRequest().authenticated() //其他资源都受保护
                 .and()
                 .formLogin()
-                .loginProcessingUrl("/user/login")  //指定登陆url
+                .loginProcessingUrl("/api/user/login")  //指定登陆url  系统中我使用LoginController 中登录接口进行登录 /api/v1/user/login   不使用指定的 /api/user/login 登录接口  如果使用指定的 /api/user/login 登录请求触发后会直接进入MyUserDetailService中的MyUserDetailService方法 认证登录
                 .loginPage("/api/v1/out")  //未登录时 页面跳转 这里返回json
                 .passwordParameter("userPassword") // 指定密码参数名称（对应前端传给后天参数名）
                 .usernameParameter("userAccount") // 指定账号参数名称（对应前端传给后天参数名）

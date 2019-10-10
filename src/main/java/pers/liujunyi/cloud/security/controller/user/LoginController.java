@@ -13,18 +13,17 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pers.liujunyi.cloud.common.annotation.ApiVersion;
 import pers.liujunyi.cloud.common.controller.BaseController;
+import pers.liujunyi.cloud.common.encrypt.annotation.Decrypt;
+import pers.liujunyi.cloud.common.encrypt.annotation.Encrypt;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
+import pers.liujunyi.cloud.security.domain.user.LoginDto;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.security.Principal;
 
 /***
@@ -62,14 +61,15 @@ public class LoginController extends BaseController {
 
     /**
      * 用户登陆
-     * @param userAccount 登陆账号
-     * @param userPassword　登陆密码
+     * @param loginDto
      * @return
      */
     @ApiOperation(value = "用户登陆", notes = "")
     @PostMapping(value = "user/login")
     @ApiVersion(1)
-    public ResultInfo userLogin(@Valid @NotNull(message = "登录名不能为空") String userAccount, @Valid @NotNull(message = "密码不能为空") String userPassword) {
+    @Encrypt
+    @Decrypt
+    public ResultInfo userLogin(@Valid @RequestBody LoginDto loginDto) {
 
         //登录 身份认证
         // 这句代码会自动执行咱们自定义的 "MyUserDetailService.java" 身份认证类
@@ -86,7 +86,7 @@ public class LoginController extends BaseController {
         //而每一个Provider都会通UserDetailsService和UserDetail来返回一个
         //以UsernamePasswordAuthenticationToken实现的带用户名和密码以及权限的Authentication
         try {
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userAccount, userPassword));
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUserAccount(), loginDto.getUserPassword()));
             //将身份 存储到SecurityContext里
             SecurityContext securityContext = SecurityContextHolder.getContext();
             securityContext.setAuthentication(authentication);
