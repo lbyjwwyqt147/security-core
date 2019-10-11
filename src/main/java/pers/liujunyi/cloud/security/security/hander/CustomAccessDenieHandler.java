@@ -37,12 +37,13 @@ public class CustomAccessDenieHandler extends OAuth2AccessDeniedHandler {
         log.info(authException.getLocalizedMessage());
         authException.printStackTrace();
         Map<String, Object> map =  new HashMap<>();
+        map.put("success", false);
         map.put("status", ErrorCodeEnum.AUTHORITY.getCode());
         map.put("message", authException.getMessage());
         map.put("description", ErrorCodeEnum.AUTHORITY.getMessage());
         map.put("path", httpServletRequest.getServletPath());
         map.put("timestamp", DateTimeUtils.getCurrentDateTimeAsString());
-        httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        httpServletResponse.setStatus(HttpServletResponse.SC_OK);
         ResultUtil.writeJavaScript(httpServletResponse, map);
     }
 }

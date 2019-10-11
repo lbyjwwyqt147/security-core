@@ -39,17 +39,17 @@
             </exclusions>
         </dependency>
 
-        <dependency>
+        <!--<dependency>
             <groupId>org.springframework.security.oauth</groupId>
             <artifactId>spring-security-oauth2</artifactId>
             <version>${security-oauth2-version}</version>
-        </dependency>
+        </dependency>-->
 
-       <!-- <dependency>
+       <dependency>
             <groupId>org.springframework.security.oauth.boot</groupId>
             <artifactId>spring-security-oauth2-autoconfigure</artifactId>
             <version>${security-oauth2-autoconfigure-version}</version>
-        </dependency>-->
+        </dependency>
 
         <dependency>
             <groupId>org.projectlombok</groupId>

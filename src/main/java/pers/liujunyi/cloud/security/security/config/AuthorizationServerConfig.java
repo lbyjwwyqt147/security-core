@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -42,10 +42,6 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Autowired
     private MyUserDetailService myUserDetailService;
 
-    /** 客户端 */
-    private static final String CLIEN_ID = "client_photo";
-    /** secret客户端安全码 */
-    private static final String CLIENT_SECRET = "secret";
     /** 资源所有者（即用户）密码模式 */
     private static final String GRANT_TYPE_PASSWORD = "password";
     /** 授权码模式  授权码模式使用到了回调地址，是最为复杂的方式，通常网站中经常出现的微博，qq第三方登录，都会采用这个形式。 */
@@ -78,6 +74,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
         // isAuthenticated():排除anonymous   isFullyAuthenticated():排除anonymous以及remember-me
+        // allowFormAuthenticationForClients 允许表单认证
         security.tokenKeyAccess("permitAll()").checkTokenAccess("isAuthenticated()").allowFormAuthenticationForClients();;
     }
 
@@ -87,10 +84,11 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
      **/
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-        String secret = new BCryptPasswordEncoder().encode(CLIENT_SECRET);  // 用 BCrypt 对密码编码
+        // 用 BCrypt 对密码编码
+        String secret = PasswordEncoderFactories.createDelegatingPasswordEncoder().encode(SecurityConstant.CLIENT_SECRET);
         //配置3个个客户端,一个用于password认证、一个用于client认证、一个用于authorization_code认证
         clients.inMemory()  // 使用in-memory存储
-                .withClient(CLIEN_ID)    //client_id用来标识客户的Id
+                .withClient(SecurityConstant.CLIEN_ID)    // 设置客户端用户
                 .resourceIds(SecurityConstant.RESOURCE_ID)
                 .authorizedGrantTypes(AUTHORIZATION_CODE, GRANT_TYPE, REFRESH_TOKEN, GRANT_TYPE_PASSWORD, IMPLICIT)  //允许授权类型
                 .scopes(SCOPE_READ, SCOPE_WRITE, TRUST)  //允许授权范围
@@ -114,7 +112,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 .userDetailsService(myUserDetailService)
                 .authenticationManager(authenticationManager)
                 .allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.OPTIONS) //支持GET  POST  请求获取token
-                .reuseRefreshTokens(true) //开启刷新token
+                .reuseRefreshTokens(false) //refreshToken是否可以重复使用。 默认：true;
                 .tokenServices(defaultTokenServices());
     }
 

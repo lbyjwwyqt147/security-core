@@ -38,12 +38,13 @@ public class CustomAuthenticationEntryPoint extends OAuth2AuthenticationEntryPoi
         log.info(e.getLocalizedMessage());
         e.printStackTrace();
         Map<String, Object> map =  new HashMap<>();
+        map.put("success", false);
         map.put("status", ErrorCodeEnum.LOGIN_WITHOUT.getCode());
         map.put("message", e.getMessage());
         map.put("description", ErrorCodeEnum.LOGIN_WITHOUT.getMessage());
         map.put("path", httpServletRequest.getServletPath());
         map.put("timestamp", DateTimeUtils.getCurrentDateTimeAsString());
-        httpServletResponse.setStatus(HttpServletResponse.SC_GATEWAY_TIMEOUT);
+        httpServletResponse.setStatus(HttpServletResponse.SC_OK);
         ResultUtil.writeJavaScript(httpServletResponse, map);
     }
 }

@@ -35,8 +35,9 @@ public class CustomLogoutSuccessHandler extends AbstractAuthenticationTargetUrlR
                 tokenStore.removeAccessToken(oAuth2AccessToken);
             }
         }*/
-        Map<String, String> map =  new HashMap<>();
-        map.put("status", "0");
+        Map<String, Object> map =  new HashMap<>();
+        map.put("status", 200);
+        map.put("success", true);
         map.put("message", "退出系统.");
         ResultUtil.writeJavaScript(response, map);
        // response.setStatus(HttpServletResponse.SC_OK);

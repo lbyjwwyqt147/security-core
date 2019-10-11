@@ -34,6 +34,7 @@ public class CustomLoginFailHandler implements AuthenticationFailureHandler {
     public void onAuthenticationFailure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
         log.info("********************* 登录失败 *********************");
         Map<String, Object> map =  new HashMap<>();
+        map.put("success", false);
         map.put("status", ErrorCodeEnum.LOGIN_INCORRECT.getCode());
         log.info(e.getLocalizedMessage());
         map.put("path", httpServletRequest.getServletPath());

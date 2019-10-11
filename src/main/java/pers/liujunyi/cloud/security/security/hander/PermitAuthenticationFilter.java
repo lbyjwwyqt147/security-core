@@ -3,6 +3,7 @@ package pers.liujunyi.cloud.security.security.hander;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -44,6 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Log4j2
 @Component
+@Order(0)
 public class PermitAuthenticationFilter extends OAuth2AuthenticationProcessingFilter {
 
     private static final String BEARER_AUTHENTICATION = "Bearer ";
@@ -71,7 +73,7 @@ public class PermitAuthenticationFilter extends OAuth2AuthenticationProcessingFi
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         HttpServletRequest request = (HttpServletRequest) servletRequest;
-        log.info(" **************** 开始权限认证 ******************** ");
+        log.info(" **************** 开始身份权限校验 ******************** ");
         String curRequestURI = "当前访问的URL地址：" + request.getRequestURI();
         try {
             // 如果是OPTIONS则结束请求

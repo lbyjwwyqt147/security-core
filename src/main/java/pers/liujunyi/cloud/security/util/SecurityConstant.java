@@ -11,6 +11,10 @@ public class SecurityConstant {
     public static final Byte ENABLE_STATUS = 0;
     public static final String DATA_GRID_MESSAGE = "无数据";
     public static final String RESOURCE_ID = "resource_id";
+    /** 客户端 */
+    public static final String CLIEN_ID = "client_photo";
+    /** secret客户端安全码 */
+    public static final String CLIENT_SECRET = "secret";
 
     /**
      * 数据状态值
