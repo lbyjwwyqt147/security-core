@@ -3,6 +3,7 @@ package pers.liujunyi.cloud.security.security.config;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -16,6 +17,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
@@ -55,7 +57,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private MyUserDetailService myUserDetailService;
-
+    @Value("${data.security.antMatchers}")
+    private String excludeAntMatchers;
 
     @Autowired
     public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
@@ -66,29 +69,56 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        // 开启允许iframe 嵌套
-       // http.headers().frameOptions().disable();
-        http.cors().and().csrf().disable()// 关闭跨站检测
-                .authorizeRequests()   //authorizeRequests　配置权限　顺序为先配置需要放行的url 在配置需要权限的url，最后再配置.anyRequest().authenticated()
-                .requestMatchers(CorsUtils::isPreFlightRequest).permitAll() ////处理跨域请求中的Preflight请求
-                .antMatchers("/oauth/**", "/api/v1/user/login", "/api/user/login", "/api/v1/out", "/api/v1/verify/ignore/**", "/api/v1/table/**").permitAll()   //无条件放行的资源
-                //.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // .antMatchers(excludeAntMatchers.split(",")).permitAll()   //无条件放行的资源
-                .antMatchers("/api/**").authenticated()     //需要保护的资源
-                .anyRequest().authenticated() //其他资源都受保护
+        String[] tempAntMatchers = excludeAntMatchers.trim().split(",");
+        int length =  tempAntMatchers.length;
+        String[] antMatchers = new String[length];
+        for (int i = 0; i < length; i++) {
+            antMatchers[i] = tempAntMatchers[i].trim();
+        }
+        // 开启跨域
+        http.cors()
                 .and()
-                .exceptionHandling().accessDeniedHandler(customAccessDeniedHandler())  //权限认证失败业务处理
-                .authenticationEntryPoint(customAuthenticationEntryPoint())  //身份认证失败的业务处理
+                // 关闭跨站检测
+                .csrf().disable()
+                // 基于token，所以不需要session
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                //authorizeRequests　配置权限　顺序为先配置需要放行的url 在配置需要权限的url，最后再配置.anyRequest().authenticated()
+                .authorizeRequests()
+                //处理跨域请求中的Preflight请求
+                .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+                //无条件放行的资源
+                //.antMatchers("/oauth/**", "/api/v1/user/login", "/api/user/login", "/api/v1/out", "/api/v1/verify/ignore/**", "/api/v1/table/**").permitAll()
+                //无条件放行的资源
+                 .antMatchers(antMatchers).permitAll()
+                //需要保护的资源
+                .antMatchers("/api/**").authenticated()
+                //其他资源都受保护
+                .anyRequest().authenticated()
+                .and()
+                .exceptionHandling()
+                //权限认证失败业务处理
+                .accessDeniedHandler(customAccessDeniedHandler())
+                //身份认证失败的业务处理
+                .authenticationEntryPoint(customAuthenticationEntryPoint())
                 .and()
                 .formLogin()
-                .loginProcessingUrl("/api/user/login")  //指定登陆url  系统中我使用LoginController 中登录接口进行登录 /api/v1/user/login   不使用指定的 /api/user/login 登录接口  如果使用指定的 /api/user/login 登录请求触发后会直接进入MyUserDetailService中的MyUserDetailService方法 认证登录
-                .loginPage("/api/v1/out")  //未登录时 页面跳转 这里返回json
-                .passwordParameter("userPassword") // 指定密码参数名称（对应前端传给后天参数名）
-                .usernameParameter("userAccount") // 指定账号参数名称（对应前端传给后天参数名）
-                .successHandler(customLoginSuccessHandler())  //登陆成功处理类
-                .failureHandler(customLoginFailHandler())  //登陆失败处理类
-                .permitAll();
+                //指定登陆url  系统中我使用LoginController 中登录接口进行登录 /api/v1/user/login   不使用指定的 /api/user/login 登录接口  如果使用指定的 /api/user/login 登录请求触发后会直接进入MyUserDetailService中的MyUserDetailService方法 认证登录
+                // 系统中由于使用LoginController 中登录接口 所以不会触发successHandler和failureHandler
+                .loginProcessingUrl("/api/user/login")
+                //未登录时 页面跳转 这里返回json
+                .loginPage("/api/v1/out")
+                // 指定密码参数名称（对应前端传给后台参数名）
+                .passwordParameter("userPassword")
+                // 指定账号参数名称（对应前端传给后台参数名）
+                .usernameParameter("userAccount")
+                //登陆成功处理类
+                .successHandler(customLoginSuccessHandler())
+                //登陆失败处理类
+                .failureHandler(customLoginFailHandler());
         http.logout().permitAll();
+        // 禁用缓存
+        http.headers().cacheControl();
         log.info(" >>>>> SecurityConfig 初始化完成. ");
 
     }

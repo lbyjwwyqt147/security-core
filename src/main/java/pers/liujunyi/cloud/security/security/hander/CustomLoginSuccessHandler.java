@@ -13,9 +13,7 @@ import pers.liujunyi.cloud.common.exception.ErrorCodeEnum;
 import pers.liujunyi.cloud.common.redis.RedisTemplateUtils;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.util.DateTimeUtils;
-import pers.liujunyi.cloud.common.util.HttpClientUtils;
 import pers.liujunyi.cloud.security.security.config.MyUserDetailService;
-import pers.liujunyi.cloud.security.util.SecurityConstant;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -23,14 +21,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /***
  * 文件名称: CustomLoginSuccessHandler.java
  * 文件描述: 登陆成功　后的处理类
  * 公 司:
  * 内容摘要:
- * 其他说明:　当登陆成功　进入此类
+ * 其他说明:　当登陆成功　进入此类  系统中我使用LoginController中的登录接口,所以登录成功后不会进入该方法,如果使用默认登录方法登录成功后则会进入该方法
  * 完成日期:2019年10月09日
  * 修改记录:
  * @version 1.0
@@ -82,18 +79,5 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 
     }
 
-    /**
-     * 获取 token 数据
-     */
-    private String decodeToken() {
-        String token = null;
-        String url = "http://127.0.0.1:" + curPort + "/oauth/token";
-        Map<String, Object> params = new ConcurrentHashMap<>();
-        params.put("grant_type", "client_credentials");
-        params.put("scope", "all");
-        params.put("client_id", SecurityConstant.CLIEN_ID);
-        params.put("client_secret", SecurityConstant.CLIENT_SECRET);
-        HttpClientUtils.httpPost(url, params);
-        return token;
-    }
+
 }

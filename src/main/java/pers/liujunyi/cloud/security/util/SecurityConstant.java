@@ -15,6 +15,10 @@ public class SecurityConstant {
     public static final String CLIEN_ID = "client_photo";
     /** secret客户端安全码 */
     public static final String CLIENT_SECRET = "secret";
+    /** 客户端的access_token的有效时间值(单位:秒) */
+    public static final Integer ACCESS_TOKEN_VALIDITY_SECONDS = 60*60*12;
+    /** 客户端的refresh_token的有效时间值(单位:秒) */
+    public static final Integer REFRESH_TOKEN_VALIDITY_SECONDS = 60 * 60 * 24 * 7;
 
     /**
      * 数据状态值

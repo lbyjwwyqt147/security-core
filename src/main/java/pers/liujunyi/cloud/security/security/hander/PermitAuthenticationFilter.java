@@ -3,26 +3,23 @@ package pers.liujunyi.cloud.security.security.hander;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
-import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationManager;
-import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationProcessingFilter;
 import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
-import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
-import pers.liujunyi.cloud.common.exception.DescribeException;
-import pers.liujunyi.cloud.common.exception.ErrorCodeEnum;
+import org.springframework.web.filter.OncePerRequestFilter;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
 
-import javax.servlet.*;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -45,18 +42,108 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Log4j2
 @Component
-@Order(0)
-public class PermitAuthenticationFilter extends OAuth2AuthenticationProcessingFilter {
+public class PermitAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String BEARER_AUTHENTICATION = "Bearer ";
-    private static final String HEADER_AUTHORIZATION = "authorization";
+    private static final String HEADER_AUTHORIZATION = "Authorization";
     private TokenExtractor tokenExtractor = new BearerTokenExtractor();
     private boolean stateless = true;
     @Autowired
     private TokenStore tokenStore;
+    @Value("${data.security.antMatchers}")
+    private String excludeAntMatchers;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+                                    FilterChain filterChain) throws ServletException, IOException {
+
+        log.info(" **************** 开始身份权限校验 ******************** ");
+        String curRequestURI = "当前访问的URL地址：" + httpServletRequest.getRequestURI();
+        // 如果是OPTIONS则结束请求
+        if (HttpMethod.OPTIONS.toString().equals(httpServletRequest.getMethod())) {
+            httpServletResponse.setStatus(HttpStatus.NO_CONTENT.value());
+            filterChain.doFilter(httpServletRequest, httpServletResponse);
+            return;
+        }
+
+        String[] antMatchers = excludeAntMatchers.trim().split(",");
+        for (String matchers : antMatchers) {
+            RequestMatcher requestMatcher = new AntPathRequestMatcher(matchers);
+            boolean through = requestMatcher.matches(httpServletRequest);
+            if (through) {
+                filterChain.doFilter(httpServletRequest, httpServletResponse);
+                return;
+            }
+        }
+
+        //从request中解析PreAuthenticatedAuthenticationToken(注意这里并不是OAuth2Authentication)
+        Authentication authentication = this.tokenExtractor.extract(httpServletRequest);
+        if (authentication == null) {
+           /* if (this.stateless && this.isAuthenticated()) {
+                // SecurityContextHolder.clearContext();
+            }*/
+            log.info(curRequestURI + " 不进行拦截....");
+            filterChain.doFilter(httpServletRequest, httpServletResponse);
+        } else {
+            log.info(" >>>>>>>>>>> 　开始验证token是否有效　   ");
+            String accessToken = httpServletRequest.getParameter("access_token");
+            String headerToken = httpServletRequest.getHeader(HEADER_AUTHORIZATION);
+            Map<String, Object> map =  new HashMap<>();
+            map.put("status", 401);
+            AtomicBoolean error = new AtomicBoolean(false);
+            if (StringUtils.isNotBlank(accessToken)) {
+                try {
+                    OAuth2AccessToken oAuth2AccessToken = tokenStore.readAccessToken(accessToken);
+                    if (oAuth2AccessToken == null) {
+                        error.set(true);
+                        map.put("message", " 无校的token信息.");
+                        log.info(curRequestURI + " 无校的token信息.");
+                    } else {
+                        log.info( curRequestURI+" token:" + oAuth2AccessToken.getValue());
+                    }
+                } catch (InvalidTokenException e){
+                    error.set(true);
+                    map.put("message",e.getMessage());
+                    log.info(curRequestURI + " 无校的token信息.");
+                    // throw new AccessDeniedException("无校的token信息.");
+                }
+
+            } else if (StringUtils.isNotBlank(headerToken) && headerToken.startsWith(BEARER_AUTHENTICATION)){
+                try {
+                    OAuth2AccessToken oAuth2AccessToken = tokenStore.readAccessToken(headerToken.split(" ")[0]);
+                    if (oAuth2AccessToken == null) {
+                        error.set(true);
+                        map.put("message", " 无校的token信息.");
+                        log.info(curRequestURI + " 无校的token信息.");
+                    } else {
+                        log.info( curRequestURI+" token:" + oAuth2AccessToken.getValue());
+                    }
+                } catch (InvalidTokenException e){
+                    error.set(true);
+                    map.put("message",e.getMessage());
+                    log.info(curRequestURI + " 无校的token信息.");
+                    // throw new AccessDeniedException("无校的token信息.");
+                }
+
+            } else {
+                error.set(true);
+                map.put("message", "参数无token.");
+                log.info(curRequestURI + " 参数无token.");
+                //throw new AccessDeniedException("参数无token.");
+            }
+            if (!error.get()){
+                filterChain.doFilter(httpServletRequest, httpServletResponse);
+            } else {
+                map.put("path", httpServletRequest.getServletPath());
+                map.put("timestamp", String.valueOf(LocalDateTime.now()));
+                httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                ResultUtil.writeJavaScript(httpServletResponse, map);
+            }
+        }
+    }
 
 
-    public PermitAuthenticationFilter() {
+    /*public PermitAuthenticationFilter() {
         OAuth2AuthenticationManager oAuth2AuthenticationManager = new OAuth2AuthenticationManager();
         DefaultTokenServices dt = new DefaultTokenServices();
         dt.setTokenStore(tokenStore);
@@ -80,6 +167,7 @@ public class PermitAuthenticationFilter extends OAuth2AuthenticationProcessingFi
             if (HttpMethod.OPTIONS.toString().equals(request.getMethod())) {
                 response.setStatus(HttpStatus.NO_CONTENT.value());
                 filterChain.doFilter(request, response);
+                return;
             }
             Authentication authentication = this.tokenExtractor.extract(request);
             if (authentication == null) {
@@ -146,5 +234,5 @@ public class PermitAuthenticationFilter extends OAuth2AuthenticationProcessingFi
     private boolean isAuthenticated() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication != null && !(authentication instanceof AnonymousAuthenticationToken);
-    }
+    }*/
 }

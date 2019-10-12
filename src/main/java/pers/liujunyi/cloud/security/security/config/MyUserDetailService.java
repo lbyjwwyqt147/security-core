@@ -38,16 +38,12 @@ public class MyUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
-       try {
            UserAccounts userAccounts = this.userAccountsElasticsearchRepository.findFirstByUserAccountsOrMobilePhoneOrUserNumber(userName, userName, userName);
            if (userAccounts == null) {
                log.info("登录用户【" + userName + "】不存在.");
-               // throw new UsernameNotFoundException(userName);
                throw new DescribeException(ErrorCodeEnum.LOGIN_INCORRECT);
            }
-           if (userAccounts.getUserStatus() == 1) {
-               throw new DescribeException(ErrorCodeEnum.USER_LOCK);
-           }
+
            // 可用性 :true:可用 false:不可用
            boolean enabled = true;
            // 过期性 :true:没过期 false:过期
@@ -56,14 +52,14 @@ public class MyUserDetailService implements UserDetailsService {
            boolean credentialsNonExpired = true;
            // 锁定性 :true:未锁定 false:已锁定
            boolean accountNonLocked = true;
+           if (userAccounts.getUserStatus() == 1) {
+               accountNonLocked = false;
+           }
            Set<GrantedAuthority> grantedAuthorities = this.getAuthority(userAccounts);
 
-           User user = new User(userAccounts.getUserAccounts(), userAccounts.getUserPassword(),
+           User user = new User(userName, userAccounts.getUserPassword(),
                    enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, grantedAuthorities);
            return user;
-       } catch (Exception e) {
-           throw new DescribeException(ErrorCodeEnum.LOGIN_INCORRECT);
-       }
 
     }
 

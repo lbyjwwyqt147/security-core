@@ -9,7 +9,6 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
-import pers.liujunyi.cloud.security.security.hander.PermitAuthenticationFilter;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
 import javax.servlet.http.HttpServletResponse;
@@ -53,7 +52,6 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .and()
                 .httpBasic();
         log.info(" >>>>> 访问权限配置 初始化完成. ");
-
     }
 
 
