@@ -24,6 +24,7 @@ import java.util.Set;
  * 公 司:
  * 内容摘要:
  * 其他说明: 当用户登录时会进入此类的loadUserByUsername方法对用户进行验证，验证成功后会被保存在当前回话的principal对象中
+ *          系统获取当前登录对象信息方法 User User = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
  * 完成日期:2019年10月08日
  * 修改记录:
  * @version 1.0

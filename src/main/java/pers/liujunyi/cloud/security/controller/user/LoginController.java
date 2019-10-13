@@ -29,8 +29,8 @@ import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
 import pers.liujunyi.cloud.common.util.HttpClientUtils;
 import pers.liujunyi.cloud.common.util.TokenLocalContext;
 import pers.liujunyi.cloud.common.vo.BaseRedisKeys;
-import pers.liujunyi.cloud.common.vo.user.UserDetails;
 import pers.liujunyi.cloud.security.domain.user.LoginDto;
+import pers.liujunyi.cloud.security.domain.user.UserDetailsDto;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
 import pers.liujunyi.cloud.security.repository.elasticsearch.user.UserAccountsElasticsearchRepository;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
@@ -124,8 +124,13 @@ public class LoginController extends BaseController {
             request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
             String token = this.decodeToken();
             log.info("当前登录人【" + loginDto.getUserAccount() + "】的token:" + token);
-            UserDetails userDetails = DozerBeanMapperUtil.copyProperties(accounts, UserDetails.class);
+            UserDetailsDto userDetails = DozerBeanMapperUtil.copyProperties(accounts, UserDetailsDto.class);
             userDetails.setUserId(accounts.getId());
+            userDetails.setAuthorities(JSONObject.toJSONString(authentication.getAuthorities()));
+            userDetails.setAuthenticated(true);
+            userDetails.setCredentials(authentication.getCredentials());
+            userDetails.setPrincipal(authentication.getPrincipal());
+            userDetails.setToken(token);
             this.saveUserToRedis(token, userDetails);
             return ResultUtil.success("登录成功.", token);
         } catch (AuthenticationException e){
@@ -195,15 +200,16 @@ public class LoginController extends BaseController {
      * @param token
      * @param userDetails
      */
-    private void saveUserToRedis(String token, UserDetails userDetails) {
+    private void saveUserToRedis(String token, UserDetailsDto userDetails) {
         // 获取用户登录历史token
-        Object oldToken = this.redisTemplateUtil.hget(BaseRedisKeys.USER_DETAILS_TOKNE , userDetails.getUserId().toString());
-        if (oldToken != null && !oldToken.toString().trim().equals("")) {
-            this.redisTemplateUtil.hdel(BaseRedisKeys.USER_LOGIN_TOKNE, String.valueOf(oldToken).trim());
+        Object redisToken = this.redisTemplateUtil.hget(BaseRedisKeys.USER_DETAILS_TOKNE , userDetails.getUserId().toString());
+        if (redisToken != null && !redisToken.toString().trim().equals("")) {
+            String oldToken = String.valueOf(redisToken).trim();
+            this.redisTemplateUtil.hdel(BaseRedisKeys.USER_LOGIN_TOKNE, oldToken);
         }
         TokenLocalContext.remove();
         TokenLocalContext.setToken(token);
-        this.redisTemplateUtil.hset(BaseRedisKeys.USER_DETAILS_TOKNE , userDetails.getUserId().toString(), token, SecurityConstant.ACCESS_TOKEN_VALIDITY_SECONDS.longValue());
-        this.redisTemplateUtil.hset(BaseRedisKeys.USER_LOGIN_TOKNE , token, JSONObject.toJSONString(userDetails), SecurityConstant.ACCESS_TOKEN_VALIDITY_SECONDS.longValue());
+        this.redisTemplateUtil.hset(BaseRedisKeys.USER_DETAILS_TOKNE, userDetails.getUserId().toString(), token, SecurityConstant.ACCESS_TOKEN_VALIDITY_SECONDS.longValue());
+        this.redisTemplateUtil.hset(BaseRedisKeys.USER_LOGIN_TOKNE, token, JSONObject.toJSONString(userDetails), SecurityConstant.ACCESS_TOKEN_VALIDITY_SECONDS.longValue());
     }
 }

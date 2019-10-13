@@ -1,22 +1,33 @@
-package pers.liujunyi.cloud.security.security.hander;
+package pers.liujunyi.cloud.security.security.filter;
 
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
+import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
+import pers.liujunyi.cloud.common.redis.RedisTemplateUtils;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
+import pers.liujunyi.cloud.common.vo.BaseRedisKeys;
+import pers.liujunyi.cloud.security.domain.user.UserDetailsDto;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -25,7 +36,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -44,7 +57,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Component
 public class PermitAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final String BEARER_AUTHENTICATION = "Bearer ";
+    private static final String BEARER_AUTHENTICATION = "bearer ";
     private static final String HEADER_AUTHORIZATION = "Authorization";
     private TokenExtractor tokenExtractor = new BearerTokenExtractor();
     private boolean stateless = true;
@@ -52,42 +65,46 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
     private TokenStore tokenStore;
     @Value("${data.security.antMatchers}")
     private String excludeAntMatchers;
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
                                     FilterChain filterChain) throws ServletException, IOException {
 
         log.info(" **************** 开始身份权限校验 ******************** ");
-        String curRequestURI = "当前访问的URL地址：" + httpServletRequest.getRequestURI();
+        String curUrl = httpServletRequest.getRequestURI();
+        String curRequestURI = "当前访问的URL地址：" +curUrl;
         // 如果是OPTIONS则结束请求
         if (HttpMethod.OPTIONS.toString().equals(httpServletRequest.getMethod())) {
             httpServletResponse.setStatus(HttpStatus.NO_CONTENT.value());
             filterChain.doFilter(httpServletRequest, httpServletResponse);
             return;
         }
-
+        String accessToken = httpServletRequest.getParameter("access_token");
+        String headerToken = httpServletRequest.getHeader(HEADER_AUTHORIZATION);
+        //从request中解析PreAuthenticatedAuthenticationToken(注意这里并不是OAuth2Authentication)
+        Authentication authentication = this.tokenExtractor.extract(httpServletRequest);
         String[] antMatchers = excludeAntMatchers.trim().split(",");
         for (String matchers : antMatchers) {
-            RequestMatcher requestMatcher = new AntPathRequestMatcher(matchers);
-            boolean through = requestMatcher.matches(httpServletRequest);
+            PathMatcher requestMatcher = new AntPathMatcher();
+            boolean through = requestMatcher.match(matchers.trim(), curUrl);
             if (through) {
+                this.setAuthentication(httpServletRequest, authentication, headerToken);
+                log.info(curRequestURI + " 不进行权限校验....");
                 filterChain.doFilter(httpServletRequest, httpServletResponse);
                 return;
             }
         }
 
-        //从request中解析PreAuthenticatedAuthenticationToken(注意这里并不是OAuth2Authentication)
-        Authentication authentication = this.tokenExtractor.extract(httpServletRequest);
+
         if (authentication == null) {
            /* if (this.stateless && this.isAuthenticated()) {
                 // SecurityContextHolder.clearContext();
             }*/
-            log.info(curRequestURI + " 不进行拦截....");
             filterChain.doFilter(httpServletRequest, httpServletResponse);
         } else {
-            log.info(" >>>>>>>>>>> 　开始验证token是否有效　   ");
-            String accessToken = httpServletRequest.getParameter("access_token");
-            String headerToken = httpServletRequest.getHeader(HEADER_AUTHORIZATION);
+
             Map<String, Object> map =  new HashMap<>();
             map.put("status", 401);
             AtomicBoolean error = new AtomicBoolean(false);
@@ -142,6 +159,37 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
+    /**
+     * 把 当前登录人 放入安全容器中 SecurityContextHolder
+     * @param httpServletRequest
+     * @param authentication
+     * @param accessToken
+     */
+    private void setAuthentication(HttpServletRequest httpServletRequest, Authentication authentication, String accessToken) {
+        if (StringUtils.isNotBlank(accessToken) && authentication != null ) {
+            String token = accessToken.indexOf("bearer") != -1 ? accessToken.split(" ")[1] : accessToken;
+            if (StringUtils.isNotBlank(token)) {
+                log.info(" >>>>>>>>>>> 　开始验证token是否有效　   ");
+                httpServletRequest.setAttribute(OAuth2AuthenticationDetails.ACCESS_TOKEN_VALUE, authentication.getPrincipal());
+                OAuth2AccessToken oAuth2AccessToken = tokenStore.readAccessToken(token);
+                if (oAuth2AccessToken != null) {
+                    if(authentication instanceof AbstractAuthenticationToken) {
+                        Object redisAuthentication = this.redisTemplateUtil.hget(BaseRedisKeys.USER_LOGIN_TOKNE, token);
+                        UserDetailsDto userDetailsDto = JSONObject.parseObject(redisAuthentication.toString(), UserDetailsDto.class);
+                        //Collection<? extends GrantedAuthority> authorities = JSON.parseObject(userDetailsDto.getAuthorities(), new TypeReference<Collection<? extends GrantedAuthority>>() {});
+                        Set<GrantedAuthority> grantedAuths = new HashSet<>();
+                        //模拟一个权限角色
+                        //角色必须是ROLE_开头，可以在数据库中设置
+                        grantedAuths.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+                        AbstractAuthenticationToken currentUserAuthentication = new UsernamePasswordAuthenticationToken(userDetailsDto.getToken(), null, grantedAuths);
+                        currentUserAuthentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(
+                                httpServletRequest));
+                        SecurityContextHolder.getContext().setAuthentication(currentUserAuthentication);
+                    }
+                }
+            }
+        }
+    }
 
     /*public PermitAuthenticationFilter() {
         OAuth2AuthenticationManager oAuth2AuthenticationManager = new OAuth2AuthenticationManager();
