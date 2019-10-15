@@ -1,9 +1,12 @@
 package pers.liujunyi.cloud.security;
 
+import org.springframework.security.core.GrantedAuthority;
 import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
+import pers.liujunyi.cloud.security.util.SecurityConstant;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Test {
@@ -28,5 +31,11 @@ public class Test {
 
             System.out.println(item);
         });
+
+
+        Set<GrantedAuthority> grantedAuths = SecurityConstant.grantedAuths("[{\"authority\":\"ROLE_ADMIN\"}]");
+        for (GrantedAuthority authority : grantedAuths) {
+            System.out.println(authority.getAuthority());
+        }
     }
 }

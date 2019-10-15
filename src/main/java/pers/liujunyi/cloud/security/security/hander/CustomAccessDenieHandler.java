@@ -31,10 +31,8 @@ import java.util.Map;
 public class CustomAccessDenieHandler extends OAuth2AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AccessDeniedException authException) throws IOException, ServletException {
-        log.info(" ************************* 权限认证 ************************* ");
-        log.info("请求url：" + httpServletRequest.getRequestURI() + " 权限认证失败.");
+        log.info("http请求url：" + httpServletRequest.getRequestURI() + " 权限认证失败.");
         log.info(authException.getMessage());
-        log.info(authException.getLocalizedMessage());
         authException.printStackTrace();
         Map<String, Object> map =  new HashMap<>();
         map.put("success", false);

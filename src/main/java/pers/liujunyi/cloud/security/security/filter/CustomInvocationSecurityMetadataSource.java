@@ -45,12 +45,14 @@ public class CustomInvocationSecurityMetadataSource implements FilterInvocationS
      */
     @Override
     public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
-        // if (resourceMap == null){  //取消这段代码注释 情况下 每次服务启动后请求后台只有到数据库中取一次权限   如果注释掉这段代码则每次请求都会到数据库中取权限
-        loadResourceDefine();  // 每次请求 都会去数据库查询权限  貌似很耗性能
-        // }
+        //取消这段代码注释 情况下 每次服务启动后请求后台只有到数据库中取一次权限   如果注释掉这段代码则每次请求都会到数据库中取权限
+        if (resourceMap == null){
+            // 每次请求 都会去数据库查询权限  貌似很耗性能
+             loadResourceDefine();
+        }
         // object 是一个URL，被用户请求的url。
-        String url = ((FilterInvocation) object).getRequestUrl();
-        log.info("请求 url ：" + url);
+        FilterInvocation invocation = (FilterInvocation) object;
+        String url = invocation.getRequestUrl();
         int firstQuestionMarkIndex = url.indexOf("?");
         if (firstQuestionMarkIndex != -1) {
             url = url.substring(0, firstQuestionMarkIndex);
@@ -93,8 +95,7 @@ public class CustomInvocationSecurityMetadataSource implements FilterInvocationS
         // 判断资源文件和权限的对应关系，如果已经存在相关的资源url，则要通过该url为key提取出权限集合，将权限增加到权限集合中。
         List<String> urlPatch = new LinkedList<>();
         urlPatch.add("/api/v1/verify/**");
-        //urlPatch.add("/api/v1/table/**");
-       // urlPatch.add("/api/v1/tree/**");
+        urlPatch.add("/api/v1/tree/**");
         urlPatch.stream().forEach(item -> {
             if (resourceMap.containsKey(item)) {
                 Collection<ConfigAttribute> value = resourceMap.get(item);

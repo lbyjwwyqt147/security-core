@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,7 +17,6 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import pers.liujunyi.cloud.security.security.filter.PermitAuthenticationFilter;
 import pers.liujunyi.cloud.security.security.token.RedisTokenStore;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
@@ -35,6 +35,7 @@ import pers.liujunyi.cloud.security.util.SecurityConstant;
 @Configuration
 @EnableAuthorizationServer
 @Log4j2
+@Order(2)
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -42,8 +43,6 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     private RedisConnectionFactory connectionFactory;
     @Autowired
     private MyUserDetailService myUserDetailService;
-    @Autowired
-    private PermitAuthenticationFilter permitAuthenticationFilter;
 
     /** 资源所有者（即用户）密码模式 */
     private static final String GRANT_TYPE_PASSWORD = "password";
@@ -77,7 +76,6 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         // isAuthenticated():排除anonymous   isFullyAuthenticated():排除anonymous以及remember-me
         // allowFormAuthenticationForClients 允许表单认证
         security.tokenKeyAccess("permitAll()").checkTokenAccess("isAuthenticated()").allowFormAuthenticationForClients();
-        security.addTokenEndpointAuthenticationFilter(permitAuthenticationFilter);
     }
 
     /**

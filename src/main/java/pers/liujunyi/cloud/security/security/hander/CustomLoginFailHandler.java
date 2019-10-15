@@ -32,14 +32,15 @@ public class CustomLoginFailHandler implements AuthenticationFailureHandler {
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
-        log.info("********************* 登录失败 *********************");
+        log.info(" >>>> 登录失败.........");
+        log.info(e.getLocalizedMessage());
         Map<String, Object> map =  new HashMap<>();
         map.put("success", false);
         map.put("status", ErrorCodeEnum.LOGIN_INCORRECT.getCode());
-        log.info(e.getLocalizedMessage());
         map.put("path", httpServletRequest.getServletPath());
         map.put("message", e.getLocalizedMessage());
         map.put("timestamp", DateTimeUtils.getCurrentDateTimeAsString());
+        httpServletResponse.setStatus(HttpServletResponse.SC_OK);
         ResultUtil.writeJavaScript(httpServletResponse, map);
 
     }

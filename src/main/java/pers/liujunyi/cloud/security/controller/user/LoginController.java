@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,7 +16,11 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.common.exceptions.UnapprovedClientAuthenticationException;
+import org.springframework.security.oauth2.provider.*;
 import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.web.bind.annotation.*;
 import pers.liujunyi.cloud.common.annotation.ApiVersion;
 import pers.liujunyi.cloud.common.controller.BaseController;
@@ -71,6 +76,10 @@ public class LoginController extends BaseController {
     private UserAccountsElasticsearchRepository userAccountsElasticsearchRepository;
     @Autowired
     private PasswordEncoder bCryptPasswordEncoder;
+    @Autowired
+    private ClientDetailsService clientDetailsService;
+    @Autowired
+    private TokenStore tokenStore;
 
     /**
      * 获取当前登录用户信息
@@ -123,6 +132,7 @@ public class LoginController extends BaseController {
             // 这个非常重要，否则验证后将无法登陆
             request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
             String token = this.decodeToken();
+            // String token = this.clientToken(authentication);
             log.info("当前登录人【" + loginDto.getUserAccount() + "】的token:" + token);
             UserDetailsDto userDetails = DozerBeanMapperUtil.copyProperties(accounts, UserDetailsDto.class);
             userDetails.setUserId(accounts.getId());
@@ -131,6 +141,7 @@ public class LoginController extends BaseController {
             userDetails.setCredentials(authentication.getCredentials());
             userDetails.setPrincipal(authentication.getPrincipal());
             userDetails.setToken(token);
+            userDetails.setSecret(loginDto.getUserPassword());
             this.saveUserToRedis(token, userDetails);
             return ResultUtil.success("登录成功.", token);
         } catch (AuthenticationException e){
@@ -192,6 +203,33 @@ public class LoginController extends BaseController {
         String tokenJson = HttpClientUtils.httpPost(url, params);
         JSONObject jsonObject = JSONObject.parseObject(tokenJson);
         return jsonObject.getString("access_token");
+    }
+
+    /**
+     * 获取 登录token 数据
+     */
+    private String clientToken(Authentication authentication) {
+        String token = null;
+        //获取clientId 和 clientSecret
+        String clientId = SecurityConstant.CLIEN_ID;
+        String clientSecret = SecurityConstant.CLIENT_SECRET;
+        //获取 ClientDetails
+        ClientDetails clientDetails = this.clientDetailsService.loadClientByClientId(clientId);
+        if (clientDetails == null){
+            throw new UnapprovedClientAuthenticationException("clientId 不存在" + clientId);
+            //判断  方言  是否一致
+        }/*else if (!StringUtils.equals(clientDetails.getClientSecret(),clientSecret)){
+            throw new UnapprovedClientAuthenticationException("clientSecret 不匹配 " + clientId);
+        }*/
+        //客户端 模式, 组建 authentication
+        TokenRequest tokenRequest = new TokenRequest(MapUtils.EMPTY_MAP,clientId,clientDetails.getScope(),"client_credentials");
+        OAuth2Request oAuth2Request = tokenRequest.createOAuth2Request(clientDetails);
+        OAuth2Authentication oAuth2Authentication = new OAuth2Authentication(oAuth2Request, authentication);
+        OAuth2AccessToken accessToken = tokenStore.getAccessToken(oAuth2Authentication);
+        if (accessToken != null) {
+            token = accessToken.getValue();
+        }
+        return token;
     }
 
     /**

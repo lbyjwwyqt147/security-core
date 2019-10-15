@@ -4,8 +4,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -50,14 +48,6 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
         map.put("status", ErrorCodeEnum.SUCCESS.getCode());
         //获得授权后可得到用户信息
         User userDetails = (User) authentication.getPrincipal();
-        //将身份 存储到SecurityContext里
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        securityContext.setAuthentication(authentication);
-        //修改最后一次登录时间
-
-        // String token = tokenStore.getAccessToken(authentication);'
-        //tokenStore.getAccessToken(authentication);
-        log.info(securityContext.getAuthentication().getPrincipal().toString());
         StringBuffer msg = new StringBuffer("用户：");
         msg.append(userDetails.getUsername()).append(" 成功登录系统.");
         log.info(msg.toString());

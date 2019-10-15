@@ -7,8 +7,8 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.web.FilterInvocation;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -46,29 +46,30 @@ public class CustomAccessDecisionManager implements AccessDecisionManager {
      */
     @Override
     public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes) throws AccessDeniedException, InsufficientAuthenticationException {
+        // object 是一个URL，被用户请求的url。
+        FilterInvocation invocation = (FilterInvocation) object;
+        String requestUrl = invocation.getRequestUrl();
+        User userDetails = (User) authentication.getPrincipal();
+        String unauthorize = "账户:【" + userDetails.getUsername() + "】 无权限访问：" + requestUrl;
         // 无权限访问
-        if(CollectionUtils.isEmpty(configAttributes)){
-            log.info("无访问权限.");
-            throw new AccessDeniedException("无访问权限.");
-        }
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-
-        Iterator<ConfigAttribute> iterator = configAttributes.iterator();
-        while (iterator.hasNext()){
-            ConfigAttribute configAttribute = iterator.next();
-            String needRole = configAttribute.getAttribute();
-            for(GrantedAuthority grantedAuthority : authentication.getAuthorities()){
-                //grantedAuthority 为用户所被赋予的权限。 needRole 为访问相应的资源应该具有的权限。
-                //判断两个请求的url的权限和用户具有的权限是否相同，如相同，允许访问 权限就是那些以ROLE_为前缀的角色
-                if (needRole.trim().equals(grantedAuthority.getAuthority().trim())){
-                    //匹配到对应的角色，则允许通过
-                    return;
+        if(!CollectionUtils.isEmpty(configAttributes)){
+            Iterator<ConfigAttribute> iterator = configAttributes.iterator();
+            while (iterator.hasNext()){
+                ConfigAttribute configAttribute = iterator.next();
+                String needRole = configAttribute.getAttribute();
+                for(GrantedAuthority grantedAuthority : authentication.getAuthorities()){
+                    //grantedAuthority 为用户所被赋予的权限。 needRole 为访问相应的资源应该具有的权限。
+                    //判断两个请求的url的权限和用户具有的权限是否相同，如相同，允许访问 权限就是那些以ROLE_为前缀的角色
+                    if (needRole.trim().equals(grantedAuthority.getAuthority().trim())){
+                        //匹配到对应的角色，则允许通过
+                        return;
+                    }
                 }
             }
         }
         //该url具有访问权限，但是当前登录用户没有匹配到URL对应的权限，则抛出无权限错误
-        log.info("无访问权限.");
-        throw  new AccessDeniedException("无访问权限.");
+        log.info(unauthorize);
+        throw new AccessDeniedException(unauthorize);
     }
 
     @Override

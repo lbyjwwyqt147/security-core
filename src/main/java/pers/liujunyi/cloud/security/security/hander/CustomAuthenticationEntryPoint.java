@@ -1,6 +1,7 @@
 package pers.liujunyi.cloud.security.security.hander;
 
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint;
@@ -33,23 +34,25 @@ public class CustomAuthenticationEntryPoint extends OAuth2AuthenticationEntryPoi
 
     @Override
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
-        log.info(" ********************* 身份认证 ***************** ");
-        log.info("请求url：" + httpServletRequest.getRequestURI() + " 身份认证失败.");
-        log.info(e.getMessage());
-        log.info(e.getLocalizedMessage());
-        e.printStackTrace();
         Map<String, Object> map =  new HashMap<>();
-        map.put("success", false);
-        map.put("status", ErrorCodeEnum.LOGIN_WITHOUT.getCode());
-        map.put("description", ErrorCodeEnum.LOGIN_WITHOUT.getMessage());
-        if (e instanceof InsufficientAuthenticationException) {
-            map.put("status", ErrorCodeEnum.AUTHORITY.getCode());
-            map.put("description", ErrorCodeEnum.AUTHORITY.getMessage());
+        if (!HttpMethod.OPTIONS.toString().equals(httpServletRequest.getMethod())) {
+            log.info("http请求url：" + httpServletRequest.getRequestURI() + " 身份认证失败.");
+            log.info(e.getMessage());
+            e.printStackTrace();
+            map.put("success", false);
+            map.put("status", ErrorCodeEnum.LOGIN_WITHOUT.getCode());
+            map.put("description", ErrorCodeEnum.LOGIN_WITHOUT.getMessage());
+            if (e instanceof InsufficientAuthenticationException) {
+                map.put("status", ErrorCodeEnum.AUTHORITY.getCode());
+                map.put("description", ErrorCodeEnum.AUTHORITY.getMessage());
+            }
+            map.put("message", e.getMessage());
+            map.put("path", httpServletRequest.getServletPath());
+            map.put("timestamp", DateTimeUtils.getCurrentDateTimeAsString());
+            httpServletResponse.setStatus(HttpServletResponse.SC_OK);
+        } else {
+            httpServletResponse.setStatus(HttpServletResponse.SC_NO_CONTENT);
         }
-        map.put("message", e.getMessage());
-        map.put("path", httpServletRequest.getServletPath());
-        map.put("timestamp", DateTimeUtils.getCurrentDateTimeAsString());
-        httpServletResponse.setStatus(HttpServletResponse.SC_OK);
         ResultUtil.writeJavaScript(httpServletResponse, map);
     }
 }

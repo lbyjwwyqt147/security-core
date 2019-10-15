@@ -1,5 +1,15 @@
 package pers.liujunyi.cloud.security.util;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * 常量信息
  * @author ljy
@@ -39,5 +49,22 @@ public class SecurityConstant {
                 break;
         }
         return statusValue;
+    }
+
+    /**
+     * 权限字符串转换位对象
+     * @param auths
+     * @return
+     */
+    public static Set<GrantedAuthority> grantedAuths(String auths) {
+        Set<GrantedAuthority> authoritySet = new HashSet<>();
+       if (StringUtils.isNotBlank(auths)) {
+           JSONArray jsonArray = JSON.parseArray(auths);
+           for (Object object : jsonArray) {
+               JSONObject jsonObject = (JSONObject) object;
+               authoritySet.add(new SimpleGrantedAuthority(jsonObject.getString("authority")));
+           }
+       }
+       return authoritySet;
     }
 }

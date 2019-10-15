@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
@@ -25,16 +26,17 @@ import org.springframework.security.oauth2.provider.error.DefaultWebResponseExce
 import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHandler;
 import org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint;
 import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.web.cors.CorsUtils;
 import pers.liujunyi.cloud.common.exception.ErrorCodeEnum;
 import pers.liujunyi.cloud.common.util.DateTimeUtils;
 import pers.liujunyi.cloud.security.security.filter.PermitAuthenticationFilter;
-import pers.liujunyi.cloud.security.security.hander.*;
+import pers.liujunyi.cloud.security.security.hander.CustomAccessDenieHandler;
+import pers.liujunyi.cloud.security.security.hander.CustomAuthenticationEntryPoint;
+import pers.liujunyi.cloud.security.security.hander.CustomLoginFailHandler;
+import pers.liujunyi.cloud.security.security.hander.CustomLoginSuccessHandler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +54,7 @@ import java.util.Map;
  */
 @Configuration
 @EnableWebSecurity
-@Order(2)
+@Order(1)
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Log4j2
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -95,7 +97,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 //无条件放行的资源
                 //.antMatchers("/oauth/**", "/api/v1/user/login", "/api/user/login", "/api/v1/out", "/api/v1/verify/ignore/**", "/api/v1/table/**").permitAll()
                 //无条件放行的资源
-                 .antMatchers(antMatchers).permitAll()
+                .antMatchers(antMatchers).permitAll()
+                .antMatchers(HttpMethod.OPTIONS).permitAll()
                 .and().authorizeRequests()
                 //需要身份证认证保护的资源
                 .antMatchers("/api/**").authenticated()
@@ -103,6 +106,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 //其他资源都受保护
                 .anyRequest().authenticated()
                 .and()
+                .anonymous().disable()
                 .exceptionHandling()
                 //权限认证失败业务处理
                 .accessDeniedHandler(customAccessDeniedHandler())
@@ -128,7 +132,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.headers().cacheControl();
         // 添加 filter 验证其他请求的Token是否合法
         http.addFilterBefore(permitAuthenticationFilter, FilterSecurityInterceptor.class);
-
+        // 加入自定义UsernamePasswordAuthenticationFilter替代原有Filter
+      //  http.addFilterAt(customUsernamePasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         log.info(" >>>>> SecurityConfig 初始化完成. ");
 
     }
@@ -172,15 +177,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         super.configure(web);
     }
 
-    /**
-     * 注册退出成功　Bean
-     * @return
-     */
-    @Bean
-    public LogoutSuccessHandler customLogoutSuccessHandler(){
-        return new CustomLogoutSuccessHandler();
-    }
-
 
     /**
      * 注册登陆失败　Bean
@@ -217,15 +213,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public OAuth2AccessDeniedHandler customAccessDeniedHandler(){
         return new CustomAccessDenieHandler();
-    }
-
-    /**
-     * 注册是否登录认证失败　Bean
-     * @return
-     */
-    @Bean
-    public AuthenticationEntryPoint authenticationEntryPoint(){
-        return new CustomLoginUrlAuthenticationEntryPoint();
     }
 
 
