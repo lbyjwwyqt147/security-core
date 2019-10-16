@@ -131,8 +131,8 @@ public class LoginController extends BaseController {
             securityContext.setAuthentication(authentication);
             // 这个非常重要，否则验证后将无法登陆
             request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
-            String token = this.decodeToken();
-            // String token = this.clientToken(authentication);
+            //String token = this.decodeToken();
+            String token = this.clientToken(authentication);
             log.info("当前登录人【" + loginDto.getUserAccount() + "】的token:" + token);
             UserDetailsDto userDetails = DozerBeanMapperUtil.copyProperties(accounts, UserDetailsDto.class);
             userDetails.setUserId(accounts.getId());
@@ -217,12 +217,12 @@ public class LoginController extends BaseController {
         ClientDetails clientDetails = this.clientDetailsService.loadClientByClientId(clientId);
         if (clientDetails == null){
             throw new UnapprovedClientAuthenticationException("clientId 不存在" + clientId);
-            //判断  方言  是否一致
-        }/*else if (!StringUtils.equals(clientDetails.getClientSecret(),clientSecret)){
+        }else if (!bCryptPasswordEncoder.matches(clientSecret, clientDetails.getClientSecret())){
+            //判断  密码  是否一致
             throw new UnapprovedClientAuthenticationException("clientSecret 不匹配 " + clientId);
-        }*/
-        //客户端 模式, 组建 authentication
-        TokenRequest tokenRequest = new TokenRequest(MapUtils.EMPTY_MAP,clientId,clientDetails.getScope(),"client_credentials");
+        }
+        //密码模式 模式, 组建 authentication
+        TokenRequest tokenRequest = new TokenRequest(MapUtils.EMPTY_MAP,clientId,clientDetails.getScope(),"password");
         OAuth2Request oAuth2Request = tokenRequest.createOAuth2Request(clientDetails);
         OAuth2Authentication oAuth2Authentication = new OAuth2Authentication(oAuth2Request, authentication);
         OAuth2AccessToken accessToken = tokenStore.getAccessToken(oAuth2Authentication);

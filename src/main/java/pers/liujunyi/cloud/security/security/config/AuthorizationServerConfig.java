@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,7 +34,6 @@ import pers.liujunyi.cloud.security.util.SecurityConstant;
 @Configuration
 @EnableAuthorizationServer
 @Log4j2
-@Order(2)
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -110,7 +108,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 .refreshTokenValiditySeconds(SecurityConstant.REFRESH_TOKEN_VALIDITY_SECONDS)
                 // scopes的值就是all（全部权限），read，write等权限。就是第三方访问资源的一个权限，访问范围。
                 .scopes("all");
-        log.info(" >>>>> Oauth2认证服务器 初始化完成. ");
+        log.info(" >>>>> AuthorizationServerConfig Oauth2认证服务器 初始化完成. ");
     }
 
     /**

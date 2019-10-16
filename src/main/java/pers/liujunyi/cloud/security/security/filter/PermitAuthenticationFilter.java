@@ -132,7 +132,7 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
             map.put("status", 401);
             map.put("path", servletPath);
             map.put("token", accessToken);
-            map.put("message", "无校的token信息.");
+            map.put("message", "无效的token信息.");
             map.put("timestamp", String.valueOf(LocalDateTime.now()));
             log.info(JSONObject.toJSONString(map));
             httpServletResponse.setStatus(HttpServletResponse.SC_OK);
@@ -152,7 +152,7 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
         if (StringUtils.isNotBlank(accessToken) && authentication != null ) {
             // log.info(" >>>>>开始验证token【" + accessToken + "】 是否有效 ");
             httpServletRequest.setAttribute(OAuth2AuthenticationDetails.ACCESS_TOKEN_VALUE, authentication.getPrincipal());
-            OAuth2AccessToken oAuth2AccessToken = tokenStore.readAccessToken(accessToken);
+            OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(accessToken);
             if (oAuth2AccessToken != null) {
                 if(authentication instanceof AbstractAuthenticationToken) {
                     Object redisAuthentication = this.redisTemplateUtil.hget(BaseRedisKeys.USER_LOGIN_TOKNE, accessToken);

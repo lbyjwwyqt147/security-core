@@ -67,4 +67,19 @@ public class SecurityConstant {
        }
        return authoritySet;
     }
+
+    /**
+     * 不需要保护的资源
+     * @param excludeAntMatchers
+     * @return
+     */
+    public static String[] antMatchers(String excludeAntMatchers) {
+        String[] tempAntMatchers = excludeAntMatchers.trim().split(",");
+        int length =  tempAntMatchers.length;
+        String[] matchers = new String[length];
+        for (int i = 0; i < length; i++) {
+            matchers[i] = tempAntMatchers[i].trim();
+        }
+        return matchers;
+    }
 }
