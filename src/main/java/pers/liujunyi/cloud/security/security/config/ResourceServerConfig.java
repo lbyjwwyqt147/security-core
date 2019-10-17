@@ -11,7 +11,7 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Res
 import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHandler;
 import org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.web.cors.CorsUtils;
 import pers.liujunyi.cloud.security.security.filter.PermitAuthenticationFilter;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
@@ -48,6 +48,9 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) {
         resources.resourceId(SecurityConstant.RESOURCE_ID).stateless(true).tokenServices(tokenServices);
+        //自定义资源访问认证异常，没有token，或token错误，使用customAuthenticationEntryPoint
+        resources.authenticationEntryPoint(customAuthenticationEntryPoint);
+        resources.accessDeniedHandler(customAccessDeniedHandler);
     }
 
     @Override
@@ -74,8 +77,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
         http.formLogin().permitAll();
         http.httpBasic();
-        // 添加 filter 验证其他请求的Token是否合法
-        http.addFilterBefore(permitAuthenticationFilter, FilterSecurityInterceptor.class);
+        // OAuth2受保护资源的预认证过滤器
+        http.addFilterBefore(permitAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class);
         log.info(" >>>>> ResourceServerConfig 资源服务器(保护受保护的资源) 初始化完成. ");
     }
 

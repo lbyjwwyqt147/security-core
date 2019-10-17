@@ -131,8 +131,8 @@ public class LoginController extends BaseController {
             securityContext.setAuthentication(authentication);
             // 这个非常重要，否则验证后将无法登陆
             request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
-            //String token = this.decodeToken();
-            String token = this.clientToken(authentication);
+            String token = this.decodeToken();
+            //String token = this.clientToken(authentication);
             log.info("当前登录人【" + loginDto.getUserAccount() + "】的token:" + token);
             UserDetailsDto userDetails = DozerBeanMapperUtil.copyProperties(accounts, UserDetailsDto.class);
             userDetails.setUserId(accounts.getId());

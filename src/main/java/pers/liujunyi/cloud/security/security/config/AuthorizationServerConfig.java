@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
+import pers.liujunyi.cloud.security.security.hander.CustomWebResponseExceptionTranslator;
 import pers.liujunyi.cloud.security.security.token.RedisTokenStore;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
@@ -129,6 +130,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 .tokenServices(defaultTokenServices())
                 //客户端信息
                 .setClientDetailsService(endpoints.getClientDetailsService());
+        //自定义 /oauth/token 异常处理
+        endpoints.exceptionTranslator(new CustomWebResponseExceptionTranslator());
     }
 
     /**
