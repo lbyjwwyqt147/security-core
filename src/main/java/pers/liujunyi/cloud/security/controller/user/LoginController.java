@@ -129,8 +129,8 @@ public class LoginController extends BaseController {
             //将身份 存储到SecurityContext里
             SecurityContext securityContext = SecurityContextHolder.getContext();
             securityContext.setAuthentication(authentication);
-            // 这个非常重要，否则验证后将无法登陆
-            request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
+            // 这个非常重要(非前后端分离情况下)，否则验证后将无法登陆
+            // request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
             String token = this.decodeToken();
             //String token = this.clientToken(authentication);
             log.info("当前登录人【" + loginDto.getUserAccount() + "】的token:" + token);

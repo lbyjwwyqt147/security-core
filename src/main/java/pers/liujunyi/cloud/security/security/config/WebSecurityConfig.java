@@ -68,7 +68,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private PermitAuthenticationFilter permitAuthenticationFilter;
 
     @Autowired
-    public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
+    public void configAuthentication(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(myUserDetailService)
                 .passwordEncoder(bCryptPasswordEncoder());
         auth.parentAuthenticationManager(authenticationManagerBean());

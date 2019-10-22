@@ -1,16 +1,18 @@
 package pers.liujunyi.cloud.security.security.filter;
 
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import pers.liujunyi.cloud.common.util.UserUtils;
+import pers.liujunyi.cloud.common.vo.user.UserDetails;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -31,7 +33,8 @@ import java.util.Iterator;
 @Log4j2
 @Component
 public class CustomAccessDecisionManager implements AccessDecisionManager {
-
+    @Autowired
+    private UserUtils userUtils;
     /**
      *  授权策略
      *
@@ -49,8 +52,8 @@ public class CustomAccessDecisionManager implements AccessDecisionManager {
         // object 是一个URL，被用户请求的url。
         FilterInvocation invocation = (FilterInvocation) object;
         String requestUrl = invocation.getRequestUrl();
-        User userDetails = (User) authentication.getPrincipal();
-        String unauthorize = "账户:【" + userDetails.getUsername() + "】 无权限访问：" + requestUrl;
+        UserDetails userDetails = this.userUtils.getCurrentUserDetail();
+        String unauthorize = "账户:【" + userDetails.getUserName() + "】 无权限访问：" + requestUrl;
         // 无权限访问
         if(!CollectionUtils.isEmpty(configAttributes)){
             Iterator<ConfigAttribute> iterator = configAttributes.iterator();

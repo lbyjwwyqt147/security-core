@@ -13,6 +13,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
@@ -27,6 +28,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import pers.liujunyi.cloud.common.redis.RedisTemplateUtils;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.util.HttpClientUtils;
+import pers.liujunyi.cloud.common.util.TokenLocalContext;
 import pers.liujunyi.cloud.common.vo.BaseRedisKeys;
 import pers.liujunyi.cloud.security.domain.user.UserDetailsDto;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
@@ -94,51 +96,56 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(httpServletRequest, httpServletResponse);
             return;
         }
-        // 获取url携带的参数信息
-        Map<String, Object> params = HttpClientUtils.getAllRequestParam(httpServletRequest);
-        String curRequestURI = "当前访问的URL地址：" + servletPath + HttpClientUtils.paramsConvertUrl(params);
-        String accessToken = httpServletRequest.getParameter("access_token");
-        String headerToken = httpServletRequest.getHeader(HEADER_AUTHORIZATION);
-        if (StringUtils.isNotBlank(headerToken) && StringUtils.isBlank(accessToken)) {
-            accessToken = headerToken.indexOf("bearer") != -1 ? headerToken.split(" ")[1] : "";
-        }
-        log.info(curRequestURI + "&access_token=" + accessToken);
-        //从request中解析PreAuthenticatedAuthenticationToken(注意这里并不是OAuth2Authentication)
-        Authentication authentication = this.tokenExtractor.extract(httpServletRequest);
-        // 不需要进行权限校验的url
-        String[] antMatchers = excludeAntMatchers.trim().split(",");
-        for (String matchers : antMatchers) {
-            PathMatcher requestMatcher = new AntPathMatcher();
-            boolean through = requestMatcher.match(matchers.trim(), servletPath);
-            if (through) {
-                this.setAuthentication(httpServletRequest, authentication, accessToken);
-                //log.info(curRequestURI + " 不进行权限校验....");
-                filterChain.doFilter(httpServletRequest, httpServletResponse);
+        try {
+            // 获取url携带的参数信息
+            Map<String, Object> params = HttpClientUtils.getAllRequestParam(httpServletRequest);
+            String curRequestURI = "当前访问的URL地址：" + servletPath + HttpClientUtils.paramsConvertUrl(params);
+            String accessToken = httpServletRequest.getParameter("access_token");
+            String headerToken = httpServletRequest.getHeader(HEADER_AUTHORIZATION);
+            if (StringUtils.isNotBlank(headerToken) && StringUtils.isBlank(accessToken)) {
+                accessToken = headerToken.indexOf("bearer") != -1 ? headerToken.split(" ")[1] : "";
+            }
+            log.info(curRequestURI + "&access_token=" + accessToken);
+            //从request中解析PreAuthenticatedAuthenticationToken(注意这里并不是OAuth2Authentication)
+            Authentication authentication = this.tokenExtractor.extract(httpServletRequest);
+            // 不需要进行权限校验的url
+            String[] antMatchers = excludeAntMatchers.trim().split(",");
+            for (String matchers : antMatchers) {
+                PathMatcher requestMatcher = new AntPathMatcher();
+                boolean through = requestMatcher.match(matchers.trim(), servletPath);
+                if (through) {
+                    // this.setAuthentication(httpServletRequest, authentication, accessToken);
+                    //log.info(curRequestURI + " 不进行权限校验....");
+                    filterChain.doFilter(httpServletRequest, httpServletResponse);
+                    return;
+                }
+            }
+            boolean legitimate = true;
+            if (authentication == null) {
+                if (this.stateless && this.isAuthenticated()) {
+                    SecurityContextHolder.clearContext();
+                }
+                legitimate = false;
+            } else {
+                legitimate = this.setAuthentication(httpServletRequest, authentication, accessToken);
+            }
+            if (!legitimate) {
+                Map<String, Object> map =  new HashMap<>();
+                map.put("success", false);
+                map.put("status", 401);
+                map.put("path", servletPath);
+                map.put("token", accessToken);
+                map.put("message", "无效的token信息.");
+                map.put("timestamp", String.valueOf(LocalDateTime.now()));
+                log.info(JSONObject.toJSONString(map));
+                httpServletResponse.setStatus(HttpServletResponse.SC_OK);
+                ResultUtil.writeJavaScript(httpServletResponse, map);
                 return;
             }
+            filterChain.doFilter(httpServletRequest, httpServletResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        boolean legitimate = true;
-        if (authentication == null) {
-            if (this.stateless && this.isAuthenticated()) {
-                SecurityContextHolder.clearContext();
-            }
-            legitimate = false;
-        } else {
-            legitimate = this.setAuthentication(httpServletRequest, authentication, accessToken);
-        }
-        if (!legitimate) {
-            Map<String, Object> map =  new HashMap<>();
-            map.put("success", false);
-            map.put("status", 401);
-            map.put("path", servletPath);
-            map.put("token", accessToken);
-            map.put("message", "无效的token信息.");
-            map.put("timestamp", String.valueOf(LocalDateTime.now()));
-            log.info(JSONObject.toJSONString(map));
-            httpServletResponse.setStatus(HttpServletResponse.SC_OK);
-            ResultUtil.writeJavaScript(httpServletResponse, map);
-        }
-        filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 
     /**
@@ -166,8 +173,11 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
                                 httpServletRequest));
                         Authentication authResult = this.authenticationManager
                                 .authenticate(authRequest);
-                        SecurityContextHolder.getContext().setAuthentication(authResult);
+                        SecurityContext securityContext = SecurityContextHolder.getContext();
+                        securityContext.setAuthentication(authResult);
                         authenticated = true;
+                        TokenLocalContext.remove();
+                        TokenLocalContext.setToken(accessToken);
                     }
                 }
             }
