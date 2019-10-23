@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
+import pers.liujunyi.cloud.common.exception.DescribeException;
 import pers.liujunyi.cloud.common.redis.RedisTemplateUtils;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.util.HttpClientUtils;
@@ -93,7 +94,6 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
         // 如果是OPTIONS则结束请求
         if (HttpMethod.OPTIONS.toString().equals(httpServletRequest.getMethod())) {
             httpServletResponse.setStatus(HttpStatus.NO_CONTENT.value());
-            filterChain.doFilter(httpServletRequest, httpServletResponse);
             return;
         }
         try {
@@ -144,7 +144,8 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
             }
             filterChain.doFilter(httpServletRequest, httpServletResponse);
         } catch (Exception e) {
-            e.printStackTrace();
+             e.printStackTrace();
+             throw new DescribeException(e.getMessage());
         }
     }
 

@@ -89,24 +89,29 @@ public class CustomInvocationSecurityMetadataSource implements FilterInvocationS
     public void loadResourceDefine() {
         //应当是资源为key， 权限为value。 资源通常为url， 权限就是那些以ROLE_为前缀的角色。 一个资源可以由多个权限来访问。
         resourceMap = new ConcurrentHashMap<>();
-        //授权标识
-        String authorizedSigns = "ROLE_ADMIN";
-        ConfigAttribute configAttributes = new SecurityConfig(authorizedSigns);
-        // 判断资源文件和权限的对应关系，如果已经存在相关的资源url，则要通过该url为key提取出权限集合，将权限增加到权限集合中。
-        List<String> urlPatch = new LinkedList<>();
-        urlPatch.add("/api/v1/verify/**");
-        urlPatch.add("/api/v1/tree/**");
-        urlPatch.stream().forEach(item -> {
-            if (resourceMap.containsKey(item)) {
-                Collection<ConfigAttribute> value = resourceMap.get(item);
-                value.add(configAttributes);
-                resourceMap.put(item, value);
-            } else {
-                Collection<ConfigAttribute> atts = new ArrayList<>();
-                atts.add(configAttributes);
-                resourceMap.put(item, atts);
-            }
+        //角色授权标识
+        Set<String> authorizedSignsList = new HashSet<>();
+        authorizedSignsList.add("ROLE_ADMIN");
+        authorizedSignsList.add("ROLE_CLIENT");
+        authorizedSignsList.stream().forEach(authorizedSigns -> {
+            ConfigAttribute configAttributes = new SecurityConfig(authorizedSigns);
+            // 判断资源文件和权限的对应关系，如果已经存在相关的资源url，则要通过该url为key提取出权限集合，将权限增加到权限集合中。
+            List<String> urlPatch = new LinkedList<>();
+            urlPatch.add("/api/v1/verify/**");
+            urlPatch.add("/api/v1/tree/**");
+            urlPatch.stream().forEach(item -> {
+                if (resourceMap.containsKey(item)) {
+                    Collection<ConfigAttribute> value = resourceMap.get(item);
+                    value.add(configAttributes);
+                    resourceMap.put(item, value);
+                } else {
+                    Collection<ConfigAttribute> atts = new ArrayList<>();
+                    atts.add(configAttributes);
+                    resourceMap.put(item, atts);
+                }
+            });
         });
+
     }
 
 

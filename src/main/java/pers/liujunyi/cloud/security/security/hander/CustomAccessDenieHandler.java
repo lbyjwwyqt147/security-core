@@ -37,8 +37,8 @@ public class CustomAccessDenieHandler extends OAuth2AccessDeniedHandler {
         Map<String, Object> map =  new HashMap<>();
         map.put("success", false);
         map.put("status", ErrorCodeEnum.AUTHORITY.getCode());
-        map.put("message", authException.getMessage());
-        map.put("description", ErrorCodeEnum.AUTHORITY.getMessage());
+        map.put("message", ErrorCodeEnum.AUTHORITY.getMessage());
+        map.put("description", authException.getMessage());
         map.put("path", httpServletRequest.getServletPath());
         map.put("timestamp", DateTimeUtils.getCurrentDateTimeAsString());
         httpServletResponse.setStatus(HttpServletResponse.SC_OK);

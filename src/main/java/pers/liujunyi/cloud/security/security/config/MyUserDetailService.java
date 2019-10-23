@@ -73,6 +73,7 @@ public class MyUserDetailService implements UserDetailsService {
         Set<GrantedAuthority> grantedAuths = new HashSet<>();
         //模拟一个权限角色
         //角色必须是ROLE_开头，可以在数据库中设置
+        grantedAuths.add(new SimpleGrantedAuthority("ROLE_CLIENT"));
         grantedAuths.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
          /*for (Role role : member.getRoles()) {
             //角色必须是ROLE_开头，可以在数据库中设置

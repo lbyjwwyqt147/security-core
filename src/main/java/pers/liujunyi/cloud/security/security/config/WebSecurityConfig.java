@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
@@ -88,6 +89,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 // 不需要保护的资源
                 .antMatchers(SecurityConstant.antMatchers(excludeAntMatchers)).permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/**").anonymous()
                 // 其他资源都需要保护
                 .anyRequest().authenticated();
 
@@ -164,7 +166,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/v2/**")
                 .antMatchers("/swagger-resources/**")
                 .antMatchers("/favicon.ico")
-                .antMatchers( "/error");
+                .antMatchers( "/error")
+                .antMatchers( "/api/v1/user/login")
+                .antMatchers(HttpMethod.OPTIONS);
         super.configure(web);
     }
 

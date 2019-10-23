@@ -11,6 +11,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import pers.liujunyi.cloud.common.exception.ErrorCodeEnum;
 import pers.liujunyi.cloud.common.util.UserUtils;
 import pers.liujunyi.cloud.common.vo.user.UserDetails;
 
@@ -49,12 +50,7 @@ public class CustomAccessDecisionManager implements AccessDecisionManager {
      */
     @Override
     public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes) throws AccessDeniedException, InsufficientAuthenticationException {
-        // object 是一个URL，被用户请求的url。
-        FilterInvocation invocation = (FilterInvocation) object;
-        String requestUrl = invocation.getRequestUrl();
-        UserDetails userDetails = this.userUtils.getCurrentUserDetail();
-        String unauthorize = "账户:【" + userDetails.getUserName() + "】 无权限访问：" + requestUrl;
-        // 无权限访问
+        // 判断有无权限访问
         if(!CollectionUtils.isEmpty(configAttributes)){
             Iterator<ConfigAttribute> iterator = configAttributes.iterator();
             while (iterator.hasNext()){
@@ -70,9 +66,14 @@ public class CustomAccessDecisionManager implements AccessDecisionManager {
                 }
             }
         }
+        // object 是一个URL，被用户请求的url。
+        FilterInvocation invocation = (FilterInvocation) object;
+        String requestUrl = invocation.getRequestUrl();
+        UserDetails userDetails = this.userUtils.getCurrentUserDetail();
+        String unauthorize = "账户:【" + userDetails.getUserAccounts() + "】 无权限访问：" + requestUrl;
         //该url具有访问权限，但是当前登录用户没有匹配到URL对应的权限，则抛出无权限错误
         log.info(unauthorize);
-        throw new AccessDeniedException(unauthorize);
+        throw new AccessDeniedException(ErrorCodeEnum.AUTHORITY.getMessage());
     }
 
     @Override

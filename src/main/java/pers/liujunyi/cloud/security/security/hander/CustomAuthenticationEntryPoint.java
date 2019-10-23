@@ -2,7 +2,6 @@ package pers.liujunyi.cloud.security.security.hander;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -41,12 +40,8 @@ public class CustomAuthenticationEntryPoint extends OAuth2AuthenticationEntryPoi
             e.printStackTrace();
             map.put("success", false);
             map.put("status", ErrorCodeEnum.LOGIN_WITHOUT.getCode());
-            map.put("description", ErrorCodeEnum.LOGIN_WITHOUT.getMessage());
-            if (e instanceof InsufficientAuthenticationException) {
-                map.put("status", ErrorCodeEnum.AUTHORITY.getCode());
-                map.put("description", ErrorCodeEnum.AUTHORITY.getMessage());
-            }
-            map.put("message", e.getMessage());
+            map.put("description", e.getMessage());
+            map.put("message", ErrorCodeEnum.LOGIN_WITHOUT.getMessage());
             map.put("path", httpServletRequest.getServletPath());
             map.put("timestamp", DateTimeUtils.getCurrentDateTimeAsString());
             httpServletResponse.setStatus(HttpServletResponse.SC_OK);
