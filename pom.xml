@@ -20,7 +20,9 @@
         <java.version>1.8</java.version>
         <github.global.server>github</github.global.server>
         <swagger2.version>2.9.2</swagger2.version>
+        <mysql-version>8.0.15</mysql-version>
         <druid-version>1.1.14</druid-version>
+        <xxl-job-core-version>2.1.0</xxl-job-core-version>
         <security-oauth2-version>2.3.6.RELEASE</security-oauth2-version>
         <security-oauth2-autoconfigure-version>2.1.9.RELEASE</security-oauth2-autoconfigure-version>
         <cloud.common-version>0.0.1-SNAPSHOT</cloud.common-version>
@@ -50,7 +52,27 @@
             <artifactId>spring-security-oauth2-autoconfigure</artifactId>
             <version>${security-oauth2-autoconfigure-version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>${druid-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+            <version>${druid-version}</version>
+        </dependency>
+        <!-- 任务调度平台  -->
+        <dependency>
+            <groupId>com.xuxueli</groupId>
+            <artifactId>xxl-job-core</artifactId>
+            <version>${xxl-job-core-version}</version>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -79,7 +101,11 @@
             <artifactId>springfox-swagger-ui</artifactId>
             <version>${swagger2.version}</version>
         </dependency>
-
+        <!-- 使用log4j2　日志 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
     </dependencies>
 
     <distributionManagement>
