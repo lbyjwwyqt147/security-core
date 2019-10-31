@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -64,16 +65,21 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
     private static final String HEADER_AUTHORIZATION = "Authorization";
     private boolean stateless = true;
     private TokenExtractor tokenExtractor = new BearerTokenExtractor();
+    /**
+     * @Lazy 解决循环依赖 Requested bean is currently in creation: Is there an unresolvable circular reference
+     * @Lazy 让spring 懒惰的初始化这个bean，给这个bean创建一个代理,当真正使用到这个bean时才会完全创建
+     */
     @Autowired
+    @Lazy
     private TokenStore tokenStore;
     @Value("${data.security.antMatchers}")
     private String excludeAntMatchers;
     @Autowired
+    @Lazy
     private RedisTemplateUtils redisTemplateUtil;
     @Autowired
+    @Lazy
     private AuthenticationManager authenticationManager;
-
-
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,

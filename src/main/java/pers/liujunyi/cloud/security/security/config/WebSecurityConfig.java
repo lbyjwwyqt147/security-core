@@ -1,17 +1,15 @@
 package pers.liujunyi.cloud.security.security.config;
 
-import com.alibaba.fastjson.JSON;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,26 +17,14 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
-import org.springframework.security.oauth2.provider.error.DefaultWebResponseExceptionTranslator;
 import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHandler;
 import org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint;
-import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.web.cors.CorsUtils;
-import pers.liujunyi.cloud.common.exception.ErrorCodeEnum;
-import pers.liujunyi.cloud.common.util.DateTimeUtils;
 import pers.liujunyi.cloud.security.security.filter.PermitAuthenticationFilter;
-import pers.liujunyi.cloud.security.security.hander.CustomAccessDenieHandler;
-import pers.liujunyi.cloud.security.security.hander.CustomAuthenticationEntryPoint;
-import pers.liujunyi.cloud.security.security.hander.CustomLoginFailHandler;
-import pers.liujunyi.cloud.security.security.hander.CustomLoginSuccessHandler;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /***
  * 文件名称: WebSecurityConfig.java
@@ -58,6 +44,7 @@ import java.util.Map;
  */
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @Log4j2
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -67,8 +54,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private String excludeAntMatchers;
     @Autowired
     private PermitAuthenticationFilter permitAuthenticationFilter;
-
     @Autowired
+    private AuthenticationFailureHandler customLoginFailHandler;
+    @Autowired
+    private AuthenticationSuccessHandler customLoginSuccessHandler;
+    @Autowired
+    private OAuth2AccessDeniedHandler customAccessDeniedHandler;
+    @Autowired
+    private OAuth2AuthenticationEntryPoint customAuthenticationEntryPoint;
+
+    @Autowired(required = false)
     public void configAuthentication(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(myUserDetailService)
                 .passwordEncoder(bCryptPasswordEncoder());
@@ -105,9 +100,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // 指定账号参数名称（对应前端传给后台参数名）
                 .usernameParameter("userAccount")
                 //登陆成功处理类
-                .successHandler(customLoginSuccessHandler())
+                .successHandler(customLoginSuccessHandler)
                 //登陆失败处理类
-                .failureHandler(customLoginFailHandler())
+                .failureHandler(customLoginFailHandler)
                 // 允许任何人访问登录url
                 .permitAll();
 
@@ -117,9 +112,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // 资源异常信息处理
         http.exceptionHandling()
                 //权限认证失败业务处理
-                .accessDeniedHandler(customAccessDeniedHandler())
+                .accessDeniedHandler(customAccessDeniedHandler)
                 //身份认证失败的业务处理
-                .authenticationEntryPoint(customAuthenticationEntryPoint());
+                .authenticationEntryPoint(customAuthenticationEntryPoint);
 
         // 禁用缓存
         http.headers().cacheControl();
@@ -159,7 +154,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
+    public void configure(WebSecurity web) {
         //解决静态资源被拦截的问题
         web.ignoring(). antMatchers("/swagger-ui.html")
                 .antMatchers("/webjars/**")
@@ -170,74 +165,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers( "/api/v1/user/login")
                 .antMatchers(HttpMethod.OPTIONS);
         super.configure(web);
-    }
-
-
-    /**
-     * 注册登陆失败　Bean
-     * @return
-     */
-    @Bean
-    public AuthenticationFailureHandler customLoginFailHandler(){
-        return new CustomLoginFailHandler();
-    }
-
-    /**
-     * 注册登陆成功　Bean
-     * @return
-     */
-    @Bean
-    public AuthenticationSuccessHandler customLoginSuccessHandler(){
-        return new CustomLoginSuccessHandler();
-    }
-
-
-    /**
-     * 注册身份认证失败　Bean
-     * @return
-     */
-    @Bean
-    public OAuth2AuthenticationEntryPoint customAuthenticationEntryPoint(){
-        return new CustomAuthenticationEntryPoint();
-    }
-
-    /**
-     * 注册权限认证失败　Bean
-     * @return
-     */
-    @Bean
-    public OAuth2AccessDeniedHandler customAccessDeniedHandler(){
-        return new CustomAccessDenieHandler();
-    }
-
-
-    /**
-     * 重写 token 验证失败后自定义返回数据格式
-     * @return
-     */
-    @Bean
-    public WebResponseExceptionTranslator webResponseExceptionTranslator() {
-        return new DefaultWebResponseExceptionTranslator() {
-            @Override
-            public ResponseEntity translate(Exception e) throws Exception {
-                ResponseEntity responseEntity = super.translate(e);
-                OAuth2Exception body = (OAuth2Exception) responseEntity.getBody();
-                HttpHeaders headers = new HttpHeaders();
-                headers.setAll(responseEntity.getHeaders().toSingleValueMap());
-                // do something with header or response
-                if(401 == responseEntity.getStatusCode().value()){
-                    //自定义返回数据格式
-                    Map<String, Object> map =  new HashMap<>();
-                    map.put("status", ErrorCodeEnum.TOKEN_INVALID.getCode());
-                    map.put("message", e.getMessage());
-                    map.put("timestamp", DateTimeUtils.getCurrentDateTimeAsString());
-                    map.put("description", ErrorCodeEnum.TOKEN_INVALID.getMessage());
-                    return new ResponseEntity(JSON.toJSONString(map), headers, responseEntity.getStatusCode());
-                } else {
-                    return new ResponseEntity(body, headers, responseEntity.getStatusCode());
-                }
-            }
-        };
     }
 }
 

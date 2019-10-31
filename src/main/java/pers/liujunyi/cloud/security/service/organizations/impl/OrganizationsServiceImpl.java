@@ -177,7 +177,7 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
 
     @Override
     public ResultInfo syncDataToElasticsearch() {
-        Sort sort =  new Sort(Sort.Direction.ASC, "id");
+        Sort sort =  Sort.by(Sort.Direction.ASC, "id");
         List<Organizations> list = this.organizationsRepository.findAll(sort);
         if (!CollectionUtils.isEmpty(list)) {
             this.organizationsElasticsearchRepository.deleteAll();

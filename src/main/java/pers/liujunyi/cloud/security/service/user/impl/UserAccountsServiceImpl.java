@@ -319,7 +319,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
 
     @Override
     public void userAccountsSyncDataToElasticsearch() {
-        Sort sort =  new Sort(Sort.Direction.ASC, "id");
+        Sort sort = Sort.by(Sort.Direction.ASC, "id");
         List<UserAccounts> list = this.userAccountsRepository.findAll(sort);
         if (!CollectionUtils.isEmpty(list)) {
             this.userAccountsElasticsearchRepository.deleteAll();

@@ -4,6 +4,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.http.HttpMethod;
@@ -36,7 +37,12 @@ import pers.liujunyi.cloud.security.util.SecurityConstant;
 @EnableAuthorizationServer
 @Log4j2
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
+    /**
+     * @Lazy 解决循环依赖 Requested bean is currently in creation: Is there an unresolvable circular reference
+     * @Lazy 让spring 懒惰的初始化这个bean，给这个bean创建一个代理,当真正使用到这个bean时才会完全创建
+     */
     @Autowired
+    @Lazy
     private AuthenticationManager authenticationManager;
     @Autowired
     private RedisConnectionFactory connectionFactory;

@@ -162,7 +162,7 @@ public class StaffOrgServiceImpl extends BaseServiceImpl<StaffOrg, Long> impleme
 
     @Override
     public ResultInfo syncDataToElasticsearch() {
-        Sort sort =  new Sort(Sort.Direction.ASC, "id");
+        Sort sort =  Sort.by(Sort.Direction.ASC, "id");
         List<StaffOrg> list = this.staffOrgRepository.findAll(sort);
         if (!CollectionUtils.isEmpty(list)) {
             this.staffOrgElasticsearchRepository.deleteAll();
