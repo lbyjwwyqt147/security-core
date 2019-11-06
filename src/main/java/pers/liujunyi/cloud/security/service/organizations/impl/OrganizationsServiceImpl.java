@@ -13,6 +13,7 @@ import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.service.impl.BaseServiceImpl;
 import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
 import pers.liujunyi.cloud.common.util.UserUtils;
+import pers.liujunyi.cloud.common.vo.user.UserDetails;
 import pers.liujunyi.cloud.security.domain.organizations.OrganizationsDto;
 import pers.liujunyi.cloud.security.entity.organizations.Organizations;
 import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
@@ -67,9 +68,10 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
         if (record.getOrgStatus() == null) {
             organizations.setOrgStatus(SecurityConstant.ENABLE_STATUS);
         }
+        UserDetails userDetails = this.userUtils.getCurrentUserDetail();
         if (record.getId() != null) {
             organizations.setUpdateTime(new Date());
-            organizations.setUpdateUserId(this.userUtils.getPresentLoginUserId());
+            organizations.setUpdateUserId(userDetails.getUserId());
         }
         if (record.getParentId().longValue() > 0) {
             Organizations parent = this.getOrganizations(record.getParentId());
@@ -82,6 +84,7 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
             organizations.setOrgLevel((byte) 1);
             organizations.setFullParent("0");
         }
+        organizations.setLessee(userDetails.getLessee());
         organizations.setFullName(record.getOrgName());
         Organizations saveObject = this.organizationsRepository.save(organizations);
         if (saveObject == null || saveObject.getId() == null) {
