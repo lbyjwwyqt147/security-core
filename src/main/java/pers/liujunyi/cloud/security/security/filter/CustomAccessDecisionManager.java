@@ -1,7 +1,6 @@
 package pers.liujunyi.cloud.security.security.filter;
 
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
@@ -12,7 +11,7 @@ import org.springframework.security.web.FilterInvocation;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.exception.ErrorCodeEnum;
-import pers.liujunyi.cloud.common.util.UserUtils;
+import pers.liujunyi.cloud.common.util.UserContext;
 import pers.liujunyi.cloud.common.vo.user.UserDetails;
 
 import java.util.Collection;
@@ -34,8 +33,7 @@ import java.util.Iterator;
 @Log4j2
 @Component
 public class CustomAccessDecisionManager implements AccessDecisionManager {
-    @Autowired
-    private UserUtils userUtils;
+
     /**
      *  授权策略
      *
@@ -69,7 +67,7 @@ public class CustomAccessDecisionManager implements AccessDecisionManager {
         // object 是一个URL，被用户请求的url。
         FilterInvocation invocation = (FilterInvocation) object;
         String requestUrl = invocation.getRequestUrl();
-        UserDetails userDetails = this.userUtils.getCurrentUserDetail();
+        UserDetails userDetails = UserContext.currentUser();
         String unauthorize = "账户:【" + userDetails.getUserAccounts() + "】 无权限访问：" + requestUrl;
         //该url具有访问权限，但是当前登录用户没有匹配到URL对应的权限，则抛出无权限错误
         log.info(unauthorize);

@@ -1,5 +1,6 @@
 package pers.liujunyi.cloud.security.security.filter;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -172,8 +173,9 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
                     Object redisAuthentication = this.redisTemplateUtil.hget(BaseRedisKeys.USER_LOGIN_TOKNE, accessToken);
                     if (redisAuthentication != null) {
                         UserDetailsDto userDetailsDto = JSONObject.parseObject(redisAuthentication.toString(), UserDetailsDto.class);
-                        httpServletRequest.setAttribute(SecurityConstant.USER_ID, userDetailsDto.getUserId());
-                        httpServletRequest.setAttribute(SecurityConstant.LESSEE, userDetailsDto.getLessee());
+                        httpServletRequest.setAttribute(BaseRedisKeys.USER_ID, userDetailsDto.getUserId());
+                        httpServletRequest.setAttribute(BaseRedisKeys.LESSEE, userDetailsDto.getLessee());
+                        httpServletRequest.setAttribute(BaseRedisKeys.USER_INFO, JSON.toJSONString(userDetailsDto));
                         // 当前登录人权限信息
                         Set<GrantedAuthority> grantedAuths = SecurityConstant.grantedAuths(userDetailsDto.getAuthorities());
                         // 将当前登录人信息设置到 容器中

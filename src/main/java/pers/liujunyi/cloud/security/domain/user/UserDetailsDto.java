@@ -19,6 +19,5 @@ public class UserDetailsDto extends UserDetails {
     private Object credentials;
     private Object details;
     private Object principal;
-    private String token;
     private String secret;
 }

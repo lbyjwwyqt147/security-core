@@ -1,5 +1,6 @@
 package pers.liujunyi.cloud.security.controller.user;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -131,8 +132,8 @@ public class LoginController extends BaseController {
             securityContext.setAuthentication(authentication);
             // 这个非常重要(非前后端分离情况下)，否则验证后将无法登陆
             // request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
-            request.setAttribute(SecurityConstant.USER_ID, accounts.getId());
-            request.setAttribute(SecurityConstant.LESSEE, accounts.getLessee());
+            request.setAttribute(BaseRedisKeys.USER_ID, accounts.getId());
+            request.setAttribute(BaseRedisKeys.LESSEE, accounts.getLessee());
             String token = this.decodeToken();
             //String token = this.clientToken(authentication);
             log.info("当前登录人【" + loginDto.getUserAccount() + "】的token:" + token);
@@ -144,6 +145,7 @@ public class LoginController extends BaseController {
             userDetails.setPrincipal(authentication.getPrincipal());
             userDetails.setToken(token);
             userDetails.setSecret(loginDto.getUserPassword());
+            request.setAttribute(BaseRedisKeys.USER_INFO,  JSON.toJSONString(userDetails));
             this.saveUserToRedis(token, userDetails);
             return ResultUtil.success("登录成功.", token);
         } catch (AuthenticationException e){
