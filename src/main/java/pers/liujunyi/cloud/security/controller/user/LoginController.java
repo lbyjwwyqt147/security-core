@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.UnapprovedClientAuthenticationException;
 import org.springframework.security.oauth2.provider.*;
+import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.web.bind.annotation.*;
@@ -181,16 +182,20 @@ public class LoginController extends BaseController {
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "access_token", value = "access_token",  required = true, dataType = "String"),
     })
-    @DeleteMapping(value = "verify/user/exit")
+    @DeleteMapping(value = "user/out")
     @ApiVersion(1)
-    public ResultInfo revokeToken(String access_token) {
+    public ResultInfo revokeToken(String access_token, HttpServletRequest request) {
         //注销当前用户
         if (consumerTokenServices.revokeToken(access_token)) {
             this.redisTemplateUtil.hdel(BaseRedisKeys.USER_LOGIN_TOKNE, access_token.trim());
-            return ResultUtil.success();
-        } else {
-            return ResultUtil.fail();
+            request.removeAttribute(BaseRedisKeys.USER_INFO);
+            request.removeAttribute(BaseRedisKeys.LESSEE);
+            request.removeAttribute(BaseRedisKeys.USER_ID);
+            request.removeAttribute(OAuth2AuthenticationDetails.ACCESS_TOKEN_VALUE);
+            TokenLocalContext.remove();
+
         }
+        return ResultUtil.success();
     }
 
     /**
