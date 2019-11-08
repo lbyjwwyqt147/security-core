@@ -29,7 +29,7 @@ public class CustomCorsFilter implements Filter {
         response.setHeader("Access-Control-Allow-Methods", "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS");
         response.setHeader("Access-Control-Max-Age", "3600");
         //这个我是根据项目来定的
-        response.setHeader("Access-Control-Allow-Headers", "credential, sign, Authorization, Content-Type, x-auth-token, XMLHttpRequest, Range, X-E4M-With, X-Request-With");
+        response.setHeader("Access-Control-Allow-Headers", "credential, sign, Authorization, tenement, Content-Type, x-auth-token, XMLHttpRequest, Range, X-E4M-With, X-Request-With");
 
         // 如果是OPTIONS则结束请求
         if (HttpMethod.OPTIONS.toString().equals(request.getMethod())) {

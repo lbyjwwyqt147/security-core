@@ -113,6 +113,15 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
                 accessToken = headerToken.indexOf("bearer") != -1 ? headerToken.split(" ")[1] : "";
             }
             log.info(curRequestURI + "&access_token=" + accessToken);
+            UserDetailsDto currentUser = null;
+            if (StringUtils.isNotBlank(accessToken)) {
+                // 从token中获取用户
+                Object redisAuthentication = this.redisTemplateUtil.hget(BaseRedisKeys.USER_LOGIN_TOKNE, accessToken);
+                currentUser = JSONObject.parseObject(redisAuthentication.toString(), UserDetailsDto.class);
+                httpServletRequest.setAttribute(BaseRedisKeys.USER_ID, currentUser.getUserId());
+                httpServletRequest.setAttribute(BaseRedisKeys.LESSEE, currentUser.getLessee());
+                httpServletRequest.setAttribute(BaseRedisKeys.USER_INFO, JSON.toJSONString(currentUser));
+            }
             //从request中解析PreAuthenticatedAuthenticationToken(注意这里并不是OAuth2Authentication)
             Authentication authentication = this.tokenExtractor.extract(httpServletRequest);
             // 不需要进行权限校验的url
@@ -121,7 +130,7 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
                 PathMatcher requestMatcher = new AntPathMatcher();
                 boolean through = requestMatcher.match(matchers.trim(), servletPath);
                 if (through) {
-                    // this.setAuthentication(httpServletRequest, authentication, accessToken);
+                    // this.setAuthentication(httpServletRequest, authentication, currentUser, accessToken);
                     //log.info(curRequestURI + " 不进行权限校验....");
                     filterChain.doFilter(httpServletRequest, httpServletResponse);
                     return;
@@ -134,7 +143,7 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
                 }
                 legitimate = false;
             } else {
-                legitimate = this.setAuthentication(httpServletRequest, authentication, accessToken);
+                legitimate = this.setAuthentication(httpServletRequest, authentication, currentUser, accessToken);
             }
             if (!legitimate) {
                 Map<String, Object> map =  new HashMap<>();
@@ -162,7 +171,7 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
      * @param authentication
      * @param accessToken
      */
-    private Boolean setAuthentication(HttpServletRequest httpServletRequest, Authentication authentication, String accessToken) {
+    private Boolean setAuthentication(HttpServletRequest httpServletRequest, Authentication authentication, UserDetailsDto currentUser, String accessToken) {
         boolean authenticated = false;
         if (StringUtils.isNotBlank(accessToken) && authentication != null ) {
             // log.info(" >>>>>开始验证token【" + accessToken + "】 是否有效 ");
@@ -170,16 +179,11 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
             OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(accessToken);
             if (oAuth2AccessToken != null) {
                 if(authentication instanceof AbstractAuthenticationToken) {
-                    Object redisAuthentication = this.redisTemplateUtil.hget(BaseRedisKeys.USER_LOGIN_TOKNE, accessToken);
-                    if (redisAuthentication != null) {
-                        UserDetailsDto userDetailsDto = JSONObject.parseObject(redisAuthentication.toString(), UserDetailsDto.class);
-                        httpServletRequest.setAttribute(BaseRedisKeys.USER_ID, userDetailsDto.getUserId());
-                        httpServletRequest.setAttribute(BaseRedisKeys.LESSEE, userDetailsDto.getLessee());
-                        httpServletRequest.setAttribute(BaseRedisKeys.USER_INFO, JSON.toJSONString(userDetailsDto));
+                    if (currentUser != null) {
                         // 当前登录人权限信息
-                        Set<GrantedAuthority> grantedAuths = SecurityConstant.grantedAuths(userDetailsDto.getAuthorities());
+                        Set<GrantedAuthority> grantedAuths = SecurityConstant.grantedAuths(currentUser.getAuthorities());
                         // 将当前登录人信息设置到 容器中
-                        AbstractAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(userDetailsDto.getUserAccounts(), userDetailsDto.getSecret(), grantedAuths);
+                        AbstractAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(currentUser.getUserAccounts(), currentUser.getSecret(), grantedAuths);
                         authRequest.setDetails(new WebAuthenticationDetailsSource().buildDetails(
                                 httpServletRequest));
                         Authentication authResult = this.authenticationManager

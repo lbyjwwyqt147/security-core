@@ -1,10 +1,11 @@
 package pers.liujunyi.cloud.security.service.user.impl;
 
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.search.sort.SortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -88,10 +89,12 @@ public class UserAccountsElasticsearchServiceImpl extends BaseElasticsearchServi
 
     @Override
     public ResultInfo findPageGird(UserAccountsQueryDto query) {
-        //分页参数
-        Pageable pageable = query.toPageable(Sort.Direction.DESC, "registrationTime");
+        // 排序方式 解决无数据时异常 No mapping found for [registrationTime] in order to sort on
+        SortBuilder sortBuilder = SortBuilders.fieldSort("registrationTime").unmappedType("date").order(SortOrder.DESC);
+        // 如果使用这种排序方式 如果表中数据为空时,会报异常 No mapping found for [createTime] in order to sort on
+        //Sort sort = Sort.by(Sort.Direction.DESC, "registrationTime");
         // 查询数据
-        SearchQuery searchQuery = query.toSpecPageable(pageable);
+        SearchQuery searchQuery = query.toSpecSortPageable(sortBuilder);
         Page<UserAccounts> searchPageResults = this.userAccountsElasticsearchRepository.search(searchQuery);
         Long totalElements =  searchPageResults.getTotalElements();
         ResultInfo result = ResultUtil.success(AesEncryptUtils.aesEncrypt(searchPageResults.getContent(), super.secretKey));

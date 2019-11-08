@@ -1,9 +1,10 @@
 package pers.liujunyi.cloud.security.service.organizations.impl;
 
+import org.elasticsearch.search.sort.SortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -78,10 +79,10 @@ public class StaffOrgElasticsearchServiceImpl extends BaseElasticsearchServiceIm
 
     @Override
     public ResultInfo findPageGird(StaffOrgQueryDto query) {
-        //分页参数
-        Pageable pageable = query.toPageable(Sort.Direction.DESC, "updateTime");
+        // 排序方式 解决无数据时异常 No mapping found for [createTime] in order to sort on
+        SortBuilder sortBuilder = SortBuilders.fieldSort("createTime").unmappedType("date").order(SortOrder.DESC);
         // 查询数据
-        SearchQuery searchQuery = query.toSpecPageable(pageable);
+        SearchQuery searchQuery = query.toSpecSortPageable(sortBuilder);
         Page<StaffOrg> searchPageResults = this.staffOrgElasticsearchRepository.search(searchQuery);
         List<StaffOrgVo> resultDataList = new CopyOnWriteArrayList<>();
         List<StaffOrg> searchDataList = searchPageResults.getContent();

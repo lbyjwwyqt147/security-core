@@ -2,10 +2,11 @@ package pers.liujunyi.cloud.security.service.organizations.impl;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.elasticsearch.search.sort.SortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -63,10 +64,10 @@ public class OrganizationsElasticsearchServiceImpl extends BaseElasticsearchServ
 
     @Override
     public ResultInfo findPageGird(OrganizationsQueryDto query) {
-        //分页参数
-        Pageable pageable = query.toPageable(Sort.Direction.ASC, "seq");
+        // 排序方式 解决无数据时异常 No mapping found for [seq] in order to sort on
+        SortBuilder sortBuilder = SortBuilders.fieldSort("seq").unmappedType("int").order(SortOrder.ASC);
         // 查询数据
-        SearchQuery searchQuery = query.toSpecPageable(pageable);
+        SearchQuery searchQuery = query.toSpecSortPageable(sortBuilder);
         Page<Organizations> searchPageResults = this.organizationsElasticsearchRepository.search(searchQuery);
         List<Organizations> searchDataList = searchPageResults.getContent();
         searchDataList.stream().forEach(item -> {
