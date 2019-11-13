@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
+import pers.liujunyi.cloud.common.util.SystemUtils;
 
 import java.io.Serializable;
 import java.util.List;
@@ -64,21 +65,33 @@ public class IdParamDto implements Serializable {
 
     public void setIds(String ids) {
         if (StringUtils.isNotBlank(ids)) {
-            this.setIdList(JSONArray.parseArray(ids, Long.class));
+            try {
+                this.setIdList(JSONArray.parseArray(ids, Long.class));
+            } catch (Exception e) {
+                this.setIdList(SystemUtils.idToLong(ids));
+            }
         }
         this.ids = ids;
     }
 
     public void setCodes(String codes) {
         if (StringUtils.isNotBlank(codes)) {
-            this.setCodeList(JSONArray.parseArray(codes, String.class));
+            try {
+                this.setCodeList(JSONArray.parseArray(codes, String.class));
+            } catch (Exception e) {
+                this.setCodeList(SystemUtils.stringToList(codes));
+            }
         }
         this.codes = codes;
     }
 
     public void setOtherIds(String otherIds) {
         if (StringUtils.isNotBlank(otherIds)) {
-            this.setOtherIdList(JSONArray.parseArray(otherIds, Long.class));
+            try {
+                this.setOtherIdList(JSONArray.parseArray(otherIds, Long.class));
+            } catch (Exception e) {
+                this.setOtherIdList(SystemUtils.idToLong(otherIds));
+            }
         }
         this.otherIds = otherIds;
     }

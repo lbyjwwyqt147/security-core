@@ -1,5 +1,6 @@
 package pers.liujunyi.cloud.security;
 
+import com.alibaba.fastjson.JSONArray;
 import org.springframework.security.core.GrantedAuthority;
 import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
@@ -37,5 +38,8 @@ public class Test {
         for (GrantedAuthority authority : grantedAuths) {
             System.out.println(authority.getAuthority());
         }
+
+        List<Long> list1 = JSONArray.parseArray("[1]", Long.class);
+        System.out.println(list1.size());
     }
 }
