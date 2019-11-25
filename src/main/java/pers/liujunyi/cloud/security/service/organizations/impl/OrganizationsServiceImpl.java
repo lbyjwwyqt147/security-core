@@ -16,8 +16,8 @@ import pers.liujunyi.cloud.common.util.UserContext;
 import pers.liujunyi.cloud.security.domain.organizations.OrganizationsDto;
 import pers.liujunyi.cloud.security.entity.organizations.Organizations;
 import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
-import pers.liujunyi.cloud.security.repository.elasticsearch.organizations.OrganizationsElasticsearchRepository;
-import pers.liujunyi.cloud.security.repository.elasticsearch.organizations.StaffOrgElasticsearchRepository;
+import pers.liujunyi.cloud.security.repository.mongo.organizations.OrganizationsMongoRepository;
+import pers.liujunyi.cloud.security.repository.mongo.organizations.StaffOrgMongoRepository;
 import pers.liujunyi.cloud.security.repository.jpa.organizations.OrganizationsRepository;
 import pers.liujunyi.cloud.security.service.organizations.OrganizationsService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
@@ -42,9 +42,9 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
     @Autowired
     private OrganizationsRepository organizationsRepository;
     @Autowired
-    private OrganizationsElasticsearchRepository organizationsElasticsearchRepository;
+    private OrganizationsMongoRepository organizationsMongoRepository;
     @Autowired
-    private StaffOrgElasticsearchRepository staffOrgElasticsearchRepository;
+    private StaffOrgMongoRepository staffOrgMongoRepository;
 
     public OrganizationsServiceImpl(BaseRepository<Organizations, Long> baseRepository) {
         super(baseRepository);
@@ -87,14 +87,14 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
         if (!add) {
             saveObject.setDataVersion(saveObject.getDataVersion() + 1);
         }
-        this.organizationsElasticsearchRepository.save(saveObject);
+        this.organizationsMongoRepository.save(saveObject);
         return ResultUtil.success(saveObject.getId());
     }
 
     @Override
     public ResultInfo updateStatus(Byte status, List<Long> ids,String putParams) {
         if (status.byteValue() == 1) {
-            List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByOrgIdIn(ids, super.getPageable(ids.size()));
+            List<StaffOrg> list = this.staffOrgMongoRepository.findByOrgIdIn(ids);
             if (!CollectionUtils.isEmpty(list)) {
                 ResultUtil.params("要禁用的组织机构正在被系统使用,不能被禁用");
             }
@@ -112,8 +112,8 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
                 docDataMap.put("dataVersion", jsonObject.getLongValue("dataVersion") + 1);
                 sourceMap.put(jsonObject.getString("id"), docDataMap);
             }
-            // 更新 Elasticsearch 中的数据
-            super.updateBatchElasticsearchData(sourceMap);
+            // 更新 Mongo 中的数据
+            super.updateMongoDataByIds(sourceMap);
             return ResultUtil.success();
         }
         return ResultUtil.fail();
@@ -123,20 +123,18 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
     @Override
     public ResultInfo updateStatus(Byte status, Long id, Long version) {
         if (status.byteValue() == 1) {
-            List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByOrgId(id, super.getPageable(1));
+            List<StaffOrg> list = this.staffOrgMongoRepository.findByOrgId(id);
             if (!CollectionUtils.isEmpty(list)) {
                 ResultUtil.params("要禁用的组织机构正在被系统使用,不能被禁用");
             }
         }
         int count = this.organizationsRepository.setStatusById(status, new Date(), id, version);
         if (count > 0) {
-            Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
             Map<String, Object> docDataMap = new HashMap<>();
             docDataMap.put("orgStatus", status);
             docDataMap.put("dataVersion", version + 1);
             docDataMap.put("updateTime", System.currentTimeMillis());
-            sourceMap.put(String.valueOf(id), docDataMap);
-            super.updateBatchElasticsearchData(sourceMap);
+            super.updateMongoDataById(id, docDataMap);
             return ResultUtil.success();
         }
         return ResultUtil.fail();
@@ -144,18 +142,13 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
 
     @Override
     public ResultInfo deleteBatch(List<Long> ids) {
-        List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByOrgIdIn(ids, super.getPageable(ids.size()));
+        List<StaffOrg> list = this.staffOrgMongoRepository.findByOrgIdIn(ids);
         if (!CollectionUtils.isEmpty(list)) {
             ResultUtil.params("要删除的组织机构正在被系统使用,不能被删除");
         }
         long count = this.organizationsRepository.deleteByIdIn(ids);
         if (count > 0) {
-            this.organizationsElasticsearchRepository.deleteByIdIn(ids);
-            try {
-                Thread.sleep(1000L);
-            } catch (InterruptedException var15) {
-                var15.printStackTrace();
-            }
+            this.organizationsMongoRepository.deleteByIdIn(ids);
             return ResultUtil.success();
         }
         return ResultUtil.fail();
@@ -163,12 +156,12 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
 
     @Override
     public ResultInfo deleteSingle(Long id) {
-        List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByOrgId(id, super.getPageable(1));
+        List<StaffOrg> list = this.staffOrgMongoRepository.findByOrgId(id);
         if (!CollectionUtils.isEmpty(list)) {
             ResultUtil.params("要删除的组织机构正在被系统使用,不能被删除");
         }
         this.organizationsRepository.deleteById(id);
-        this.organizationsElasticsearchRepository.deleteById(id);
+        this.organizationsMongoRepository.deleteById(id);
         return ResultUtil.success();
     }
 
@@ -177,7 +170,7 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
         Sort sort =  Sort.by(Sort.Direction.ASC, "id");
         List<Organizations> list = this.organizationsRepository.findAll(sort);
         if (!CollectionUtils.isEmpty(list)) {
-            this.organizationsElasticsearchRepository.deleteAll();
+            this.organizationsMongoRepository.deleteAll();
             // 限制条数
             int pointsDataLimit = 1000;
             int size = list.size();
@@ -190,17 +183,17 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
                     List<Organizations> partList = new LinkedList<>(list.subList(0, pointsDataLimit));
                     //剔除
                     list.subList(0, pointsDataLimit).clear();
-                    this.organizationsElasticsearchRepository.saveAll(partList);
+                    this.organizationsMongoRepository.saveAll(partList);
                 }
                 //表示最后剩下的数据
                 if (!CollectionUtils.isEmpty(list)) {
-                    this.organizationsElasticsearchRepository.saveAll(list);
+                    this.organizationsMongoRepository.saveAll(list);
                 }
             } else {
-                this.organizationsElasticsearchRepository.saveAll(list);
+                this.organizationsMongoRepository.saveAll(list);
             }
         } else {
-            this.organizationsElasticsearchRepository.deleteAll();
+            this.organizationsMongoRepository.deleteAll();
         }
         return ResultUtil.success();
     }
@@ -212,7 +205,7 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
      * @return
      */
     private Organizations getOrganizations(Long id) {
-        Optional<Organizations> organizations = this.organizationsElasticsearchRepository.findById(id);
+        Optional<Organizations> organizations = this.organizationsMongoRepository.findById(id);
         if (organizations.isPresent()) {
             return organizations.get();
         }
@@ -243,7 +236,7 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
      * @return
      */
     private Boolean checkOrgNumberData (String orgNumber) {
-        Organizations organizations = this.organizationsElasticsearchRepository.findFirstByOrgNumber(orgNumber);
+        Organizations organizations = this.organizationsMongoRepository.findFirstByOrgNumber(orgNumber);
         if (organizations != null) {
             return true;
         }

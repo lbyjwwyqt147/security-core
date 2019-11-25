@@ -17,7 +17,7 @@ import pers.liujunyi.cloud.common.util.SystemUtils;
 import pers.liujunyi.cloud.security.domain.IdParamDto;
 import pers.liujunyi.cloud.security.domain.organizations.StaffOrgQueryDto;
 import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
-import pers.liujunyi.cloud.security.service.organizations.StaffOrgElasticsearchService;
+import pers.liujunyi.cloud.security.service.organizations.StaffOrgMongoService;
 import pers.liujunyi.cloud.security.service.organizations.StaffOrgService;
 
 import javax.validation.Valid;
@@ -41,7 +41,7 @@ public class StaffOrgController extends BaseController {
     @Autowired
     private StaffOrgService staffOrgService;
     @Autowired
-    private StaffOrgElasticsearchService staffOrgElasticsearchService;
+    private StaffOrgMongoService staffOrgElasticsearchService;
 
     /**
      * 保存数据

@@ -6,9 +6,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import pers.liujunyi.cloud.common.query.elasticsearch.BaseEsQuery;
 import pers.liujunyi.cloud.common.query.jpa.annotation.MatchType;
 import pers.liujunyi.cloud.common.query.jpa.annotation.QueryCondition;
+import pers.liujunyi.cloud.common.query.mongo.BaseMongoQuery;
 
 /***
  * 文件名称: StaffOrgQueryDto.java
@@ -24,7 +24,7 @@ import pers.liujunyi.cloud.common.query.jpa.annotation.QueryCondition;
 @ApiModel
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class StaffOrgQueryDto extends BaseEsQuery {
+public class StaffOrgQueryDto extends BaseMongoQuery {
 
     private static final long serialVersionUID = 570038382505298728L;
     /** 机构id */

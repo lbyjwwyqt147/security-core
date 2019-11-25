@@ -7,12 +7,13 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+import pers.liujunyi.cloud.common.entity.BaseEntity;
 
-import javax.persistence.*;
-import java.io.Serializable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Version;
 import java.util.Date;
 
 
@@ -31,57 +32,73 @@ import java.util.Date;
 @Entity
 @NoArgsConstructor
 @ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = false)
-@Document(indexName = "photo_manage_user_accounts", type = "userAccounts", shards = 1, replicas = 0)
+@EqualsAndHashCode(callSuper = true)
+@Document(collection = "userAccounts")
 @DynamicInsert
 @DynamicUpdate
-public class UserAccounts implements Serializable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@org.hibernate.annotations.Table(appliesTo = "user_accounts", comment = "用户账户表")
+public class UserAccounts extends BaseEntity {
 
     /** 用户帐号 */
+    @Column(length = 65, nullable = false, columnDefinition="COMMENT '用户帐号'")
+    @Indexed
     private String userAccounts;
 
     /** 用户编号  */
+    @Column(length = 20, nullable = false, columnDefinition="COMMENT '用户编号'")
+    @Indexed
     private String userNumber;
 
     /** 用户名称 */
+    @Column(length = 32,  columnDefinition="COMMENT '用户名称'")
     private String userName;
 
     /** 用户昵称 */
+    @Column(length = 32, nullable = false, columnDefinition="COMMENT '用户昵称'")
     private String userNickName;
 
     /** 用户密码 */
     @JSONField(serialize = false)
+    @Column(length = 128, nullable = false, columnDefinition="COMMENT '用户密码'")
     private String userPassword;
 
     /** 绑定的手机号 */
+    @Column(length = 11, nullable = false, columnDefinition="COMMENT '绑定的手机号'")
+    @Indexed
     private String mobilePhone;
 
     /** 电子邮箱 */
+    @Column(length = 65, columnDefinition="COMMENT '电子邮箱'")
     private String userMailbox;
 
     /** 状态：0：正常  1：冻结 */
+    @Column(columnDefinition="COMMENT '状态：0：正常  1：冻结 '")
+    @Indexed
     private Byte userStatus;
 
     /** 用户类别   0：超级管理员 1：普通管理员  2：员工  3：顾客 */
+    @Column(columnDefinition="COMMENT '用户类别   0：超级管理员 1：普通管理员  2：员工  3：顾客'")
     private Byte userCategory;
 
     /** 注册时间  */
+    @Column(columnDefinition="timestamp NOT NULL COMMENT '注册时间'")
     private Date registrationTime;
 
     /** 最后修改密码时间 */
-    @Field(type = FieldType.Date, index = false)
+    @Column(columnDefinition="timestamp COMMENT '最后修改密码时间'")
     private Date changePasswordTime;
 
-    /** 修改时间  */
-    @Field(type = FieldType.Date, index = false)
-    private Date updateTime;
+    /** 头像地址 */
+    @Column(columnDefinition="COMMENT '头像地址'")
+    private String portrait;
+
+    /** 头像ID */
+    @Column(columnDefinition="COMMENT '头像ID'")
+    private Long portraitId;
 
     @Version
-    private Long dataVersion;
-
-    private Long lessee;
+    @Override
+    public Long getDataVersion() {
+        return super.getDataVersion();
+    }
 }

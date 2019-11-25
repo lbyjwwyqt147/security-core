@@ -1,13 +1,13 @@
-package pers.liujunyi.cloud.security.repository.elasticsearch.category;
+package pers.liujunyi.cloud.security.repository.mongo.category;
 
-import pers.liujunyi.cloud.common.repository.elasticsearch.BaseElasticsearchRepository;
+import pers.liujunyi.cloud.common.repository.mongo.BaseMongoRepository;
 import pers.liujunyi.cloud.security.entity.category.CategoryInfo;
 
 import java.util.List;
 
 /***
- * 文件名称: CategoryInfoElasticsearchRepository.java
- * 文件描述: 分类信息 Elasticsearch Repository
+ * 文件名称: CategoryInfoMongoRepository.java
+ * 文件描述: 分类信息 Mongo Repository
  * 公 司:
  * 内容摘要:
  * 其他说明:
@@ -16,7 +16,7 @@ import java.util.List;
  * @version 1.0
  * @author ljy
  */
-public interface CategoryInfoElasticsearchRepository extends BaseElasticsearchRepository<CategoryInfo, Long> {
+public interface CategoryInfoMongoRepository extends BaseMongoRepository<CategoryInfo, Long> {
 
     /**
      * 根据类型 和状态 获取数据

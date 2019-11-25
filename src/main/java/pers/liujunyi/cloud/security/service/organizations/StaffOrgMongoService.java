@@ -1,7 +1,7 @@
 package pers.liujunyi.cloud.security.service.organizations;
 
 import pers.liujunyi.cloud.common.restful.ResultInfo;
-import pers.liujunyi.cloud.common.service.BaseElasticsearchService;
+import pers.liujunyi.cloud.common.service.BaseMongoService;
 import pers.liujunyi.cloud.security.domain.organizations.StaffOrgQueryDto;
 import pers.liujunyi.cloud.security.entity.organizations.Organizations;
 import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
@@ -11,8 +11,8 @@ import java.util.Map;
 
 
 /***
- * 文件名称: StaffOrgElasticsearchService.java
- * 文件描述: 职工关联组织机构信息 Elasticsearch Service
+ * 文件名称: StaffOrgMongoService.java
+ * 文件描述: 职工关联组织机构信息 Mongo Service
  * 公 司:
  * 内容摘要:
  * 其他说明:
@@ -21,7 +21,7 @@ import java.util.Map;
  * @version 1.0
  * @author ljy
  */
-public interface StaffOrgElasticsearchService extends BaseElasticsearchService<StaffOrg, Long> {
+public interface StaffOrgMongoService extends BaseMongoService<StaffOrg, Long> {
 
 
     /**

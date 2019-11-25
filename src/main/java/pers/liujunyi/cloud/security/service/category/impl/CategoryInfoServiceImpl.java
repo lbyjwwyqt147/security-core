@@ -13,7 +13,7 @@ import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
 import pers.liujunyi.cloud.common.util.UserContext;
 import pers.liujunyi.cloud.security.domain.category.CategoryInfoDto;
 import pers.liujunyi.cloud.security.entity.category.CategoryInfo;
-import pers.liujunyi.cloud.security.repository.elasticsearch.category.CategoryInfoElasticsearchRepository;
+import pers.liujunyi.cloud.security.repository.mongo.category.CategoryInfoMongoRepository;
 import pers.liujunyi.cloud.security.repository.jpa.category.CategoryInfoRepository;
 import pers.liujunyi.cloud.security.service.category.CategoryInfoService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
@@ -38,7 +38,7 @@ public class CategoryInfoServiceImpl extends BaseServiceImpl<CategoryInfo, Long>
     @Autowired
     private CategoryInfoRepository categoryInfoRepository;
     @Autowired
-    private CategoryInfoElasticsearchRepository categoryInfoElasticsearchRepository;
+    private CategoryInfoMongoRepository categoryInfoMongoRepository;
 
     public CategoryInfoServiceImpl(BaseRepository<CategoryInfo, Long> baseRepository) {
         super(baseRepository);
@@ -58,7 +58,7 @@ public class CategoryInfoServiceImpl extends BaseServiceImpl<CategoryInfo, Long>
         CategoryInfo categoryInfo = DozerBeanMapperUtil.copyProperties(record, CategoryInfo.class);
         CategoryInfo saveObj =  this.categoryInfoRepository.save(categoryInfo);
         if (saveObj != null && saveObj.getId() != null) {
-            this.categoryInfoElasticsearchRepository.save(saveObj);
+            this.categoryInfoMongoRepository.save(saveObj);
         }else {
             result.setSuccess(false);
             result.setStatus(ErrorCodeEnum.FAIL.getCode());
@@ -77,8 +77,10 @@ public class CategoryInfoServiceImpl extends BaseServiceImpl<CategoryInfo, Long>
             ids.stream().forEach(item -> {
                 sourceMap.put(String.valueOf(item), docDataMap);
             });
-            super.updateBatchElasticsearchData(sourceMap);
-            return ResultUtil.success();
+            boolean success = super.updateMongoDataByIds(sourceMap);
+            if (success) {
+                return ResultUtil.success();
+            }
         }
         return ResultUtil.fail();
     }
@@ -87,7 +89,7 @@ public class CategoryInfoServiceImpl extends BaseServiceImpl<CategoryInfo, Long>
     public ResultInfo deleteBatch(List<Long> ids) {
         long count = this.categoryInfoRepository.deleteByIdIn(ids);
         if (count > 0) {
-            this.categoryInfoElasticsearchRepository.deleteByIdIn(ids);
+            this.categoryInfoMongoRepository.deleteByIdIn(ids);
             return ResultUtil.success();
         }
         return ResultUtil.fail();
@@ -98,7 +100,7 @@ public class CategoryInfoServiceImpl extends BaseServiceImpl<CategoryInfo, Long>
         Sort sort = Sort.by(Sort.Direction.ASC, "id");
         List<CategoryInfo> list = this.categoryInfoRepository.findAll(sort);
         if (!CollectionUtils.isEmpty(list)) {
-            this.categoryInfoElasticsearchRepository.deleteAll();
+            this.categoryInfoMongoRepository.deleteAll();
             // 限制条数
             int pointsDataLimit = 1000;
             int size = list.size();
@@ -111,17 +113,17 @@ public class CategoryInfoServiceImpl extends BaseServiceImpl<CategoryInfo, Long>
                     List<CategoryInfo> partList = new LinkedList<>(list.subList(0, pointsDataLimit));
                     //剔除
                     list.subList(0, pointsDataLimit).clear();
-                    this.categoryInfoElasticsearchRepository.saveAll(partList);
+                    this.categoryInfoMongoRepository.saveAll(partList);
                 }
                 //表示最后剩下的数据
                 if (!CollectionUtils.isEmpty(list)) {
-                    this.categoryInfoElasticsearchRepository.saveAll(list);
+                    this.categoryInfoMongoRepository.saveAll(list);
                 }
             } else {
-                this.categoryInfoElasticsearchRepository.saveAll(list);
+                this.categoryInfoMongoRepository.saveAll(list);
             }
         } else {
-            this.categoryInfoElasticsearchRepository.deleteAll();
+            this.categoryInfoMongoRepository.deleteAll();
         }
         return ResultUtil.success();
     }

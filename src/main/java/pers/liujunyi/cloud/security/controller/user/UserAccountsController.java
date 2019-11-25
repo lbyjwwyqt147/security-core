@@ -15,7 +15,7 @@ import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.security.domain.IdParamDto;
 import pers.liujunyi.cloud.security.domain.user.UserAccountsDto;
 import pers.liujunyi.cloud.security.domain.user.UserAccountsQueryDto;
-import pers.liujunyi.cloud.security.service.user.UserAccountsElasticsearchService;
+import pers.liujunyi.cloud.security.service.user.UserAccountsMongoService;
 import pers.liujunyi.cloud.security.service.user.UserAccountsService;
 
 import javax.validation.Valid;
@@ -40,7 +40,7 @@ public class UserAccountsController extends BaseController {
     @Autowired
     private UserAccountsService userAccountsService;
     @Autowired
-    private UserAccountsElasticsearchService userAccountsElasticsearchService;
+    private UserAccountsMongoService userAccountsMongoService;
 
     /**
      * 注册账户
@@ -181,7 +181,7 @@ public class UserAccountsController extends BaseController {
     @GetMapping(value = "table/accounts/g")
     @ApiVersion(1)
     public ResultInfo encryptPageGrid(@Valid UserAccountsQueryDto query) {
-        return this.userAccountsElasticsearchService.findPageGird(query);
+        return this.userAccountsMongoService.findPageGird(query);
     }
 
 

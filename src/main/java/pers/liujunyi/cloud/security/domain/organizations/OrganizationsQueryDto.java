@@ -4,9 +4,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import pers.liujunyi.cloud.common.query.elasticsearch.BaseEsQuery;
 import pers.liujunyi.cloud.common.query.jpa.annotation.MatchType;
 import pers.liujunyi.cloud.common.query.jpa.annotation.QueryCondition;
+import pers.liujunyi.cloud.common.query.mongo.BaseMongoQuery;
 
 import javax.validation.constraints.Min;
 
@@ -24,7 +24,7 @@ import javax.validation.constraints.Min;
 @ApiModel
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class OrganizationsQueryDto extends BaseEsQuery {
+public class OrganizationsQueryDto extends BaseMongoQuery {
 
     private static final long serialVersionUID = 6449395633423076411L;
     /** 机构编号 */

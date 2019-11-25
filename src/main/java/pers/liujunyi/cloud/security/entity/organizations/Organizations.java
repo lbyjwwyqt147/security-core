@@ -6,11 +6,12 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.hibernate.annotations.Table;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 import pers.liujunyi.cloud.common.entity.BaseEntity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Version;
 
@@ -18,7 +19,7 @@ import javax.persistence.Version;
  * 文件名称: Organizations.java
  * 文件描述: 组织机构
  * 公 司:
- * 内容摘要: elasticsearch6.0.0移除了一个索引允许映射多个类型，虽然还支持同索引多类型查询，但是Elasticsearch 7.0.0的版本将完全放弃type 。https://www.cnblogs.com/liugx/p/8470369.html
+ * 内容摘要:
  *
  * 完成日期:2019年03月10日
  * 修改记录:
@@ -30,55 +31,70 @@ import javax.persistence.Version;
 @NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@Document(indexName = "photo_manage_organizations", type = "organizations", shards = 1, replicas = 0)
+@Document(collection = "organizations")
 @DynamicInsert
 @DynamicUpdate
+@Table(appliesTo = "organizations", comment = "组织机构表")
 public class Organizations extends BaseEntity {
     private static final long serialVersionUID = -2904937024962048531L;
+
     /** 机构编号 */
+    @Column(length = 15, nullable = false, columnDefinition="COMMENT '机构编号'")
     private String orgNumber;
 
     /** 机构名称 */
+    @Column(length = 32, nullable = false, columnDefinition="COMMENT '机构名称'")
     private String orgName;
 
     /** 机构级别 */
+    @Column(columnDefinition="DEFAULT '1' COMMENT '机构级别'")
     private Byte orgLevel;
 
     /** 父级主键id */
+    @Column(columnDefinition="DEFAULT '0' COMMENT '父级主键id'")
+    @Indexed
     private Long parentId;
 
-    /** 排序号 */
+    /** 排序值 */
+    @Column(columnDefinition="DEFAULT '10' COMMENT '排序值'")
     private Integer seq;
 
     /** 完整的机构名称 */
-    @Field(type = FieldType.Keyword, index = false)
+    @Column(length = 128, columnDefinition="COMMENT '完整的机构名称'")
     private String fullName;
 
     /** 完整的层级Id */
+    @Column(length = 45, columnDefinition="COMMENT '完整的层级Id'")
     private String fullParent;
 
     /** 完整的层级代码 */
+    @Column(length = 100, columnDefinition="COMMENT '完整的层级代码'")
     private String fullParentCode;
 
     /** 描述说明 */
-    @Field(type = FieldType.Auto, index = false)
+    @Column(length = 100, columnDefinition="COMMENT '描述说明'")
     private String description;
 
     /** 状态：0：正常  1：禁用 */
+    @Column(columnDefinition="DEFAULT '0' COMMENT '状态：0：正常  1：禁用 '")
+    @Indexed
     private Byte orgStatus;
 
     /** 预留字段1 */
-    @Field(type = FieldType.Keyword, index = false)
+    @Column(length = 45, columnDefinition="COMMENT '预留字段1'")
     private String attributeOne;
 
     /** 预留字段2 */
-    @Field(type = FieldType.Keyword, index = false)
+    @Column(length = 65, columnDefinition="COMMENT '预留字段2'")
     private String attributeTwo;
 
     /** 预留字段3 */
-    @Field(type = FieldType.Keyword, index = false)
+    @Column(length = 100, columnDefinition="COMMENT '预留字段3'")
     private String attributeThree;
 
     @Version
-    private Long dataVersion;
+    @Override
+    public Long getDataVersion() {
+        return super.getDataVersion();
+    }
 }

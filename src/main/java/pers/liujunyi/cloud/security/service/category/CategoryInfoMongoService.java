@@ -1,7 +1,7 @@
 package pers.liujunyi.cloud.security.service.category;
 
 import pers.liujunyi.cloud.common.restful.ResultInfo;
-import pers.liujunyi.cloud.common.service.BaseElasticsearchService;
+import pers.liujunyi.cloud.common.service.BaseMongoService;
 import pers.liujunyi.cloud.security.domain.category.CategoryInfoQueryDto;
 import pers.liujunyi.cloud.security.entity.category.CategoryInfo;
 
@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 /***
- * 文件名称: CategoryInfoElasticsearchService.java
- * 文件描述: 分类信息 Elasticsearch Service
+ * 文件名称: CategoryInfoMongoService.java
+ * 文件描述: 分类信息 Mongo Service
  * 公 司:
  * 内容摘要:
  * 其他说明:
@@ -19,7 +19,7 @@ import java.util.Map;
  * @version 1.0
  * @author ljy
  */
-public interface CategoryInfoElasticsearchService extends BaseElasticsearchService<CategoryInfo, Long> {
+public interface CategoryInfoMongoService extends BaseMongoService<CategoryInfo, Long> {
 
 
 

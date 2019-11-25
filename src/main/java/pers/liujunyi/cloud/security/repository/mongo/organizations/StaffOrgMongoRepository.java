@@ -1,14 +1,13 @@
-package pers.liujunyi.cloud.security.repository.elasticsearch.organizations;
+package pers.liujunyi.cloud.security.repository.mongo.organizations;
 
-import org.springframework.data.domain.Pageable;
-import pers.liujunyi.cloud.common.repository.elasticsearch.BaseElasticsearchRepository;
+import pers.liujunyi.cloud.common.repository.mongo.BaseMongoRepository;
 import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
 
 import java.util.List;
 
 /***
- * 文件名称: StaffOrgElasticsearchRepository.java
- * 文件描述: 职工关联组织机构 Elasticsearch Repository
+ * 文件名称: StaffOrgMongoRepository.java
+ * 文件描述: 职工关联组织机构 Mongo Repository
  * 公 司:
  * 内容摘要:
  * 其他说明:
@@ -17,76 +16,68 @@ import java.util.List;
  * @version 1.0
  * @author ljy
  */
-public interface StaffOrgElasticsearchRepository extends BaseElasticsearchRepository<StaffOrg, Long> {
+public interface StaffOrgMongoRepository extends BaseMongoRepository<StaffOrg, Long> {
 
 
     /**
      * 根据 机构id 获取数据
      * @param orgId
-     * @param  page
      * @return
      */
-    List<StaffOrg> findByOrgId(Long orgId, Pageable page);
+    List<StaffOrg> findByOrgId(Long orgId);
 
     /**
      * 根据 机构id 获取数据
      * @param orgIds
-     * @param  page
      * @return
      */
-    List<StaffOrg> findByOrgIdInOrderByIdAsc(List<Long> orgIds, Pageable page);
+    List<StaffOrg> findByOrgIdInOrderByIdAsc(List<Long> orgIds);
 
     /**
      * 根据 机构id 获取数据
      * @param orgIds
-     * @param  page
      * @return
      */
-    List<StaffOrg> findByOrgIdIn(List<Long> orgIds, Pageable page);
+    List<StaffOrg> findByOrgIdIn(List<Long> orgIds);
 
     /**
      * 根据 职工id 获取数据
      * @param staffIds
-     * @param  page
      * @return
      */
-    List<StaffOrg> findByStaffIdIn(List<Long> staffIds, Pageable page);
+    List<StaffOrg> findByStaffIdIn(List<Long> staffIds);
 
 
     /**
      * 根据 职工id 获取数据
      * @param staffId
-     * @param  page
      * @return
      */
-    List<StaffOrg> findByStaffId(Long staffId, Pageable page);
+    List<StaffOrg> findByStaffId(Long staffId);
 
     /**
      * 根据 职工id 获取数据
      * @param staffIds
-     * @param  page
      * @return
      */
-    List<StaffOrg> findByStaffIdInOrderByIdAsc(List<Long> staffIds, Pageable page);
+    List<StaffOrg> findByStaffIdInOrderByIdAsc(List<Long> staffIds);
 
 
     /**
      * 根据 机构id 获取数据
      * @param orgId
      * @param  status
-     * @param  page
      * @return
      */
-    List<StaffOrg> findByOrgIdAndStatus(Long orgId, Byte status, Pageable page);
+    List<StaffOrg> findByOrgIdAndStatus(Long orgId, Byte status);
 
     /**
      * 根据 职工id 获取数据
      * @param staffId
      * @param  status
-     * @param  page
      * @return
      */
-    List<StaffOrg> findByStaffIdAndStatus(Long staffId, Byte status, Pageable page);
+    List<StaffOrg> findByStaffIdAndStatus(Long staffId, Byte status);
 
     /**
      * 根据 staffId 删除

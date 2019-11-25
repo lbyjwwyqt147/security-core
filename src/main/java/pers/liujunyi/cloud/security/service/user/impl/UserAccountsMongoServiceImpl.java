@@ -1,23 +1,23 @@
 package pers.liujunyi.cloud.security.service.user.impl;
 
+
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.search.sort.SortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.elasticsearch.core.query.SearchQuery;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.encrypt.AesEncryptUtils;
-import pers.liujunyi.cloud.common.repository.elasticsearch.BaseElasticsearchRepository;
+import pers.liujunyi.cloud.common.repository.mongo.BaseMongoRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
-import pers.liujunyi.cloud.common.service.impl.BaseElasticsearchServiceImpl;
+import pers.liujunyi.cloud.common.service.impl.BaseMongoServiceImpl;
 import pers.liujunyi.cloud.security.domain.user.UserAccountsQueryDto;
+import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
-import pers.liujunyi.cloud.security.repository.elasticsearch.user.UserAccountsElasticsearchRepository;
-import pers.liujunyi.cloud.security.service.user.UserAccountsElasticsearchService;
+import pers.liujunyi.cloud.security.repository.mongo.user.UserAccountsMongoRepository;
+import pers.liujunyi.cloud.security.service.user.UserAccountsMongoService;
 
 import java.util.List;
 import java.util.Map;
@@ -26,8 +26,8 @@ import java.util.stream.Collectors;
 
 
 /***
- * 文件名称: UserAccountsElasticsearchServiceImpl.java
- * 文件描述: 用户帐号信息 Elasticsearch Service impl
+ * 文件名称: UserAccountsMongoServiceImpl.java
+ * 文件描述: 用户帐号信息 Mongo Service impl
  * 公 司:
  * 内容摘要:
  * 其他说明:
@@ -37,19 +37,19 @@ import java.util.stream.Collectors;
  * @author ljy
  */
 @Service
-public class UserAccountsElasticsearchServiceImpl extends BaseElasticsearchServiceImpl<UserAccounts, Long> implements UserAccountsElasticsearchService {
+public class UserAccountsMongoServiceImpl extends BaseMongoServiceImpl<UserAccounts, Long> implements UserAccountsMongoService {
 
     @Autowired
-    private UserAccountsElasticsearchRepository userAccountsElasticsearchRepository;
+    private UserAccountsMongoRepository userAccountsMongoRepository;
 
-    public UserAccountsElasticsearchServiceImpl(BaseElasticsearchRepository<UserAccounts, Long> baseElasticsearchRepository) {
-        super(baseElasticsearchRepository);
+    public UserAccountsMongoServiceImpl(BaseMongoRepository<UserAccounts, Long> baseMongoRepository) {
+        super(baseMongoRepository);
     }
 
 
     @Override
     public ResultInfo userLogin(String userAccounts, String userPassword) {
-        UserAccounts accounts = this.userAccountsElasticsearchRepository.findFirstByUserAccountsOrMobilePhoneOrUserNumberAndUserPassword(userAccounts, userAccounts, userAccounts, userPassword);
+        UserAccounts accounts = this.userAccountsMongoRepository.findFirstByUserAccountsOrMobilePhoneOrUserNumberAndUserPassword(userAccounts, userAccounts, userAccounts, userPassword);
         if (accounts != null) {
             if (accounts.getUserStatus().byteValue() == 1) {
                 return ResultUtil.params("账户已被禁用,请联系客服人员");
@@ -61,7 +61,7 @@ public class UserAccountsElasticsearchServiceImpl extends BaseElasticsearchServi
 
     @Override
     public UserAccounts findFirstByUserAccountsOrMobilePhoneOrUserNumber(String userAccounts) {
-        return this.userAccountsElasticsearchRepository.findFirstByUserAccountsOrMobilePhoneOrUserNumber(userAccounts, userAccounts, userAccounts);
+        return this.userAccountsMongoRepository.findFirstByUserAccountsOrMobilePhoneOrUserNumber(userAccounts, userAccounts, userAccounts);
     }
 
     @Override
@@ -89,15 +89,15 @@ public class UserAccountsElasticsearchServiceImpl extends BaseElasticsearchServi
 
     @Override
     public ResultInfo findPageGird(UserAccountsQueryDto query) {
-        // 排序方式 解决无数据时异常 No mapping found for [registrationTime] in order to sort on
-        SortBuilder sortBuilder = SortBuilders.fieldSort("registrationTime").unmappedType("date").order(SortOrder.DESC);
-        // 如果使用这种排序方式 如果表中数据为空时,会报异常 No mapping found for [createTime] in order to sort on
-        //Sort sort = Sort.by(Sort.Direction.DESC, "registrationTime");
+        Sort sort = Sort.by(Sort.Direction.DESC, "registrationTime");
+        Pageable pageable = query.toPageable(sort);
+        // 查询条件
+        Query searchQuery = query.toSpecPageable(pageable);
+        // 查询总记录条数
+        long totalElements = this.mongoDbTemplate.count(searchQuery, StaffOrg.class);
         // 查询数据
-        SearchQuery searchQuery = query.toSpecSortPageable(sortBuilder);
-        Page<UserAccounts> searchPageResults = this.userAccountsElasticsearchRepository.search(searchQuery);
-        Long totalElements =  searchPageResults.getTotalElements();
-        ResultInfo result = ResultUtil.success(AesEncryptUtils.aesEncrypt(searchPageResults.getContent(), super.secretKey));
+        List<StaffOrg> searchPageResults =  this.mongoDbTemplate.find(searchQuery, StaffOrg.class);
+        ResultInfo result = ResultUtil.success(AesEncryptUtils.aesEncrypt(searchPageResults, super.secretKey));
         result.setTotal(totalElements);
         return  result;
     }

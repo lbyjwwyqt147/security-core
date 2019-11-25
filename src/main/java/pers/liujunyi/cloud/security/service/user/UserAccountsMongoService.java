@@ -1,7 +1,7 @@
 package pers.liujunyi.cloud.security.service.user;
 
 import pers.liujunyi.cloud.common.restful.ResultInfo;
-import pers.liujunyi.cloud.common.service.BaseElasticsearchService;
+import pers.liujunyi.cloud.common.service.BaseMongoService;
 import pers.liujunyi.cloud.security.domain.user.UserAccountsQueryDto;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
 
@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 /***
- * 文件名称: UserAccountsElasticsearchService.java
- * 文件描述: 用户账户信息 Elasticsearch Service
+ * 文件名称: UserAccountsMongoService.java
+ * 文件描述: 用户账户信息 Mongo Service
  * 公 司:
  * 内容摘要:
  * 其他说明:
@@ -19,7 +19,7 @@ import java.util.Map;
  * @version 1.0
  * @author ljy
  */
-public interface UserAccountsElasticsearchService extends BaseElasticsearchService<UserAccounts, Long> {
+public interface UserAccountsMongoService extends BaseMongoService<UserAccounts, Long> {
 
     /**
      * 用户登录

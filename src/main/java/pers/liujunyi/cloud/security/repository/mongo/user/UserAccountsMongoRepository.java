@@ -1,13 +1,13 @@
-package pers.liujunyi.cloud.security.repository.elasticsearch.user;
+package pers.liujunyi.cloud.security.repository.mongo.user;
 
-import pers.liujunyi.cloud.common.repository.elasticsearch.BaseElasticsearchRepository;
+import pers.liujunyi.cloud.common.repository.mongo.BaseMongoRepository;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
 
 import java.util.List;
 
 /***
- * 文件名称: UserAccountsElasticsearchRepository.java
- * 文件描述: 用户帐号信息 Elasticsearch Repository
+ * 文件名称: UserAccountsMongoRepository.java
+ * 文件描述: 用户帐号信息 Mongo Repository
  * 公 司:
  * 内容摘要:
  * 其他说明:
@@ -16,7 +16,7 @@ import java.util.List;
  * @version 1.0
  * @author ljy
  */
-public interface UserAccountsElasticsearchRepository extends BaseElasticsearchRepository<UserAccounts, Long> {
+public interface UserAccountsMongoRepository extends BaseMongoRepository<UserAccounts, Long> {
 
     /**
      * 根据手机号获取信息

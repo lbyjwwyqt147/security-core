@@ -1,27 +1,26 @@
 package pers.liujunyi.cloud.security.service.organizations.impl;
 
-import org.elasticsearch.search.sort.SortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.elasticsearch.core.query.SearchQuery;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.encrypt.AesEncryptUtils;
-import pers.liujunyi.cloud.common.repository.elasticsearch.BaseElasticsearchRepository;
+import pers.liujunyi.cloud.common.repository.mongo.BaseMongoRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
-import pers.liujunyi.cloud.common.service.impl.BaseElasticsearchServiceImpl;
+import pers.liujunyi.cloud.common.service.impl.BaseMongoServiceImpl;
 import pers.liujunyi.cloud.security.domain.organizations.StaffOrgQueryDto;
 import pers.liujunyi.cloud.security.domain.organizations.StaffOrgVo;
 import pers.liujunyi.cloud.security.entity.organizations.Organizations;
 import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
-import pers.liujunyi.cloud.security.repository.elasticsearch.organizations.StaffOrgElasticsearchRepository;
-import pers.liujunyi.cloud.security.service.organizations.OrganizationsElasticsearchService;
-import pers.liujunyi.cloud.security.service.organizations.StaffOrgElasticsearchService;
-import pers.liujunyi.cloud.security.service.user.UserAccountsElasticsearchService;
+import pers.liujunyi.cloud.security.repository.mongo.organizations.StaffOrgMongoRepository;
+import pers.liujunyi.cloud.security.service.organizations.OrganizationsMongoService;
+import pers.liujunyi.cloud.security.service.organizations.StaffOrgMongoService;
+import pers.liujunyi.cloud.security.service.user.UserAccountsMongoService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
 import java.util.List;
@@ -32,8 +31,8 @@ import java.util.stream.Collectors;
 
 
 /***
- * 文件名称: StaffOrgElasticsearchServiceImpl.java
- * 文件描述: 职工关联组织机构 Elasticsearch Service impl
+ * 文件名称: StaffOrgMongoServiceImpl.java
+ * 文件描述: 职工关联组织机构 Mongo Service impl
  * 公 司:
  * 内容摘要:
  * 其他说明:
@@ -43,53 +42,55 @@ import java.util.stream.Collectors;
  * @author ljy
  */
 @Service
-public class StaffOrgElasticsearchServiceImpl extends BaseElasticsearchServiceImpl<StaffOrg, Long> implements StaffOrgElasticsearchService {
+public class StaffOrgMongoServiceImpl extends BaseMongoServiceImpl<StaffOrg, Long> implements StaffOrgMongoService {
 
     @Autowired
-    private StaffOrgElasticsearchRepository staffOrgElasticsearchRepository;
+    private StaffOrgMongoRepository staffOrgMongoRepository;
     @Autowired
-    private UserAccountsElasticsearchService userAccountsElasticsearchService;
+    private UserAccountsMongoService userAccountsMongoService;
     @Autowired
-    private OrganizationsElasticsearchService organizationsElasticsearchService;
+    private OrganizationsMongoService organizationsMongoService;
 
-    public StaffOrgElasticsearchServiceImpl(BaseElasticsearchRepository<StaffOrg, Long> baseElasticsearchRepository) {
-        super(baseElasticsearchRepository);
+    public StaffOrgMongoServiceImpl(BaseMongoRepository<StaffOrg, Long> baseMongoRepository) {
+        super(baseMongoRepository);
     }
 
 
     @Override
     public List<StaffOrg> findByOrgIdAndStatus(Long orgId, Byte status) {
-        return this.staffOrgElasticsearchRepository.findByOrgIdAndStatus(orgId, status, super.allPageable);
+        return this.staffOrgMongoRepository.findByOrgIdAndStatus(orgId, status);
     }
 
     @Override
     public List<StaffOrg> findByOrgIdIn(List<Long> orgIds) {
-        return this.staffOrgElasticsearchRepository.findByOrgIdIn(orgIds, super.getPageable(orgIds.size()));
+        return this.staffOrgMongoRepository.findByOrgIdIn(orgIds);
     }
 
     @Override
     public List<StaffOrg> findByOrgIdInOrderByIdAsc(List<Long> orgIds) {
-        return this.staffOrgElasticsearchRepository.findByOrgIdInOrderByIdAsc(orgIds, super.getPageable(orgIds.size()));
+        return this.staffOrgMongoRepository.findByOrgIdInOrderByIdAsc(orgIds);
     }
 
     @Override
     public List<StaffOrg> findByStaffIdAndStatus(Long staffId, Byte status) {
-        return this.staffOrgElasticsearchRepository.findByStaffIdAndStatus(staffId, status, super.allPageable);
+        return this.staffOrgMongoRepository.findByStaffIdAndStatus(staffId, status);
     }
 
     @Override
     public ResultInfo findPageGird(StaffOrgQueryDto query) {
-        // 排序方式 解决无数据时异常 No mapping found for [createTime] in order to sort on
-        SortBuilder sortBuilder = SortBuilders.fieldSort("createTime").unmappedType("date").order(SortOrder.DESC);
+        Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
+        Pageable pageable = query.toPageable(sort);
+        // 查询条件
+        Query searchQuery = query.toSpecPageable(pageable);
+        // 查询总记录条数
+        long totalElements = this.mongoDbTemplate.count(searchQuery, StaffOrg.class);
         // 查询数据
-        SearchQuery searchQuery = query.toSpecSortPageable(sortBuilder);
-        Page<StaffOrg> searchPageResults = this.staffOrgElasticsearchRepository.search(searchQuery);
+        List<StaffOrg> searchPageResults =  this.mongoDbTemplate.find(searchQuery, StaffOrg.class);
         List<StaffOrgVo> resultDataList = new CopyOnWriteArrayList<>();
-        List<StaffOrg> searchDataList = searchPageResults.getContent();
-        if (!CollectionUtils.isEmpty(searchDataList)) {
-            List<Long> staffIds = searchDataList.stream().map(StaffOrg::getStaffId).collect(Collectors.toList());
-            Map<Long, UserAccounts> userMap = this.userAccountsElasticsearchService.getUserAccountInfoToMap(staffIds);
-            searchDataList.stream().forEach(item -> {
+        if (!CollectionUtils.isEmpty(searchPageResults)) {
+            List<Long> staffIds = searchPageResults.stream().map(StaffOrg::getStaffId).collect(Collectors.toList());
+            Map<Long, UserAccounts> userMap = this.userAccountsMongoService.getUserAccountInfoToMap(staffIds);
+            searchPageResults.stream().forEach(item -> {
                 StaffOrgVo staffOrgVo = new StaffOrgVo();
                 staffOrgVo.setId(item.getId());
                 staffOrgVo.setOrgId(item.getOrgId());
@@ -104,7 +105,6 @@ public class StaffOrgElasticsearchServiceImpl extends BaseElasticsearchServiceIm
                 resultDataList.add(staffOrgVo);
             });
         }
-        Long totalElements =  searchPageResults.getTotalElements();
         ResultInfo result = ResultUtil.success(AesEncryptUtils.aesEncrypt(resultDataList, super.secretKey));
         result.setTotal(totalElements);
         return  result;
@@ -112,7 +112,7 @@ public class StaffOrgElasticsearchServiceImpl extends BaseElasticsearchServiceIm
 
     @Override
     public List<StaffOrg> findByStaffIdIn(List<Long> staffIds) {
-        return this.staffOrgElasticsearchRepository.findByStaffIdIn(staffIds, super.getPageable(staffIds.size()));
+        return this.staffOrgMongoRepository.findByStaffIdIn(staffIds);
     }
 
     @Override
@@ -141,7 +141,7 @@ public class StaffOrgElasticsearchServiceImpl extends BaseElasticsearchServiceIm
         if (!CollectionUtils.isEmpty(staffOrgList)) {
             List<Long> orgIds = staffOrgList.stream().map(StaffOrg::getOrgId).distinct().collect(Collectors.toList());
             // 获取机构信息
-            List<Organizations> organizationsList = this.organizationsElasticsearchService.findByIdIn(orgIds);
+            List<Organizations> organizationsList = this.organizationsMongoService.findByIdIn(orgIds);
             return organizationsList;
         }
         return null;
@@ -156,7 +156,7 @@ public class StaffOrgElasticsearchServiceImpl extends BaseElasticsearchServiceIm
             for (Map.Entry<Long, List<StaffOrg>> entry : groupMap.entrySet()) {
                 List<Long> orgIds = entry.getValue().stream().map(StaffOrg::getOrgId).distinct().collect(Collectors.toList());
                 // 获取机构信息
-                List<Organizations> organizationsList = this.organizationsElasticsearchService.findByIdIn(orgIds);
+                List<Organizations> organizationsList = this.organizationsMongoService.findByIdIn(orgIds);
                 orgMap.put(entry.getKey(), organizationsList);
             }
         }
@@ -189,14 +189,14 @@ public class StaffOrgElasticsearchServiceImpl extends BaseElasticsearchServiceIm
      */
     private String getOrgName(Long staffId,  Boolean full) {
         StringBuffer orgNameBuffer = new StringBuffer();
-        List<StaffOrg> list = this.staffOrgElasticsearchRepository.findByStaffId(staffId, super.allPageable);
+        List<StaffOrg> list = this.staffOrgMongoRepository.findByStaffId(staffId);
         if (!CollectionUtils.isEmpty(list)) {
             List<Long> orgIds = list.stream().map(StaffOrg::getOrgId).distinct().collect(Collectors.toList());
             Map<Long, String> orgNameMap = null;
             if (full) {
-                orgNameMap = this.organizationsElasticsearchService.fullOrgNameToMap(orgIds);
+                orgNameMap = this.organizationsMongoService.fullOrgNameToMap(orgIds);
             } else {
-                orgNameMap = this.organizationsElasticsearchService.orgNameToMap(orgIds);
+                orgNameMap = this.organizationsMongoService.orgNameToMap(orgIds);
             }
             if (!CollectionUtils.isEmpty(orgNameMap)) {
                 final Map<Long, String> map = orgNameMap;

@@ -16,7 +16,7 @@ import pers.liujunyi.cloud.common.vo.tree.ZtreeNode;
 import pers.liujunyi.cloud.security.domain.IdParamDto;
 import pers.liujunyi.cloud.security.domain.organizations.OrganizationsDto;
 import pers.liujunyi.cloud.security.domain.organizations.OrganizationsQueryDto;
-import pers.liujunyi.cloud.security.service.organizations.OrganizationsElasticsearchService;
+import pers.liujunyi.cloud.security.service.organizations.OrganizationsMongoService;
 import pers.liujunyi.cloud.security.service.organizations.OrganizationsService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
@@ -41,7 +41,7 @@ public class OrganizationsController extends BaseController {
     @Autowired
     private OrganizationsService organizationsService;
     @Autowired
-    private OrganizationsElasticsearchService organizationsElasticsearchService;
+    private OrganizationsMongoService organizationsElasticsearchService;
 
     /**
      * 保存数据

@@ -20,7 +20,7 @@ import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
 import pers.liujunyi.cloud.security.domain.user.UserAccountsDto;
 import pers.liujunyi.cloud.security.domain.user.UserAccountsUpdateDto;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
-import pers.liujunyi.cloud.security.repository.elasticsearch.user.UserAccountsElasticsearchRepository;
+import pers.liujunyi.cloud.security.repository.mongo.user.UserAccountsMongoRepository;
 import pers.liujunyi.cloud.security.repository.jpa.user.UserAccountsRepository;
 import pers.liujunyi.cloud.security.service.user.UserAccountsService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
@@ -45,7 +45,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
     @Autowired
     private UserAccountsRepository userAccountsRepository;
     @Autowired
-    private UserAccountsElasticsearchRepository userAccountsElasticsearchRepository;
+    private UserAccountsMongoRepository userAccountsMongoRepository;
     @Autowired
     private EncryptProperties encryptProperties;
 
@@ -123,7 +123,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         if (saveObject == null || saveObject.getId() == null) {
             return "0";
         }
-        this.userAccountsElasticsearchRepository.save(saveObject);
+        this.userAccountsMongoRepository.save(saveObject);
         return String.valueOf(saveObject.getId());
     }
 
@@ -156,8 +156,8 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
             docDataMap.put("updateTime", System.currentTimeMillis());
             docDataMap.put("dataVersion", dataVersion + 1);
             sourceMap.put(String.valueOf(id), docDataMap);
-            // 更新 Elasticsearch 中的数据
-            super.updateBatchElasticsearchData(sourceMap);
+            // 更新 Mongo 中的数据
+            super.updateMongoDataByIds(sourceMap);
             return true;
         }
         return false;    }
@@ -177,7 +177,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
                 docDataMap.put("dataVersion", jsonObject.getLongValue("dataVersion") + 1);
                 sourceMap.put(jsonObject.getString("id"), docDataMap);
             }
-            super.updateBatchElasticsearchData(sourceMap);
+            super.updateMongoDataByIds(sourceMap);
             return true;
         }
         return false;
@@ -203,7 +203,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
                 docDataMap.put("updateTime", System.currentTimeMillis());
                 docDataMap.put("dataVersion", dataVersion + 1);
                 sourceMap.put(String.valueOf(id), docDataMap);
-                super.updateBatchElasticsearchData(sourceMap);
+                super.updateMongoDataByIds(sourceMap);
                 return ResultUtil.success();
             }
         }
@@ -275,8 +275,8 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
             docDataMap.put("updateTime", System.currentTimeMillis());
             docDataMap.put("dataVersion", userAccountsUpdate.getDataVersion() + 1);
             sourceMap.put(String.valueOf(id), docDataMap);
-            // 更新 Elasticsearch 中的数据
-            super.updateBatchElasticsearchData(sourceMap);
+            // 更新 Mongo 中的数据
+            super.updateMongoDataByIds(sourceMap);
             return ResultUtil.success();
         }
         return ResultUtil.fail();
@@ -296,7 +296,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
     @Override
     public ResultInfo deleteSingle(Long id) {
         this.userAccountsRepository.deleteById(id);
-        this.userAccountsElasticsearchRepository.deleteById(id);
+        this.userAccountsMongoRepository.deleteById(id);
         return ResultUtil.success();
     }
 
@@ -305,7 +305,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
     public Boolean deleteByUserAccounts(List<Long> ids) {
         long count = this.userAccountsRepository.deleteByIdIn(ids);
         if (count > 0) {
-            this.userAccountsElasticsearchRepository.deleteByIdIn(ids);
+            this.userAccountsMongoRepository.deleteByIdIn(ids);
             return true;
         }
         return false;
@@ -322,7 +322,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         Sort sort = Sort.by(Sort.Direction.ASC, "id");
         List<UserAccounts> list = this.userAccountsRepository.findAll(sort);
         if (!CollectionUtils.isEmpty(list)) {
-            this.userAccountsElasticsearchRepository.deleteAll();
+            this.userAccountsMongoRepository.deleteAll();
             // 限制条数
             int pointsDataLimit = 1000;
             int size = list.size();
@@ -335,17 +335,17 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
                     List<UserAccounts> partList = new LinkedList<>(list.subList(0, pointsDataLimit));
                     //剔除
                     list.subList(0, pointsDataLimit).clear();
-                    this.userAccountsElasticsearchRepository.saveAll(partList);
+                    this.userAccountsMongoRepository.saveAll(partList);
                 }
                 //表示最后剩下的数据
                 if (!CollectionUtils.isEmpty(list)) {
-                    this.userAccountsElasticsearchRepository.saveAll(list);
+                    this.userAccountsMongoRepository.saveAll(list);
                 }
             } else {
-                this.userAccountsElasticsearchRepository.saveAll(list);
+                this.userAccountsMongoRepository.saveAll(list);
             }
         } else {
-            this.userAccountsElasticsearchRepository.deleteAll();
+            this.userAccountsMongoRepository.deleteAll();
         }
     }
 
@@ -355,7 +355,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
      * @return
      */
     private UserAccounts getUserAccounts(Long id) {
-        Optional<UserAccounts> userAccounts = this.userAccountsElasticsearchRepository.findById(id);
+        Optional<UserAccounts> userAccounts = this.userAccountsMongoRepository.findById(id);
         if (userAccounts.isPresent()) {
             return userAccounts.get();
         }
@@ -385,7 +385,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
      * @return
      */
     private Boolean checkUserNumberData(String userNumber) {
-        UserAccounts userAccounts = this.userAccountsElasticsearchRepository.findFirstByUserNumber(userNumber);
+        UserAccounts userAccounts = this.userAccountsMongoRepository.findFirstByUserNumber(userNumber);
         if (userAccounts != null) {
             return true;
         }
@@ -416,7 +416,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
      * @return
      */
     private Boolean checkUserAccountsData(String userNumber) {
-        UserAccounts userAccounts = this.userAccountsElasticsearchRepository.findFirstByUserAccounts(userNumber);
+        UserAccounts userAccounts = this.userAccountsMongoRepository.findFirstByUserAccounts(userNumber);
         if (userAccounts != null) {
             return true;
         }
@@ -447,7 +447,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
      * @return
      */
     private Boolean checkMobilePhoneData(String mobilePhone) {
-        UserAccounts userAccounts = this.userAccountsElasticsearchRepository.findFirstByMobilePhone(mobilePhone);
+        UserAccounts userAccounts = this.userAccountsMongoRepository.findFirstByMobilePhone(mobilePhone);
         if (userAccounts != null) {
             return true;
         }

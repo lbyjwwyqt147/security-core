@@ -1,26 +1,23 @@
 package pers.liujunyi.cloud.security.service.organizations.impl;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.elasticsearch.search.sort.SortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.elasticsearch.core.query.SearchQuery;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.encrypt.AesEncryptUtils;
-import pers.liujunyi.cloud.common.repository.elasticsearch.BaseElasticsearchRepository;
+import pers.liujunyi.cloud.common.repository.mongo.BaseMongoRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
-import pers.liujunyi.cloud.common.service.impl.BaseElasticsearchServiceImpl;
+import pers.liujunyi.cloud.common.service.impl.BaseMongoServiceImpl;
 import pers.liujunyi.cloud.common.vo.tree.ZtreeBuilder;
 import pers.liujunyi.cloud.common.vo.tree.ZtreeNode;
 import pers.liujunyi.cloud.security.domain.organizations.OrganizationsQueryDto;
 import pers.liujunyi.cloud.security.entity.organizations.Organizations;
-import pers.liujunyi.cloud.security.repository.elasticsearch.organizations.OrganizationsElasticsearchRepository;
-import pers.liujunyi.cloud.security.service.organizations.OrganizationsElasticsearchService;
+import pers.liujunyi.cloud.security.repository.mongo.organizations.OrganizationsMongoRepository;
+import pers.liujunyi.cloud.security.service.organizations.OrganizationsMongoService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
 import java.util.*;
@@ -28,8 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /***
- * 文件名称: OrganizationsElasticsearchServiceImpl.java
- * 文件描述: 组织机构 Elasticsearch Service impl
+ * 文件名称: OrganizationsMongoServiceImpl.java
+ * 文件描述: 组织机构 Mongo Service impl
  * 公 司:
  * 内容摘要:
  * 其他说明:
@@ -39,43 +36,45 @@ import java.util.stream.Collectors;
  * @author ljy
  */
 @Service
-public class OrganizationsElasticsearchServiceImpl extends BaseElasticsearchServiceImpl<Organizations, Long> implements OrganizationsElasticsearchService {
+public class OrganizationsMongoServiceImpl extends BaseMongoServiceImpl<Organizations, Long> implements OrganizationsMongoService {
 
     @Autowired
-    private OrganizationsElasticsearchRepository organizationsElasticsearchRepository;
+    private OrganizationsMongoRepository organizationsMongoRepository;
 
-    public OrganizationsElasticsearchServiceImpl(BaseElasticsearchRepository<Organizations, Long> baseElasticsearchRepository) {
-        super(baseElasticsearchRepository);
+    public OrganizationsMongoServiceImpl(BaseMongoRepository<Organizations, Long> baseMongoRepository) {
+        super(baseMongoRepository);
     }
 
 
     @Override
     public List<ZtreeNode> orgTree(Long pid, Byte status) {
-        List<Organizations> list = this.organizationsElasticsearchRepository.findByParentIdAndOrgStatusOrderBySeqAsc(pid,  status, super.allPageable);
+        List<Organizations> list = this.organizationsMongoRepository.findByParentIdAndOrgStatusOrderBySeqAsc(pid,  status);
         return this.startBuilderZtree(list);
     }
 
     @Override
     public List<ZtreeNode> orgFullParentCodeTree(String fullParentCode) {
-        fullParentCode = QueryParser.escape(fullParentCode).trim().replace(" ","");
-        List<Organizations> list = this.organizationsElasticsearchRepository.findByFullParentCodeLikeAndOrgStatusOrderBySeqAsc(fullParentCode,  SecurityConstant.ENABLE_STATUS, super.allPageable);
+        List<Organizations> list = this.organizationsMongoRepository.findByFullParentCodeLikeAndOrgStatusOrderBySeqAsc(fullParentCode,  SecurityConstant.ENABLE_STATUS);
         return this.startBuilderZtree(list);
     }
 
     @Override
     public ResultInfo findPageGird(OrganizationsQueryDto query) {
-        // 排序方式 解决无数据时异常 No mapping found for [seq] in order to sort on
-        SortBuilder sortBuilder = SortBuilders.fieldSort("seq").unmappedType("int").order(SortOrder.ASC);
+        Sort sort = Sort.by(Sort.Direction.ASC, "seq");
+        Pageable pageable = query.toPageable(sort);
+        // 查询条件
+        Query searchQuery = query.toSpecPageable(pageable);
+        // 查询总记录条数
+        long totalElements = this.mongoDbTemplate.count(searchQuery, Organizations.class);
         // 查询数据
-        SearchQuery searchQuery = query.toSpecSortPageable(sortBuilder);
-        Page<Organizations> searchPageResults = this.organizationsElasticsearchRepository.search(searchQuery);
-        List<Organizations> searchDataList = searchPageResults.getContent();
-        searchDataList.stream().forEach(item -> {
-            String fullName = this.getOrgFullName(item.getId());
-            item.setFullName(fullName);
-        });
-        Long totalElements =  searchPageResults.getTotalElements();
-        ResultInfo result = ResultUtil.success(AesEncryptUtils.aesEncrypt(searchDataList, super.secretKey));
+        List<Organizations> searchPageResults =  this.mongoDbTemplate.find(searchQuery, Organizations.class);
+        if (!CollectionUtils.isEmpty(searchPageResults)) {
+            searchPageResults.stream().forEach(item -> {
+                String fullName = this.getOrgFullName(item.getId());
+                item.setFullName(fullName);
+            });
+        }
+        ResultInfo result = ResultUtil.success(AesEncryptUtils.aesEncrypt(searchPageResults, super.secretKey));
         result.setTotal(totalElements);
         return  result;
     }
@@ -106,7 +105,7 @@ public class OrganizationsElasticsearchServiceImpl extends BaseElasticsearchServ
 
     @Override
     public Map<Long, String> findKeyIdValueNameByIdIn(List<Long> ids) {
-        List<Organizations> list = this.organizationsElasticsearchRepository.findByIdIn(ids, super.getPageable(ids.size()));
+        List<Organizations> list = this.organizationsMongoRepository.findByIdIn(ids);
         if (!CollectionUtils.isEmpty(list)) {
             return  list.stream().collect(Collectors.toMap(Organizations::getId, Organizations::getOrgName));
         }
@@ -150,7 +149,7 @@ public class OrganizationsElasticsearchServiceImpl extends BaseElasticsearchServ
     @Override
     public Map<Long, String> fullOrgNameToMap(List<Long> ids) {
         Map<Long, String> fullOrgNameMap = new ConcurrentHashMap<>();
-        List<Organizations> list = this.organizationsElasticsearchRepository.findByIdIn(ids, super.getPageable(ids.size()));
+        List<Organizations> list = this.organizationsMongoRepository.findByIdIn(ids);
         if (!CollectionUtils.isEmpty(list)) {
             list.stream().forEach(item -> {
                 String fullOrgName = "";
@@ -168,7 +167,7 @@ public class OrganizationsElasticsearchServiceImpl extends BaseElasticsearchServ
 
     @Override
     public Map<Long, String> orgNameToMap(List<Long> ids) {
-        List<Organizations> list = this.organizationsElasticsearchRepository.findByIdIn(ids, super.getPageable(ids.size()));
+        List<Organizations> list = this.organizationsMongoRepository.findByIdIn(ids);
         if (!CollectionUtils.isEmpty(list)) {
             return list.stream().collect(Collectors.toMap(Organizations::getId, Organizations::getOrgName));
         }
@@ -181,7 +180,7 @@ public class OrganizationsElasticsearchServiceImpl extends BaseElasticsearchServ
      * @return
      */
     private Organizations getOrganizations(Long id) {
-        Optional<Organizations> organizations = this.organizationsElasticsearchRepository.findById(id);
+        Optional<Organizations> organizations = this.organizationsMongoRepository.findById(id);
         if (organizations.isPresent()) {
             return organizations.get();
         }
@@ -196,7 +195,7 @@ public class OrganizationsElasticsearchServiceImpl extends BaseElasticsearchServ
      */
     private Map<Long, String> getOrgNameMap(List<Long> ids) {
         if (!CollectionUtils.isEmpty(ids)) {
-            List<Organizations> list = this.organizationsElasticsearchRepository.findByIdIn(ids, super.getPageable(ids.size()));
+            List<Organizations> list = this.organizationsMongoRepository.findByIdIn(ids);
             if (!CollectionUtils.isEmpty(list)) {
                 return  list.stream().collect(Collectors.toMap(Organizations::getId, Organizations::getOrgName));
             }
@@ -240,7 +239,7 @@ public class OrganizationsElasticsearchServiceImpl extends BaseElasticsearchServ
             }
         }
         if (!CollectionUtils.isEmpty(parentIdList)) {
-            List<Organizations> list = this.organizationsElasticsearchRepository.findByIdInOrderByIdAsc(parentIdList, super.getPageable(parentIdList.size()));
+            List<Organizations> list = this.organizationsMongoRepository.findByIdInOrderByIdAsc(parentIdList);
             list.stream().forEach(item -> {
                 fullParenOrgNameBuffer.append(item.getOrgName()).append("-");
             });

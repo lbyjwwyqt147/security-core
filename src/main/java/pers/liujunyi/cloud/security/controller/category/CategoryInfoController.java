@@ -12,7 +12,7 @@ import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.security.domain.IdParamDto;
 import pers.liujunyi.cloud.security.domain.category.CategoryInfoDto;
 import pers.liujunyi.cloud.security.domain.category.CategoryInfoQueryDto;
-import pers.liujunyi.cloud.security.service.category.CategoryInfoElasticsearchService;
+import pers.liujunyi.cloud.security.service.category.CategoryInfoMongoService;
 import pers.liujunyi.cloud.security.service.category.CategoryInfoService;
 
 import javax.validation.Valid;
@@ -35,7 +35,7 @@ public class CategoryInfoController extends BaseController {
     @Autowired
     private CategoryInfoService categoryInfoService;
     @Autowired
-    private CategoryInfoElasticsearchService categoryInfoElasticsearchService;
+    private CategoryInfoMongoService categoryInfoElasticsearchService;
 
     /**
      * 保存数据

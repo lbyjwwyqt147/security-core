@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import pers.liujunyi.cloud.common.exception.DescribeException;
 import pers.liujunyi.cloud.common.exception.ErrorCodeEnum;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
-import pers.liujunyi.cloud.security.repository.elasticsearch.user.UserAccountsElasticsearchRepository;
+import pers.liujunyi.cloud.security.repository.mongo.user.UserAccountsMongoRepository;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,11 +35,11 @@ import java.util.Set;
 public class MyUserDetailService implements UserDetailsService {
 
     @Autowired
-    private UserAccountsElasticsearchRepository userAccountsElasticsearchRepository;
+    private UserAccountsMongoRepository userAccountsMongoRepository;
 
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
-           UserAccounts userAccounts = this.userAccountsElasticsearchRepository.findFirstByUserAccountsOrMobilePhoneOrUserNumber(userName, userName, userName);
+           UserAccounts userAccounts = this.userAccountsMongoRepository.findFirstByUserAccountsOrMobilePhoneOrUserNumber(userName, userName, userName);
            if (userAccounts == null) {
                log.info("登录用户【" + userName + "】不存在.");
                throw new DescribeException(ErrorCodeEnum.LOGIN_INCORRECT);

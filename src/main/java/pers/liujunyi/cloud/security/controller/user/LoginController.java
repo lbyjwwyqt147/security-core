@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -40,7 +40,7 @@ import pers.liujunyi.cloud.common.vo.user.UserDetails;
 import pers.liujunyi.cloud.security.domain.user.LoginDto;
 import pers.liujunyi.cloud.security.domain.user.UserDetailsDto;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
-import pers.liujunyi.cloud.security.repository.elasticsearch.user.UserAccountsElasticsearchRepository;
+import pers.liujunyi.cloud.security.repository.mongo.user.UserAccountsMongoRepository;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
 import javax.servlet.http.HttpServletRequest;
@@ -76,7 +76,7 @@ public class LoginController extends BaseController {
     @Autowired
     private RedisTemplateUtils redisTemplateUtil;
     @Autowired
-    private UserAccountsElasticsearchRepository userAccountsElasticsearchRepository;
+    private UserAccountsMongoRepository userAccountsMongoRepository;
     @Autowired
     private PasswordEncoder bCryptPasswordEncoder;
     @Autowired
@@ -121,7 +121,7 @@ public class LoginController extends BaseController {
         //而每一个Provider都会通UserDetailsService和UserDetail来返回一个
         //以UsernamePasswordAuthenticationToken实现的带用户名和密码以及权限的Authentication
         try {
-            UserAccounts accounts = this.userAccountsElasticsearchRepository.findFirstByUserAccountsOrMobilePhoneOrUserNumber(loginDto.getUserAccount(), loginDto.getUserAccount(), loginDto.getUserAccount());
+            UserAccounts accounts = this.userAccountsMongoRepository.findFirstByUserAccountsOrMobilePhoneOrUserNumber(loginDto.getUserAccount(), loginDto.getUserAccount(), loginDto.getUserAccount());
             if (accounts == null || !bCryptPasswordEncoder.matches(loginDto.getUserPassword(), accounts.getUserPassword())) {
                 return ResultUtil.fail("用户或者密码错误.");
             }
@@ -233,7 +233,7 @@ public class LoginController extends BaseController {
             throw new UnapprovedClientAuthenticationException("clientSecret 不匹配 " + clientId);
         }
         //密码模式 模式, 组建 authentication
-        TokenRequest tokenRequest = new TokenRequest(MapUtils.EMPTY_MAP,clientId,clientDetails.getScope(),"password");
+        TokenRequest tokenRequest = new TokenRequest(MapUtils.EMPTY_SORTED_MAP,clientId,clientDetails.getScope(),"password");
         OAuth2Request oAuth2Request = tokenRequest.createOAuth2Request(clientDetails);
         OAuth2Authentication oAuth2Authentication = new OAuth2Authentication(oAuth2Request, authentication);
         OAuth2AccessToken accessToken = tokenStore.getAccessToken(oAuth2Authentication);
