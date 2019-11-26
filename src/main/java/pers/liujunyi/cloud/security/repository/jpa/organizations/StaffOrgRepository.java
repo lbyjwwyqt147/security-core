@@ -30,7 +30,7 @@ public interface StaffOrgRepository extends BaseRepository<StaffOrg, Long> {
      */
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
-    @Query(value = "update StaffOrg u set u.status = ?1, u.update_time = ?2, u.data_version = data_version+1  where u.id in (?3)", nativeQuery = true)
+    @Query(value = "update role_user u set u.status = ?1, u.update_time = ?2, u.data_version = data_version+1  where u.id in (?3)", nativeQuery = true)
     int setStatusByIds(Byte status, Date updateTime, List<Long> ids);
 
 
@@ -44,7 +44,7 @@ public interface StaffOrgRepository extends BaseRepository<StaffOrg, Long> {
      */
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
-    @Query(value = "update  StaffOrg u set u.status = ?1, u.update_time = ?2, u.data_version = data_version+1  where org.id = ?3 and u.data_version = ?4", nativeQuery = true)
+    @Query(value = "update  role_user u set u.status = ?1, u.update_time = ?2, u.data_version = data_version+1  where org.id = ?3 and u.data_version = ?4", nativeQuery = true)
     int setStatusById(Byte orgStatus,Date updateTime, Long id, Long version);
 
     /**
@@ -55,7 +55,7 @@ public interface StaffOrgRepository extends BaseRepository<StaffOrg, Long> {
      */
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
-    @Query(value = "update StaffOrg u set u.status = ?1, u.update_time = ?2 , u.data_version = data_version+1 where u.staffId in (?3)", nativeQuery = true)
+    @Query(value = "update role_user u set u.status = ?1, u.update_time = ?2 , u.data_version = data_version+1 where u.staff_id in (?3)", nativeQuery = true)
     int setStatusByStaffIds(Byte status, Date updateTime, List<Long> staffIds);
 
     /**
@@ -66,7 +66,7 @@ public interface StaffOrgRepository extends BaseRepository<StaffOrg, Long> {
      */
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
-    @Query(value = "update StaffOrg u set u.status = ?1, u.update_time = ?2 , u.data_version = data_version+1 where u.orgId = ?3", nativeQuery = true)
+    @Query(value = "update role_user u set u.status = ?1, u.update_time = ?2 , u.data_version = data_version+1 where u.org_id in (?3)", nativeQuery = true)
     int setStatusByOrgIds(Byte status, Date updateTime, List<Long> orgIds);
 
     /**

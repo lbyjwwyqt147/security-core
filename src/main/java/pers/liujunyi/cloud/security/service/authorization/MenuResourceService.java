@@ -1,15 +1,15 @@
-package pers.liujunyi.cloud.security.service.category;
+package pers.liujunyi.cloud.security.service.authorization;
 
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.service.BaseService;
-import pers.liujunyi.cloud.security.domain.category.CategoryInfoDto;
-import pers.liujunyi.cloud.security.entity.category.CategoryInfo;
+import pers.liujunyi.cloud.security.domain.authorization.MenuResourceDto;
+import pers.liujunyi.cloud.security.entity.authorization.MenuResource;
 
 import java.util.List;
 
 /***
- * 文件名称: CategoryInfoService.java
- * 文件描述:  分类信息 Service
+ * 文件名称: MenuResourceService.java
+ * 文件描述:  菜单资源 Service
  * 公 司:
  * 内容摘要:
  * 其他说明:
@@ -18,14 +18,14 @@ import java.util.List;
  * @version 1.0
  * @author ljy
  */
-public interface CategoryInfoService extends BaseService<CategoryInfo, Long> {
+public interface MenuResourceService extends BaseService<MenuResource, Long> {
 
     /**
      * 保存数据
      * @param record
      * @return
      */
-    ResultInfo saveRecord(CategoryInfoDto record);
+    ResultInfo saveRecord(MenuResourceDto record);
 
     /**
      * 修改状态
@@ -35,6 +35,7 @@ public interface CategoryInfoService extends BaseService<CategoryInfo, Long> {
      */
     ResultInfo updateStatus(Byte status, List<Long> ids);
 
+
     /**
      * 批量删除
      * @param ids
@@ -42,10 +43,12 @@ public interface CategoryInfoService extends BaseService<CategoryInfo, Long> {
      */
     ResultInfo deleteBatch(List<Long> ids);
 
+
     /**
      * 同步数据到Mongo中
      * @return
      */
-    ResultInfo syncDataToElasticsearch();
+    ResultInfo syncDataToMongo();
+
 
 }

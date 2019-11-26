@@ -74,6 +74,8 @@ public interface UserAccountsMongoRepository extends BaseMongoRepository<UserAcc
     /**
      * 根据 userAccounts  mobilePhone  userNumber   任意一个获取信息
      * @param userAccounts
+     * @param mobilePhone
+     * @param userNumber
      * @return
      */
     UserAccounts findFirstByUserAccountsOrMobilePhoneOrUserNumber(String userAccounts, String mobilePhone, String userNumber);

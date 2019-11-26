@@ -2,6 +2,7 @@ package pers.liujunyi.cloud.security.repository.jpa.organizations;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import pers.liujunyi.cloud.common.repository.jpa.BaseRepository;
 import pers.liujunyi.cloud.security.entity.organizations.Organizations;
@@ -20,7 +21,9 @@ import java.util.List;
  * @version 1.0
  * @author ljy
  */
+@Repository
 public interface OrganizationsRepository extends BaseRepository<Organizations, Long> {
+
     /**
      * 批量修改状态
      * @param orgStatus  0：正常  1：禁用

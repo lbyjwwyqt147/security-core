@@ -38,25 +38,25 @@ public class StaffOrg extends BaseEntity {
 
     private static final long serialVersionUID = 7025563314086782146L;
     /** 机构ID */
-    @Column(nullable = false, columnDefinition="COMMENT '机构ID'")
+    @Column(nullable = false, columnDefinition="bigint(20) NOT NULL COMMENT '机构ID'")
     @Indexed
     private Long orgId;
 
     /** 职工id */
-    @Column(nullable = false, columnDefinition="COMMENT '职工id'")
+    @Column(nullable = false, columnDefinition="bigint(20)  NOT NULL COMMENT '职工id'")
     @Indexed
     private Long staffId;
 
     /** 完整的层级Id */
-    @Column(length = 45, columnDefinition="COMMENT '完整的层级Id'")
+    @Column(length = 45, columnDefinition="varchar(45) DEFAULT NULL COMMENT '完整的层级Id'")
     private String fullParent;
 
     /** 机构编号 */
-    @Column(length = 15, columnDefinition="COMMENT '机构编号'")
+    @Column(length = 15, columnDefinition="varchar(15) DEFAULT NULL COMMENT '机构编号'")
     private String orgNumber;
 
     /** 状态：0：正常  1：禁用 */
-    @Column(columnDefinition="DEFAULT '0' COMMENT '状态：0：正常  1：禁用 '")
+    @Column(columnDefinition="tinyint(4) DEFAULT '0' COMMENT '状态：0：正常  1：禁用 '")
     @Indexed
     private Byte status;
 
