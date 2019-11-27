@@ -69,8 +69,8 @@ public class PositionInfo extends BaseEntity {
     @Column(length = 45, columnDefinition="varchar(45) DEFAULT NULL COMMENT '完整的层级Id'")
     private String fullPostParent;
 
-    /** 完整的层级代码 */
-    @Column(length = 100, columnDefinition="varchar(100) DEFAULT NULL COMMENT '完整的层级代码'")
+    /** 完整的层级编号 */
+    @Column(length = 100, columnDefinition="varchar(100) DEFAULT NULL COMMENT '完整的层级编号'")
     private String fullPostParentCode;
 
     /** 备注描述 */

@@ -78,16 +78,13 @@ public class MenuResource extends BaseEntity {
     @Column(length = 15,  columnDefinition="varchar(15) DEFAULT NULL COMMENT '权限授权代码  授权代码不需要加ROLE_前缀'")
     private String menuAuthorizationCode;
 
-    /** 完整的层次名称 */
-    @Column(length = 128, columnDefinition="varchar(128) DEFAULT NULL COMMENT '完整的层次名称'")
-    private String fullMenuName;
 
     /** 完整的层级Id */
     @Column(length = 45, columnDefinition="varchar(45) DEFAULT NULL COMMENT '完整的层级Id'")
     private String fullMenuParent;
 
-    /** 完整的层级代码 */
-    @Column(length = 100, columnDefinition="varchar(100) DEFAULT NULL COMMENT '完整的层级代码'")
+    /** 完整的层级编号 */
+    @Column(length = 100, columnDefinition="varchar(100) DEFAULT NULL COMMENT '完整的层级编号'")
     private String fullMenuParentCode;
 
     /** 备注描述 */

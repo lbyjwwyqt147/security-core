@@ -49,6 +49,10 @@ public class RoleInfo extends BaseEntity {
     @Indexed
     private Long parentId;
 
+    /** 完整的层级编号 */
+    @Column(length = 100, columnDefinition="varchar(100) DEFAULT NULL COMMENT '完整的层级编号'")
+    private String fullRoleParentCode;
+
     /** 状态：0：正常  1：禁用 */
     @Column(columnDefinition="tinyint(4) DEFAULT '0' COMMENT '状态：0：正常  1：禁用 '")
     @Indexed
