@@ -10,7 +10,7 @@
     </parent>
     <groupId>pers.liujunyi.cloud</groupId>
     <artifactId>security-core</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.1.1-SNAPSHOT</version>
     <name>pers.liujunyi.cloud.security</name>
     <description>权限认证</description>
 
@@ -40,22 +40,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <!--多数据源 分布式事务管理 -->
-        <!--<dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jta-atomikos</artifactId>
-        </dependency>-->
-        <!--<dependency>
-            <groupId>org.springframework.security.oauth</groupId>
-            <artifactId>spring-security-oauth2</artifactId>
-            <version>${security-oauth2-version}</version>
-        </dependency>-->
-
        <dependency>
             <groupId>org.springframework.security.oauth.boot</groupId>
             <artifactId>spring-security-oauth2-autoconfigure</artifactId>
@@ -77,11 +61,11 @@
             <version>${druid-version}</version>
         </dependency>
         <!-- 任务调度平台  -->
-        <dependency>
+  <!--      <dependency>
             <groupId>com.xuxueli</groupId>
             <artifactId>xxl-job-core</artifactId>
             <version>${xxl-job-core-version}</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -92,7 +76,6 @@
             <artifactId>common</artifactId>
             <version>${cloud.common-version}</version>
             <exclusions>
-                <!-- 排除默认日志插件 -->
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-logging</artifactId>
