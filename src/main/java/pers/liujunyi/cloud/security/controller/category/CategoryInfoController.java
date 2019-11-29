@@ -44,7 +44,7 @@ public class CategoryInfoController extends BaseController {
      * @param param
      * @return
      */
-    @ApiOperation(value = "保存数据", notes = "适用于保存数据 请求示例：127.0.0.1:18080/api/v1/verify/category/info/s")
+    @ApiOperation(value = "保存数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1")
     })
@@ -61,7 +61,7 @@ public class CategoryInfoController extends BaseController {
      * @param param 　 多个id 用 , 隔开
      * @return
      */
-    @ApiOperation(value = "删除多条数据", notes = "适用于批量删除数据 请求示例：127.0.0.1:18080/api/v1/verify/category/info/d/b")
+    @ApiOperation(value = "删除多条数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String")
@@ -78,7 +78,7 @@ public class CategoryInfoController extends BaseController {
      * @param query
      * @return
      */
-    @ApiOperation(value = "分页列表数据", notes = "适用于分页grid 显示数据 请求示例：127.0.0.1:18080/api/v1/table/category/info/g")
+    @ApiOperation(value = "分页列表数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1")
     })
@@ -95,7 +95,7 @@ public class CategoryInfoController extends BaseController {
      * @param param
      * @return
      */
-    @ApiOperation(value = "修改数据状态", notes = "适用于修改数据状态 请求示例：127.0.0.1:18080/api/v1/verify/category/info/p")
+    @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String"),
@@ -113,7 +113,7 @@ public class CategoryInfoController extends BaseController {
      * @param id
      * @return
      */
-    @ApiOperation(value = "根据id 获取详细信息", notes = "适用于根据id 获取详细信息 请求示例：127.0.0.1:18080/api/v1/table/category/info/{id}")
+    @ApiOperation(value = "根据id 获取详细信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "id", value = "id", paramType = "path",   required = true, dataType = "Long")
@@ -129,7 +129,7 @@ public class CategoryInfoController extends BaseController {
      * @param query
      * @return
      */
-    @ApiOperation(value = "分类下拉框数据", notes = "分类下拉框数据 请求示例：127.0.0.1:18080/api/v1/table/category/info/select")
+    @ApiOperation(value = "分类下拉框数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
     })
@@ -144,7 +144,7 @@ public class CategoryInfoController extends BaseController {
      * @param
      * @return
      */
-    @ApiOperation(value = "同步数据", notes = "同步数据 请求示例：127.0.0.1:18080/api/v1/verify/category/info/sync")
+    @ApiOperation(value = "同步数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
     })
@@ -161,7 +161,7 @@ public class CategoryInfoController extends BaseController {
      * @param history  历史值
      * @return
      */
-    @ApiOperation(value = "验证 名称 是否存在", notes = "适用于验证 名称 是否存在 请求示例：127.0.0.1:18080/api/v1/table/category/info/verify/name")
+    @ApiOperation(value = "验证 名称 是否存在")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "categoryName", value = "名称",  required = true, dataType = "String"),

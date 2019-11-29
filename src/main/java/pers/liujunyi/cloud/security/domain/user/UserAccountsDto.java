@@ -35,34 +35,34 @@ public class UserAccountsDto extends BaseDto {
     @ApiModelProperty(value = "用户帐号")
     @NotBlank(message = "帐号 必须填写")
     @Length(min = 5, max = 65, message = "帐号 最多可以输入65个字符")
-    @Pattern(regexp = RegexpUtils.ALNUM_ACCOUNT_REGEXP, message = "帐号 " + RegexpUtils.ALNUM_ACCOUNT_MSG)
+    @Pattern(regexp = RegexpUtils.ACCOUNT_REGEXP, message = "帐号 " + RegexpUtils.ACCOUNT_MSG)
     private String userAccounts;
 
     /** 用户编号  */
     @ApiModelProperty(value = "用户编号")
     @NotBlank(message = "用户编号 必须填写")
     @Length(min = 1, max = 20, message = "用户编号 最多可以输入20个字符")
-    @Pattern(regexp = RegexpUtils.ALNUM_CODE_REGEXP, message = "用户编号 " + RegexpUtils.ALNUM_CODE_MSG)
+    @Pattern(regexp = RegexpUtils.CODE_REGEXP, message = "用户编号 " + RegexpUtils.CODE_MSG)
     private String userNumber;
 
     /** 用户名称 */
     @ApiModelProperty(value = "用户名称")
     @NotBlank(message = "用户名称 必须填写")
     @Length(min = 1, max = 32, message = "用户名称 最多可以输入32个字符")
-    @Pattern(regexp = RegexpUtils.ALNUM_NAME_REGEXP, message = "用户名称 " + RegexpUtils.ALNUM_NAME_MSG)
+    @Pattern(regexp = RegexpUtils.NAME_REGEXP, message = "用户名称 " + RegexpUtils.NAME_MSG)
     private String userName;
 
     /** 用户昵称 */
     @ApiModelProperty(value = "用户昵称")
     @Length(min = 0, max = 32, message = "昵称 最多可以输入32个字符")
-    @Pattern(regexp = RegexpUtils.ALNUM_NAME_REGEXP, message = "昵称 " + RegexpUtils.ALNUM_NAME_MSG)
+    @Pattern(regexp = RegexpUtils.NAME_REGEXP, message = "昵称 " + RegexpUtils.NAME_MSG)
     private String userNickName;
 
     /** 用户密码 */
     @ApiModelProperty(value = "用户密码")
     @NotBlank(message = "密码 必须填写")
     @Length(min = 6, max = 32, message = "帐号 最多可以输入32个字符")
-    @Pattern(regexp = RegexpUtils.ALNUM_PWD_REGEXP, message = "密码 " + RegexpUtils.ALNUM_PWD_MSG)
+    @Pattern(regexp = RegexpUtils.PWD_REGEXP, message = "密码 " + RegexpUtils.PWD_MSG)
     private String userPassword;
 
     /** 绑定的手机号 */

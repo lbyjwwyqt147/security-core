@@ -41,11 +41,13 @@ import pers.liujunyi.cloud.security.domain.user.LoginDto;
 import pers.liujunyi.cloud.security.domain.user.UserDetailsDto;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
 import pers.liujunyi.cloud.security.repository.mongo.user.UserAccountsMongoRepository;
+import pers.liujunyi.cloud.security.service.user.UserAccountsService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -78,6 +80,8 @@ public class LoginController extends BaseController {
     @Autowired
     private UserAccountsMongoRepository userAccountsMongoRepository;
     @Autowired
+    private UserAccountsService userAccountsService;
+    @Autowired
     private PasswordEncoder bCryptPasswordEncoder;
     @Autowired
     private ClientDetailsService clientDetailsService;
@@ -99,7 +103,7 @@ public class LoginController extends BaseController {
      * @param loginDto
      * @return
      */
-    @ApiOperation(value = "用户登陆", notes = "")
+    @ApiOperation(value = "用户登陆")
     @PostMapping(value = "user/login")
     @ApiVersion(1)
     @Encrypt
@@ -135,7 +139,7 @@ public class LoginController extends BaseController {
             // 这个非常重要(非前后端分离情况下)，否则验证后将无法登陆
             // request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
             request.setAttribute(BaseRedisKeys.USER_ID, accounts.getId());
-            request.setAttribute(BaseRedisKeys.LESSEE, accounts.getLessee());
+            request.setAttribute(BaseRedisKeys.LESSEE, accounts.getTenementId());
             String token = this.decodeToken();
             //String token = this.clientToken(authentication);
             log.info("当前登录人【" + loginDto.getUserAccount() + "】的token:" + token);
@@ -150,6 +154,8 @@ public class LoginController extends BaseController {
             detailsDto.setSecret(loginDto.getUserPassword());
             request.setAttribute(BaseRedisKeys.USER_INFO,  JSON.toJSONString(userDetails));
             this.saveUserToRedis(token, detailsDto);
+            // 设置登录时间
+            this.userAccountsService.setLoginTimeById(new Date(), accounts.getLoginTime(), accounts.getLoginCount(), accounts.getId(), accounts.getDataVersion());
             return ResultUtil.success(userDetails, token);
         } catch (AuthenticationException e){
             e.printStackTrace();
@@ -162,7 +168,7 @@ public class LoginController extends BaseController {
      * @param principal
      * @return
      */
-    @ApiOperation(value = "获取当前登录用户信息", notes = "适用于获取当前登录用户信息 请求示例：127.0.0.1:18080/api/v1/verify/user/info")
+    @ApiOperation(value = "获取当前登录用户信息")
     @GetMapping(value = "verify/user/info")
     public Principal user(Principal principal) {
         //获取当前用户信息
@@ -179,7 +185,7 @@ public class LoginController extends BaseController {
      * @param access_token
      * @return
      */
-    @ApiOperation(value = "用户登录退出", notes = "适用于用户登录退出 请求示例：127.0.0.1:18080/api/v1/verify/user/exit")
+    @ApiOperation(value = "用户登录退出")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "access_token", value = "access_token",  required = true, dataType = "String"),

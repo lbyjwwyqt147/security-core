@@ -31,13 +31,13 @@ public class CategoryInfoDto extends BaseDto {
     @ApiModelProperty(value = "分类名称")
     @NotBlank(message = "分类名称 必须填写")
     @Length(min = 1, max = 32, message = "分类名称 最多可以输入32个字符")
-    @Pattern(regexp = RegexpUtils.ALNUM_NAME_REGEXP, message = "分类名称 " + RegexpUtils.ALNUM_NAME_MSG)
+    @Pattern(regexp = RegexpUtils.NAME_REGEXP, message = "分类名称 " + RegexpUtils.NAME_MSG)
     private String categoryName;
 
     /** 编号 */
     @ApiModelProperty(value = "编号")
     @Length(min = 1, max = 20, message = "编号 最多可以输入20个字符")
-    @Pattern(regexp = RegexpUtils.ALNUM_CODE_REGEXP, message = "编号 " + RegexpUtils.ALNUM_CODE_MSG)
+    @Pattern(regexp = RegexpUtils.CODE_REGEXP, message = "编号 " + RegexpUtils.CODE_MSG)
     private String categoryCode;
 
     /** 10: 流程分类 */

@@ -163,7 +163,7 @@ public class StaffOrgServiceImpl extends BaseServiceImpl<StaffOrg, Long> impleme
     }
 
     @Override
-    public ResultInfo syncDataToElasticsearch() {
+    public ResultInfo syncDataToMongo() {
         Sort sort =  Sort.by(Sort.Direction.ASC, "id");
         List<StaffOrg> list = this.staffOrgRepository.findAll(sort);
         if (!CollectionUtils.isEmpty(list)) {

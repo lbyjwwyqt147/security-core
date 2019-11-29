@@ -30,14 +30,14 @@ public class OrganizationsDto extends BaseDto {
     @ApiModelProperty(value = "机构代码")
     @NotBlank(message = "机构代码必须填写")
     @Length(min = 1, max = 15, message = "机构代码 最多可以输入15个字符")
-    @Pattern(regexp = RegexpUtils.ALNUM_CODE_REGEXP, message = "机构代码 " + RegexpUtils.ALNUM_CODE_MSG)
+    @Pattern(regexp = RegexpUtils.CODE_REGEXP, message = "机构代码 " + RegexpUtils.CODE_MSG)
     private String orgNumber;
 
     /** 机构名称 */
     @ApiModelProperty(value = "机构名称")
     @NotBlank(message = "机构名称必须填写")
     @Length(min = 1, max = 32, message = "机构名称 最多可以输入32个字符")
-    @Pattern(regexp = RegexpUtils.ALNUM_NAME_REGEXP, message = "机构名称 " + RegexpUtils.ALNUM_NAME_MSG)
+    @Pattern(regexp = RegexpUtils.NAME_REGEXP, message = "机构名称 " + RegexpUtils.NAME_MSG)
     private String orgName;
 
     /** 机构级别 */
@@ -79,18 +79,18 @@ public class OrganizationsDto extends BaseDto {
     /** 预留字段1 */
     @ApiModelProperty(value = "attributeOne")
     @Length(min = 0, max = 45, message = "attributeOne 最多可以输入45个字符")
-    @Pattern(regexp = RegexpUtils.ALNUM_NAME_REGEXP, message = "attributeOne " + RegexpUtils.ALNUM_NAME_MSG)
+    @Pattern(regexp = RegexpUtils.NAME_REGEXP, message = "attributeOne " + RegexpUtils.NAME_MSG)
     private String attributeOne;
 
     /** 预留字段2 */
     @ApiModelProperty(value = "attributeTwo")
     @Length(min = 0, max = 65, message = "attributeTwo 最多可以输入65个字符")
-    @Pattern(regexp = RegexpUtils.ALNUM_NAME_REGEXP, message = "attributeTwo " + RegexpUtils.ALNUM_NAME_MSG)
+    @Pattern(regexp = RegexpUtils.NAME_REGEXP, message = "attributeTwo " + RegexpUtils.NAME_MSG)
     private String attributeTwo;
 
     /** 预留字段3 */
     @ApiModelProperty(value = "attributeThree")
     @Length(min = 0, max = 100, message = "attributeThree 最多可以输入100个字符")
-    @Pattern(regexp = RegexpUtils.ALNUM_NAME_REGEXP, message = "attributeThree " + RegexpUtils.ALNUM_NAME_MSG)
+    @Pattern(regexp = RegexpUtils.NAME_REGEXP, message = "attributeThree " + RegexpUtils.NAME_MSG)
     private String attributeThree;
 }

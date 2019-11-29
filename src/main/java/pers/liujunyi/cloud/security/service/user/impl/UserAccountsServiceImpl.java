@@ -312,13 +312,13 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
     }
 
     @Override
-    public ResultInfo syncDataToElasticsearch() {
-        this.userAccountsSyncDataToElasticsearch();
+    public ResultInfo syncDataToMongo() {
+        this.userAccountsSyncDataToMongo();
         return ResultUtil.success();
     }
 
     @Override
-    public void userAccountsSyncDataToElasticsearch() {
+    public void userAccountsSyncDataToMongo() {
         Sort sort = Sort.by(Sort.Direction.ASC, "id");
         List<UserAccounts> list = this.userAccountsRepository.findAll(sort);
         if (!CollectionUtils.isEmpty(list)) {
@@ -347,6 +347,19 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         } else {
             this.userAccountsMongoRepository.deleteAll();
         }
+    }
+
+    @Override
+    public int setLoginTimeById(Date loginTime, Date lastLoginTime, Integer loginCount, Long id, Long version) {
+        int count = this.userAccountsRepository.setLoginTimeById(loginTime, lastLoginTime, loginCount, id, version);
+        Map<String, Object> docDataMap = new HashMap<>();
+        docDataMap.put("loginTime", loginTime);
+        docDataMap.put("lastLoginTime", lastLoginTime);
+        docDataMap.put("loginCount", loginCount + 1);
+        docDataMap.put("dataVersion", version + 1);
+        super.updateMongoDataById(id, docDataMap);
+        return count;
+
     }
 
     /**

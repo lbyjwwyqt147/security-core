@@ -2,15 +2,18 @@ package pers.liujunyi.cloud.security.service.authorization.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.repository.mongo.BaseMongoRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.service.impl.BaseMongoServiceImpl;
+import pers.liujunyi.cloud.security.entity.authorization.MenuResource;
 import pers.liujunyi.cloud.security.entity.authorization.RoleResource;
+import pers.liujunyi.cloud.security.repository.mongo.authorization.MenuResourceMongoRepository;
 import pers.liujunyi.cloud.security.repository.mongo.authorization.RoleResourceMongoRepository;
 import pers.liujunyi.cloud.security.service.authorization.RoleResourceMongoService;
 
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 /***
  * 文件名称: RoleResourceMongoServiceImpl.java
@@ -28,6 +31,8 @@ public class RoleResourceMongoServiceImpl extends BaseMongoServiceImpl<RoleResou
 
     @Autowired
     private RoleResourceMongoRepository roleResourceMongoRepository;
+    @Autowired
+    private MenuResourceMongoRepository menuResourceMongoRepository;
 
     public RoleResourceMongoServiceImpl(BaseMongoRepository<RoleResource, Long> baseMongoRepository) {
         super(baseMongoRepository);
@@ -36,51 +41,49 @@ public class RoleResourceMongoServiceImpl extends BaseMongoServiceImpl<RoleResou
 
     @Override
     public List<RoleResource> findByResourceIdAndStatus(Long resourceId, Byte status) {
-        return null;
+        return this.roleResourceMongoRepository.findByResourceIdAndStatus(resourceId, status);
     }
 
     @Override
-    public List<RoleResource> findByResourceIdIn(List<Long> resourceIds) {
-        return null;
+    public List<RoleResource> findByResourceIdInAndStatus(List<Long> resourceIds, Byte status) {
+        return this.roleResourceMongoRepository.findByResourceIdInAndStatus(resourceIds, status);
     }
 
-    @Override
-    public List<RoleResource> findByResourceIdInOrderByIdAsc(List<Long> resourceIds) {
-        return null;
-    }
 
     @Override
     public ResultInfo findPageGird(RoleResource query) {
+
         return null;
     }
 
     @Override
     public List<RoleResource> findByRoleIdAndStatus(Long roleId, Byte status) {
+        return this.roleResourceMongoRepository.findByRoleIdAndStatus(roleId, status);
+    }
+
+    @Override
+    public List<RoleResource> findByRoleIdInAndStatus(List<Long> roleIds, Byte status) {
+        return this.roleResourceMongoRepository.findByRoleIdInAndStatus(roleIds, status);
+    }
+
+    @Override
+    public List<MenuResource> getResourceInfoByRoleId(Long roleId) {
+        List<RoleResource> roleResources = this.findByRoleIdAndStatus(roleId, null);
+        if (CollectionUtils.isEmpty(roleResources)) {
+            List<Long> resourceIds = roleResources.stream().map(RoleResource::getResourceId).collect(Collectors.toList());
+            return this.menuResourceMongoRepository.findAllByIdIn(resourceIds);
+        }
         return null;
     }
 
     @Override
-    public List<RoleResource> findByRoleIdIn(List<Long> roleIds) {
+    public List<MenuResource> getResourceInfoByRoleIdIn(List<Long> roleId) {
+        List<RoleResource> roleResources = this.findByRoleIdInAndStatus(roleId, null);
+        if (CollectionUtils.isEmpty(roleResources)) {
+            List<Long> resourceIds = roleResources.stream().map(RoleResource::getResourceId).distinct().collect(Collectors.toList());
+            return this.menuResourceMongoRepository.findAllByIdIn(resourceIds);
+        }
         return null;
     }
 
-    @Override
-    public List<RoleResource> getResourceInfoByRoleId(Long roleId) {
-        return null;
-    }
-
-    @Override
-    public Map<Long, List<RoleResource>> getResourceInfoByRoleIdIn(List<Long> roleId) {
-        return null;
-    }
-
-    @Override
-    public List<RoleResource> getResourceInfoByResourceId(Long resourceId) {
-        return null;
-    }
-
-    @Override
-    public Map<Long, List<RoleResource>> getResourceInfoByResourceIdIn(List<Long> resourceIds) {
-        return null;
-    }
 }

@@ -23,7 +23,7 @@ public interface RoleInfoMongoRepository extends BaseMongoRepository<RoleInfo, L
      * @param roleNumber 编号
      * @return
      */
-    RoleInfo findFirstByPostNumberAndLessee(String roleNumber);
+    RoleInfo findFirstByRoleNumber(String roleNumber);
 
     /**
      * 根据pid 获取数据
@@ -32,5 +32,13 @@ public interface RoleInfoMongoRepository extends BaseMongoRepository<RoleInfo, L
      * @return
      */
     List<RoleInfo> findByParentIdAndRoleStatus(Long pid, Byte roleStatus);
+
+    /**
+     * 根据 fullRoleParentCode 获取数据
+     * @param fullRoleParentCode
+     * @param roleStatus  0：正常  1：禁用
+     * @return
+     */
+    List<RoleInfo> findByFullRoleParentCodeLikeAndRoleStatus(String fullRoleParentCode, Byte roleStatus);
 
 }

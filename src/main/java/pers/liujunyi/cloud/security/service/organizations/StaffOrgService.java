@@ -98,6 +98,6 @@ public interface StaffOrgService extends BaseService<StaffOrg, Long> {
      * 同步数据到es中
      * @return
      */
-    ResultInfo syncDataToElasticsearch();
+    ResultInfo syncDataToMongo();
 
 }

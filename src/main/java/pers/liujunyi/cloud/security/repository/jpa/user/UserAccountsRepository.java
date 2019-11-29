@@ -56,4 +56,17 @@ public interface UserAccountsRepository extends BaseRepository<UserAccounts, Lon
     @Query(value = "update user_accounts u set u.user_password = ?1, u.change_passwordTime = ?2, u.update_time = ?2, u.data_version = data_version+1 where u.id = ?3 and u.data_version = ?4 ", nativeQuery = true)
     int setUserPasswordById(String userPassword, Date time, Long id, Long version);
 
+    /**
+     * 修改登录时间
+     * @param loginTime
+     * @param lastLoginTime
+     * @param loginCount
+     * @param id
+     * @param version
+     * @return
+     */
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update user_accounts u set u.login_time = ?1, u.last_login_time = ?2,  u.login_count = ?3, u.data_version = data_version+1 where u.id = ?4 and u.data_version = ?5 ", nativeQuery = true)
+    int setLoginTimeById(Date loginTime, Date lastLoginTime, Integer loginCount, Long id, Long version);
 }

@@ -1,18 +1,29 @@
 package pers.liujunyi.cloud.security.service.authorization.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.repository.mongo.BaseMongoRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
+import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.service.impl.BaseMongoServiceImpl;
+import pers.liujunyi.cloud.common.vo.tree.ZtreeBuilder;
 import pers.liujunyi.cloud.common.vo.tree.ZtreeNode;
 import pers.liujunyi.cloud.security.domain.authorization.PositionInfoQueryDto;
 import pers.liujunyi.cloud.security.entity.authorization.PositionInfo;
-import pers.liujunyi.cloud.security.repository.mongo.authorization.MenuResourceMongoRepository;
+import pers.liujunyi.cloud.security.repository.mongo.authorization.PositionInfoMongoRepository;
 import pers.liujunyi.cloud.security.service.authorization.PositionInfoMongoService;
+import pers.liujunyi.cloud.security.util.SecurityConstant;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /***
  * 文件名称: PositionInfoMongoServiceImpl.java
@@ -29,7 +40,7 @@ import java.util.Map;
 public class PositionInfoMongoServiceImpl extends BaseMongoServiceImpl<PositionInfo, Long> implements PositionInfoMongoService {
 
     @Autowired
-    private MenuResourceMongoRepository menuResourceMongoRepository;
+    private PositionInfoMongoRepository positionInfoMongoRepository;
 
     public PositionInfoMongoServiceImpl(BaseMongoRepository<PositionInfo, Long> baseMongoRepository) {
         super(baseMongoRepository);
@@ -37,36 +48,82 @@ public class PositionInfoMongoServiceImpl extends BaseMongoServiceImpl<PositionI
 
     @Override
     public List<ZtreeNode> positionTree(Long pid, Byte status) {
-        return null;
+        List<PositionInfo> list = this.positionInfoMongoRepository.findByParentIdAndPostStatusOrderBySerialNumberAsc(pid,  status);
+        return this.startBuilderZtree(list);
     }
 
     @Override
     public List<ZtreeNode> positionFullParentCodeTree(String fullParentCode) {
-        return null;
+        List<PositionInfo> list = this.positionInfoMongoRepository.findByFullPostParentCodeLikeAndPostStatusOrderBySerialNumberAsc(fullParentCode,  SecurityConstant.ENABLE_STATUS);
+        return this.startBuilderZtree(list);
     }
 
     @Override
     public ResultInfo findPageGird(PositionInfoQueryDto query) {
-        return null;
+        Sort sort = Sort.by(Sort.Direction.ASC, "serialNumberAsc");
+        Pageable pageable = query.toPageable(sort);
+        // 查询条件
+        Query searchQuery = query.toSpecPageable(pageable);
+        // 查询总记录条数
+        long totalElements = this.mongoDbTemplate.count(searchQuery, PositionInfo.class);
+        // 查询数据
+        List<PositionInfo> searchPageResults =  this.mongoDbTemplate.find(searchQuery, PositionInfo.class);
+        ResultInfo result = ResultUtil.success(searchPageResults, super.secretKey);
+        result.setTotal(totalElements);
+        return  result;
     }
 
     @Override
     public String getPositionName(Long id) {
+        PositionInfo positionInfo = this.findById(id);
+        if (positionInfo != null) {
+            return positionInfo.getPostName();
+        }
         return null;
     }
 
-    @Override
-    public Map<Long, String> findKeyIdValueNameByIdIn(List<Long> ids) {
-        return null;
-    }
 
     @Override
     public ResultInfo selectById(Long id) {
-        return null;
+        return ResultUtil.success(this.findById(id));
     }
 
     @Override
     public Map<Long, String> positionNameToMap(List<Long> ids) {
+        List<PositionInfo> list = this.positionInfoMongoRepository.findByIdIn(ids);
+        if (!CollectionUtils.isEmpty(list)) {
+            return list.stream().collect(Collectors.toMap(PositionInfo::getId, PositionInfo::getPostName));
+        }
         return null;
+    }
+
+    @Override
+    public PositionInfo findById(Long id) {
+        Optional<PositionInfo> positionInfo = this.positionInfoMongoRepository.findById(id);
+        if (positionInfo.isPresent()) {
+            return positionInfo.get();
+        }
+        return null;
+    }
+
+
+    /**
+     * 构建 ztree
+     * @param list
+     * @return
+     */
+    private List<ZtreeNode> startBuilderZtree( List<PositionInfo> list){
+        List<ZtreeNode> treeNodes = new LinkedList<>();
+        if (!CollectionUtils.isEmpty(list)){
+            list.stream().forEach(item -> {
+                ZtreeNode zTreeNode = new ZtreeNode(item.getId(), item.getParentId(), item.getPostNumber());
+                Map<String, String> attributesMap = new ConcurrentHashMap<>(2);
+                attributesMap.put("fullParent", item.getFullPostParent());
+                attributesMap.put("postNumber", item.getPostNumber());
+                zTreeNode.setOtherAttributes(attributesMap);
+                treeNodes.add(zTreeNode);
+            });
+        }
+        return ZtreeBuilder.buildListToTree(treeNodes);
     }
 }

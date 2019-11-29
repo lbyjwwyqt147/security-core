@@ -2,15 +2,18 @@ package pers.liujunyi.cloud.security.service.authorization.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.repository.mongo.BaseMongoRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.service.impl.BaseMongoServiceImpl;
+import pers.liujunyi.cloud.security.entity.authorization.RoleInfo;
 import pers.liujunyi.cloud.security.entity.authorization.RoleUser;
+import pers.liujunyi.cloud.security.repository.mongo.authorization.RoleInfoMongoRepository;
 import pers.liujunyi.cloud.security.repository.mongo.authorization.RoleUserMongoRepository;
 import pers.liujunyi.cloud.security.service.authorization.RoleUserMongoService;
 
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 /***
  * 文件名称: RoleUserMongoServiceImpl.java
@@ -28,6 +31,8 @@ public class RoleUserMongoServiceImpl extends BaseMongoServiceImpl<RoleUser, Lon
 
     @Autowired
     private RoleUserMongoRepository roleUserMongoRepository;
+    @Autowired
+    private RoleInfoMongoRepository roleInfoMongoRepository;
 
     public RoleUserMongoServiceImpl(BaseMongoRepository<RoleUser, Long> baseMongoRepository) {
         super(baseMongoRepository);
@@ -35,17 +40,12 @@ public class RoleUserMongoServiceImpl extends BaseMongoServiceImpl<RoleUser, Lon
 
     @Override
     public List<RoleUser> findByUserIdAndStatus(Long userId, Byte status) {
-        return null;
+        return this.roleUserMongoRepository.findByUserIdAndStatus(userId, status);
     }
 
     @Override
-    public List<RoleUser> findByUserIdIn(List<Long> userIds) {
-        return null;
-    }
-
-    @Override
-    public List<RoleUser> findByUserIdInOrderByIdAsc(List<Long> userIds) {
-        return null;
+    public List<RoleUser> findByUserIdInAndStatus(List<Long> userIds, Byte status) {
+        return this.roleUserMongoRepository.findByUserIdInAndStatus(userIds, status);
     }
 
     @Override
@@ -55,31 +55,22 @@ public class RoleUserMongoServiceImpl extends BaseMongoServiceImpl<RoleUser, Lon
 
     @Override
     public List<RoleUser> findByRoleIdAndStatus(Long roleId, Byte status) {
-        return null;
+        return this.roleUserMongoRepository.findByRoleIdAndStatus(roleId, status);
     }
 
     @Override
-    public List<RoleUser> findByRoleIdIn(List<Long> roleIds) {
-        return null;
+    public List<RoleUser> findByRoleIdInAndStatus(List<Long> roleIds, Byte status) {
+        return this.roleUserMongoRepository.findByRoleIdInAndStatus(roleIds, status);
     }
 
     @Override
-    public List<RoleUser> getUserInfoByRoleId(Long roleId) {
+    public List<RoleInfo> getRoleInfoByUserId(Long userId) {
+        List<RoleUser> roleUsers = this.findByUserIdAndStatus(userId, null);
+        if (CollectionUtils.isEmpty(roleUsers)) {
+            List<Long> roleIds = roleUsers.stream().map(RoleUser::getRoleId).collect(Collectors.toList());
+            return this.roleInfoMongoRepository.findAllByIdIn(roleIds);
+        }
         return null;
     }
 
-    @Override
-    public Map<Long, List<RoleUser>> getUserInfoByRoleIdIn(List<Long> roleId) {
-        return null;
-    }
-
-    @Override
-    public List<RoleUser> getRoleInfoByUserId(Long userId) {
-        return null;
-    }
-
-    @Override
-    public Map<Long, List<RoleUser>> getRoleInfoByUserIdIn(List<Long> userIds) {
-        return null;
-    }
 }

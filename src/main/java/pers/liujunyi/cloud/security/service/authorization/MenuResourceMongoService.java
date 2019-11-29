@@ -7,7 +7,6 @@ import pers.liujunyi.cloud.security.domain.authorization.MenuResourceQueryDto;
 import pers.liujunyi.cloud.security.entity.authorization.MenuResource;
 
 import java.util.List;
-import java.util.Map;
 
 /***
  * 文件名称: MenuResourceMongoService.java
@@ -45,32 +44,16 @@ public interface MenuResourceMongoService extends BaseMongoService<MenuResource,
     ResultInfo findPageGird(MenuResourceQueryDto query);
 
     /**
-     * 根据ID 获取资源名称
-     * @param id
-     * @return
-     */
-    String getMenuResourceName(Long id);
-
-    /**
-     * 根据一组id 获取数据
-     * @param ids
-     * @return key = id  value = name
-     */
-    Map<Long, String> findKeyIdValueNameByIdIn(List<Long> ids);
-
-    /**
      * 根据ID获取详细信息
      * @param id
      * @return
      */
     ResultInfo selectById(Long id);
 
-
     /**
-     * 根据 ID  获取 资源名称 返回 map
-     * @param ids
-     * @return 返回  map  key = id  valud  = 资源名称
+     * 根据ID获取信息
+     * @param id
+     * @return
      */
-    Map<Long, String> menuResourceNameToMap(List<Long> ids);
-
+    MenuResource findById(Long id);
 }

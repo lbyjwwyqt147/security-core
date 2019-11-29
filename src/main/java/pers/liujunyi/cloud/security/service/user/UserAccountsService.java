@@ -6,6 +6,7 @@ import pers.liujunyi.cloud.security.domain.user.UserAccountsDto;
 import pers.liujunyi.cloud.security.domain.user.UserAccountsUpdateDto;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
 
+import java.util.Date;
 import java.util.List;
 
 /***
@@ -110,12 +111,23 @@ public interface UserAccountsService extends BaseService<UserAccounts, Long> {
      * 同步数据到es中
      * @return
      */
-    ResultInfo syncDataToElasticsearch();
+    ResultInfo syncDataToMongo();
 
     /**
      * 同步数据到es中
      * @return
      */
-    void userAccountsSyncDataToElasticsearch();
+    void userAccountsSyncDataToMongo();
+
+    /**
+     * 修改登录时间
+     * @param loginTime
+     * @param lastLoginTime
+     * @param loginCount
+     * @param id
+     * @param version
+     * @return
+     */
+    int setLoginTimeById(Date loginTime, Date lastLoginTime, Integer loginCount, Long id, Long version);
 
 }

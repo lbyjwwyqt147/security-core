@@ -32,7 +32,7 @@ public class RoleInfoDto  extends BaseDto {
     @ApiModelProperty(value = "编号")
     @NotBlank(message = "编号 必须填写")
     @Length(min = 1, max = 15, message = "编号 最多可以输入15个字符")
-    @Pattern(regexp = RegexpUtils.ALNUM_CODE_REGEXP, message = "编号 " + RegexpUtils.ALNUM_CODE_MSG)
+    @Pattern(regexp = RegexpUtils.CODE_REGEXP, message = "编号 " + RegexpUtils.CODE_MSG)
     private String roleNumber;
 
     /** 角色名称 */

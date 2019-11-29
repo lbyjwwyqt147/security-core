@@ -48,7 +48,7 @@ public class UserAccountsController extends BaseController {
      * @param param
      * @return
      */
-    @ApiOperation(value = "注册账户", notes = "适用于注册账户 请求示例：127.0.0.1:18080/api/v1/ignore/accounts/s")
+    @ApiOperation(value = "注册账户")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1")
     })
@@ -66,7 +66,7 @@ public class UserAccountsController extends BaseController {
      * @param id
      * @return
      */
-    @ApiOperation(value = "单条删除数据", notes = "适用于单条删除数据 请求示例：127.0.0.1:18080/api/v1/accounts/d")
+    @ApiOperation(value = "单条删除数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "id", value = "id",  required = true, dataType = "Long")
@@ -87,7 +87,7 @@ public class UserAccountsController extends BaseController {
      * @param param 　 多个id 用 , 隔开
      * @return
      */
-    @ApiOperation(value = "删除多条数据", notes = "适用于批量删除数据 请求示例：127.0.0.1:18080/api/v1/accounts/b/d")
+    @ApiOperation(value = "删除多条数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String")
@@ -106,7 +106,7 @@ public class UserAccountsController extends BaseController {
      * @param param
      * @return
      */
-    @ApiOperation(value = "修改数据状态", notes = "适用于修改数据状态 请求示例：127.0.0.1:18080/api/v1/accounts/b/p")
+    @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String"),
@@ -126,7 +126,7 @@ public class UserAccountsController extends BaseController {
      * @param param
      * @return
      */
-    @ApiOperation(value = "修改数据状态", notes = "适用于修改数据状态 请求示例：127.0.0.1:18080/api/v1/accounts/p")
+    @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "id", value = "id",  required = true, dataType = "String"),
@@ -148,7 +148,7 @@ public class UserAccountsController extends BaseController {
      * @param currentPassWord
      * @return
      */
-    @ApiOperation(value = "修改重置密码", notes = "适用于重置密码 请求示例：127.0.0.1:18080/api/v1/accounts/r/p")
+    @ApiOperation(value = "修改重置密码")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "id", value = "id",  required = true, dataType = "integer"),
@@ -168,13 +168,13 @@ public class UserAccountsController extends BaseController {
     }
 
     /**
-     * 分页列表数据(数据加密处理)
+     * 分页列表数据
      *
      * @param query
      * @return
      */
 
-    @ApiOperation(value = "分页列表数据(数据加密处理)", notes = "适用于分页grid 显示数据 请求示例：127.0.0.1:18080/api/v1/table/accounts/g")
+    @ApiOperation(value = "分页列表数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1")
     })
@@ -190,13 +190,13 @@ public class UserAccountsController extends BaseController {
      * @param
      * @return
      */
-    @ApiOperation(value = "同步数据", notes = "同步数据 请求示例：127.0.0.1:18080/api/v1/accounts/sync")
+    @ApiOperation(value = "同步数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
     })
     @PostMapping(value = "verify/accounts/sync")
     @ApiVersion(1)
-    public ResultInfo syncDataToElasticsearch() {
-        return this.userAccountsService.syncDataToElasticsearch();
+    public ResultInfo syncDataToMongo() {
+        return this.userAccountsService.syncDataToMongo();
     }
 }

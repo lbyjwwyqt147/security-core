@@ -49,7 +49,7 @@ public class OrganizationsController extends BaseController {
      * @param param
      * @return
      */
-    @ApiOperation(value = "保存数据", notes = "适用于保存数据 请求示例：127.0.0.1:18080/api/v1/organization/s")
+    @ApiOperation(value = "保存数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1")
     })
@@ -67,7 +67,7 @@ public class OrganizationsController extends BaseController {
      * @param param
      * @return
      */
-    @ApiOperation(value = "单条删除数据", notes = "适用于单条删除数据 请求示例：127.0.0.1:18080/api/v1/organization/d")
+    @ApiOperation(value = "单条删除数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "id", value = "id",  required = true, dataType = "String")
@@ -87,7 +87,7 @@ public class OrganizationsController extends BaseController {
      * @param param 　 多个id 用 , 隔开
      * @return
      */
-    @ApiOperation(value = "删除多条数据", notes = "适用于批量删除数据 请求示例：127.0.0.1:18080/api/v1/organization/b/d")
+    @ApiOperation(value = "删除多条数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String")
@@ -106,7 +106,7 @@ public class OrganizationsController extends BaseController {
      * @param query
      * @return
      */
-    @ApiOperation(value = "分页列表数据", notes = "适用于分页grid 显示数据 请求示例：127.0.0.1:18080/api/v1/table/organization/g")
+    @ApiOperation(value = "分页列表数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1")
     })
@@ -123,7 +123,7 @@ public class OrganizationsController extends BaseController {
      * @param id
      * @return
      */
-    @ApiOperation(value = "根据 pid 获取 组织机构tree 结构数据 (只包含正常数据 不包含禁用数据)", notes = "适用于tree 显示数据 请求示例：127.0.0.1:18080/api/v1/tree/organization/z")
+    @ApiOperation(value = "根据 pid 获取 组织机构tree 结构数据 (只包含正常数据 不包含禁用数据)")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "pid", value = "pid",  required = true, dataType = "Long")
@@ -140,7 +140,7 @@ public class OrganizationsController extends BaseController {
      * @param id
      * @return
      */
-    @ApiOperation(value = "根据 pid 获取 组织机构tree 结构数据 (包含禁用数据)", notes = "适用于tree 显示数据 请求示例：127.0.0.1:18080/api/v1/tree/organization/all/z")
+    @ApiOperation(value = "根据 pid 获取 组织机构tree 结构数据 (包含禁用数据)")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "pid", value = "pid",  required = true, dataType = "Long")
@@ -157,7 +157,7 @@ public class OrganizationsController extends BaseController {
      * @param code
      * @return
      */
-    @ApiOperation(value = "根据 fullParentCode 获取 组织机构tree 结构数据", notes = "适用于tree 显示数据 请求示例：127.0.0.1:18080/api/v1/tree/organization/p/z")
+    @ApiOperation(value = "根据 fullParentCode 获取 组织机构tree 结构数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "code", value = "code",  required = true, dataType = "String")
@@ -175,7 +175,7 @@ public class OrganizationsController extends BaseController {
      * @param param
      * @return
      */
-    @ApiOperation(value = "修改数据状态", notes = "适用于修改数据状态 请求示例：127.0.0.1:18080/api/v1/organization/b/p")
+    @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String"),
@@ -195,7 +195,7 @@ public class OrganizationsController extends BaseController {
      * @param param
      * @return
      */
-    @ApiOperation(value = "修改数据状态", notes = "适用于修改数据状态 请求示例：127.0.0.1:18080/api/v1/organization/p")
+    @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String"),
@@ -214,7 +214,7 @@ public class OrganizationsController extends BaseController {
      * @param id
      * @return
      */
-    @ApiOperation(value = "根据id 获取详细信息", notes = "适用于根据id 获取详细信息 请求示例：127.0.0.1:18080/api/v1/organization/d/{id}")
+    @ApiOperation(value = "根据id 获取详细信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "id", value = "id", paramType = "path",   required = true, dataType = "Long")
@@ -231,13 +231,13 @@ public class OrganizationsController extends BaseController {
      * @param
      * @return
      */
-    @ApiOperation(value = "同步数据", notes = "同步数据 请求示例：127.0.0.1:18080/api/v1/organization/sync")
+    @ApiOperation(value = "同步数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
     })
     @PostMapping(value = "verify/organization/sync")
     @ApiVersion(1)
-    public ResultInfo syncDataToElasticsearch() {
-        return this.organizationsService.syncDataToElasticsearch();
+    public ResultInfo syncDataToMongo() {
+        return this.organizationsService.syncDataToMongo();
     }
 }

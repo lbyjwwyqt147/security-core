@@ -50,7 +50,7 @@ public class StaffOrgController extends BaseController {
      * @param staffIds
      * @return
      */
-    @ApiOperation(value = "保存数据", notes = "适用于保存数据 请求示例：127.0.0.1:18080/api/v1/staffOrg/s")
+    @ApiOperation(value = "保存数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "org", value = "机构 接收参数格式 json 字符串   {orgId=机构id,orgNumber=机构编号,fullParent=机构父id}",  required = true, dataType = "String"),
@@ -73,7 +73,7 @@ public class StaffOrgController extends BaseController {
      * @param id
      * @return
      */
-    @ApiOperation(value = "单条删除数据", notes = "适用于单条删除数据 请求示例：127.0.0.1:18080/api/v1/staffOrg/d")
+    @ApiOperation(value = "单条删除数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "id", value = "id",  required = true, dataType = "String")
@@ -94,7 +94,7 @@ public class StaffOrgController extends BaseController {
      * @param param 　 多个id 用 , 隔开
      * @return
      */
-    @ApiOperation(value = "删除多条数据", notes = "适用于批量删除数据 请求示例：127.0.0.1:18080/api/v1/staffOrg/b/d")
+    @ApiOperation(value = "删除多条数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String")
@@ -113,7 +113,7 @@ public class StaffOrgController extends BaseController {
      * @param query
      * @return
      */
-    @ApiOperation(value = "分页列表数据", notes = "适用于分页grid 显示数据 请求示例：127.0.0.1:18080/api/v1/table/staffOrg/g")
+    @ApiOperation(value = "分页列表数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1")
     })
@@ -130,7 +130,7 @@ public class StaffOrgController extends BaseController {
      * @param param
      * @return
      */
-    @ApiOperation(value = "修改数据状态", notes = "适用于修改数据状态 请求示例：127.0.0.1:18080/api/v1/staffOrg/p")
+    @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String"),
@@ -150,13 +150,13 @@ public class StaffOrgController extends BaseController {
      * @param
      * @return
      */
-    @ApiOperation(value = "同步数据", notes = "同步数据 请求示例：127.0.0.1:18080/api/v1/staffOrg/sync")
+    @ApiOperation(value = "同步数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
     })
     @PostMapping(value = "verify/staffOrg/sync")
     @ApiVersion(1)
-    public ResultInfo syncDataToElasticsearch() {
-        return this.staffOrgService.syncDataToElasticsearch();
+    public ResultInfo syncDataToMongo() {
+        return this.staffOrgService.syncDataToMongo();
     }
 }

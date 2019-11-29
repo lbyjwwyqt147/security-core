@@ -2,10 +2,10 @@ package pers.liujunyi.cloud.security.service.authorization;
 
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.service.BaseMongoService;
+import pers.liujunyi.cloud.security.entity.authorization.RoleInfo;
 import pers.liujunyi.cloud.security.entity.authorization.RoleUser;
 
 import java.util.List;
-import java.util.Map;
 
 /***
  * 文件名称: RoleUserMongoService.java
@@ -33,14 +33,8 @@ public interface RoleUserMongoService extends BaseMongoService<RoleUser, Long> {
      * @param userIds
      * @return
      */
-    List<RoleUser> findByUserIdIn(List<Long> userIds);
+    List<RoleUser> findByUserIdInAndStatus(List<Long> userIds, Byte status);
 
-    /**
-     * 根据 用户id 获取数据
-     * @param userIds
-     * @return
-     */
-    List<RoleUser> findByUserIdInOrderByIdAsc(List<Long> userIds);
 
     /**
      * 分页列表
@@ -62,34 +56,14 @@ public interface RoleUserMongoService extends BaseMongoService<RoleUser, Long> {
      * @param roleIds
      * @return
      */
-    List<RoleUser> findByRoleIdIn(List<Long> roleIds);
+    List<RoleUser> findByRoleIdInAndStatus(List<Long> roleIds, Byte status);
 
-
-    /**
-     * 根据角色ID 获取所属用户信息
-     * @param roleId
-     * @return 返回  用户信息
-     */
-    List<RoleUser> getUserInfoByRoleId(Long roleId);
-
-    /**
-     * 根据角色ID 获取所属用户信息
-     * @param roleId
-     * @return 返回  map  key = roleId  valud  = 用户信息
-     */
-    Map<Long, List<RoleUser>> getUserInfoByRoleIdIn(List<Long> roleId);
 
     /**
      * 根据用户ID 获取所属角色信息
      * @param userId
      * @return 返回  用户信息
      */
-    List<RoleUser> getRoleInfoByUserId(Long userId);
+    List<RoleInfo> getRoleInfoByUserId(Long userId);
 
-    /**
-     * 根据用户ID 获取所属角色信息
-     * @param userIds
-     * @return 返回  map  key = roleId  valud  = 角色信息
-     */
-    Map<Long, List<RoleUser>> getRoleInfoByUserIdIn(List<Long> userIds);
 }

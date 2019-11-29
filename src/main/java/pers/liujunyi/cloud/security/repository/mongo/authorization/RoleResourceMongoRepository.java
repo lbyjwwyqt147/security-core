@@ -36,7 +36,6 @@ public interface RoleResourceMongoRepository extends BaseMongoRepository<RoleRes
     List<RoleResource> findByRoleIdInAndStatus(List<Long> roleIds, Byte status);
 
 
-
     /**
      * 根据 资源id 获取数据
      * @param resourceId
@@ -53,12 +52,6 @@ public interface RoleResourceMongoRepository extends BaseMongoRepository<RoleRes
      */
     List<RoleResource> findByRoleIdAndStatus(Long roleId, Byte status);
 
-    /**
-     * 根据 roleId 删除
-     * @param roleId 角色id
-     * @return
-     */
-    long deleteByRoleId(Long roleId);
 
     /**
      * 根据 roleId 删除
@@ -74,11 +67,4 @@ public interface RoleResourceMongoRepository extends BaseMongoRepository<RoleRes
      */
     long deleteByResourceIdIn(List<Long> resourceIds);
 
-    /**
-     * 根据 resourceId 删除
-     * @param resourceId 资源id
-     * @return
-     */
-    long deleteByResourceId(Long resourceId);
-    
 }

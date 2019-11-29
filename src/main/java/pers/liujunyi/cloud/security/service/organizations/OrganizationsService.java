@@ -63,7 +63,7 @@ public interface OrganizationsService extends BaseService<Organizations, Long> {
      * 同步数据到es中
      * @return
      */
-    ResultInfo syncDataToElasticsearch();
+    ResultInfo syncDataToMongo();
 
 
 }

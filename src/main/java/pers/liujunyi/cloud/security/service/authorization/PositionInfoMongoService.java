@@ -51,12 +51,6 @@ public interface PositionInfoMongoService extends BaseMongoService<PositionInfo,
      */
     String getPositionName(Long id);
 
-    /**
-     * 根据一组id 获取数据
-     * @param ids
-     * @return key = id  value = name
-     */
-    Map<Long, String> findKeyIdValueNameByIdIn(List<Long> ids);
 
     /**
      * 根据ID获取详细信息
@@ -72,5 +66,12 @@ public interface PositionInfoMongoService extends BaseMongoService<PositionInfo,
      * @return 返回  map  key = id  valud  = 岗位名称
      */
     Map<Long, String> positionNameToMap(List<Long> ids);
+
+    /**
+     * 根据ID获取信息
+     * @param id
+     * @return
+     */
+    PositionInfo findById(Long id);
     
 }

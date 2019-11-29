@@ -52,19 +52,11 @@ public interface RoleInfoMongoService extends BaseMongoService<RoleInfo, Long> {
     String getRoleName(Long id);
 
     /**
-     * 根据一组id 获取数据
-     * @param ids
-     * @return key = id  value = name
-     */
-    Map<Long, String> findKeyIdValueNameByIdIn(List<Long> ids);
-
-    /**
      * 根据ID获取详细信息
      * @param id
      * @return
      */
     ResultInfo selectById(Long id);
-
 
     /**
      * 根据 ID  获取 角色名称 返回 map
@@ -72,5 +64,12 @@ public interface RoleInfoMongoService extends BaseMongoService<RoleInfo, Long> {
      * @return 返回  map  key = id  valud  = 角色名称
      */
     Map<Long, String> roleNameToMap(List<Long> ids);
+
+    /**
+     * 根据ID获取信息
+     * @param id
+     * @return
+     */
+    RoleInfo findById(Long id);
     
 }

@@ -16,9 +16,9 @@ import pers.liujunyi.cloud.common.util.UserContext;
 import pers.liujunyi.cloud.security.domain.organizations.OrganizationsDto;
 import pers.liujunyi.cloud.security.entity.organizations.Organizations;
 import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
+import pers.liujunyi.cloud.security.repository.jpa.organizations.OrganizationsRepository;
 import pers.liujunyi.cloud.security.repository.mongo.organizations.OrganizationsMongoRepository;
 import pers.liujunyi.cloud.security.repository.mongo.organizations.StaffOrgMongoRepository;
-import pers.liujunyi.cloud.security.repository.jpa.organizations.OrganizationsRepository;
 import pers.liujunyi.cloud.security.service.organizations.OrganizationsService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
@@ -77,7 +77,6 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
         } else {
             organizations.setFullParent("0");
             organizations.setOrgLevel((byte) 1);
-            organizations.setFullParent("0");
         }
         organizations.setFullName(record.getOrgName());
         Organizations saveObject = this.organizationsRepository.save(organizations);
@@ -94,9 +93,9 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
     @Override
     public ResultInfo updateStatus(Byte status, List<Long> ids,String putParams) {
         if (status.byteValue() == 1) {
-            List<StaffOrg> list = this.staffOrgMongoRepository.findByOrgIdIn(ids);
-            if (!CollectionUtils.isEmpty(list)) {
-                ResultUtil.params("要禁用的组织机构正在被系统使用,不能被禁用");
+            ResultInfo resultInfo = this.checkUseCondition(ids, "禁用");
+            if (!resultInfo.getSuccess()) {
+                return resultInfo;
             }
         }
         int count = this.organizationsRepository.setOrgStatusByIds(status, new Date(), ids);
@@ -123,9 +122,11 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
     @Override
     public ResultInfo updateStatus(Byte status, Long id, Long version) {
         if (status.byteValue() == 1) {
-            List<StaffOrg> list = this.staffOrgMongoRepository.findByOrgId(id);
-            if (!CollectionUtils.isEmpty(list)) {
-                ResultUtil.params("要禁用的组织机构正在被系统使用,不能被禁用");
+            List<Long> ids = new LinkedList<>();
+            ids.add(id);
+            ResultInfo resultInfo = this.checkUseCondition(ids, "禁用");
+            if (!resultInfo.getSuccess()) {
+                return resultInfo;
             }
         }
         int count = this.organizationsRepository.setStatusById(status, new Date(), id, version);
@@ -142,9 +143,9 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
 
     @Override
     public ResultInfo deleteBatch(List<Long> ids) {
-        List<StaffOrg> list = this.staffOrgMongoRepository.findByOrgIdIn(ids);
-        if (!CollectionUtils.isEmpty(list)) {
-            ResultUtil.params("要删除的组织机构正在被系统使用,不能被删除");
+        ResultInfo resultInfo = this.checkUseCondition(ids, "删除");
+        if (!resultInfo.getSuccess()) {
+            return resultInfo;
         }
         long count = this.organizationsRepository.deleteByIdIn(ids);
         if (count > 0) {
@@ -156,17 +157,14 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
 
     @Override
     public ResultInfo deleteSingle(Long id) {
-        List<StaffOrg> list = this.staffOrgMongoRepository.findByOrgId(id);
-        if (!CollectionUtils.isEmpty(list)) {
-            ResultUtil.params("要删除的组织机构正在被系统使用,不能被删除");
-        }
+
         this.organizationsRepository.deleteById(id);
         this.organizationsMongoRepository.deleteById(id);
         return ResultUtil.success();
     }
 
     @Override
-    public ResultInfo syncDataToElasticsearch() {
+    public ResultInfo syncDataToMongo() {
         Sort sort =  Sort.by(Sort.Direction.ASC, "id");
         List<Organizations> list = this.organizationsRepository.findAll(sort);
         if (!CollectionUtils.isEmpty(list)) {
@@ -243,6 +241,17 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
         return false;
     }
 
-
+    /**
+     * 检测数据是否被系统使用
+     * @param ids
+     * @return
+     */
+    private ResultInfo checkUseCondition(List<Long> ids, String title) {
+        List<StaffOrg> list = this.staffOrgMongoRepository.findByOrgIdIn(ids);
+        if (!CollectionUtils.isEmpty(list)) {
+            return ResultUtil.params("要"+title+"的角色正在被系统使用,不能被"+title+"");
+        }
+        return ResultUtil.success();
+    }
 
 }

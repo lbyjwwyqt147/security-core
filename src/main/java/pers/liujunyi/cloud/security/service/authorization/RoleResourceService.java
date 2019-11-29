@@ -22,10 +22,10 @@ public interface RoleResourceService  extends BaseService<RoleResource, Long> {
     /**
      * 保存数据
      * @param resource  资源
-     * @param roleIds 角色ID
+     * @param resourceIds 资源ID
      * @return
      */
-    ResultInfo saveRecord(RoleResource resource, List<Long> roleIds);
+    ResultInfo saveRecord(RoleResource resource, List<Long> resourceIds);
 
     /**
      * 修改状态
@@ -61,13 +61,6 @@ public interface RoleResourceService  extends BaseService<RoleResource, Long> {
 
     /**
      * 根据 roleId 删除
-     * @param roleId 角色id
-     * @return
-     */
-    long deleteByRoleId(Long roleId);
-
-    /**
-     * 根据 roleId 删除
      * @param roleIds 角色ID
      * @return
      */
@@ -79,13 +72,6 @@ public interface RoleResourceService  extends BaseService<RoleResource, Long> {
      * @return
      */
     long deleteByResourceIdIn(List<Long> resourceIds);
-
-    /**
-     * 根据 resourceId 删除
-     * @param resourceId 资源id
-     * @return
-     */
-    long deleteByResourceId(Long resourceId);
 
     /**
      * 同步数据到Mongo中

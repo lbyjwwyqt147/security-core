@@ -2,14 +2,20 @@ package pers.liujunyi.cloud.security.service.authorization.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.repository.jpa.BaseRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
+import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.service.impl.BaseServiceImpl;
 import pers.liujunyi.cloud.security.entity.authorization.RoleUser;
 import pers.liujunyi.cloud.security.repository.jpa.authorization.RoleUserRepository;
+import pers.liujunyi.cloud.security.repository.mongo.authorization.RoleUserMongoRepository;
 import pers.liujunyi.cloud.security.service.authorization.RoleUserService;
+import pers.liujunyi.cloud.security.util.SecurityConstant;
 
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /***
  * 文件名称: RoleUserServiceImpl.java
@@ -27,6 +33,8 @@ public class RoleUserServiceImpl  extends BaseServiceImpl<RoleUser, Long> implem
 
     @Autowired
     private RoleUserRepository roleUserRepository;
+    @Autowired
+    private RoleUserMongoRepository roleUserMongoRepository;
 
     public RoleUserServiceImpl(BaseRepository<RoleUser, Long> baseRepository) {
         super(baseRepository);
@@ -34,51 +42,100 @@ public class RoleUserServiceImpl  extends BaseServiceImpl<RoleUser, Long> implem
 
     @Override
     public ResultInfo saveRecord(RoleUser user, List<Long> roleIds) {
-        return null;
+        List<RoleUser> list = new LinkedList<>();
+        roleIds.stream().forEach(item -> {
+            user.setRoleId(item);
+            user.setStatus(SecurityConstant.ENABLE_STATUS);
+            list.add(user);
+        });
+        List<RoleUser> saveObj = this.roleUserRepository.saveAll(list);
+        if (!CollectionUtils.isEmpty(saveObj)) {
+            this.roleUserMongoRepository.saveAll(saveObj);
+            return ResultUtil.success();
+        }
+        return ResultUtil.fail();
     }
 
     @Override
     public ResultInfo updateStatus(Byte status, List<Long> ids) {
-        return null;
+        int count = this.roleUserRepository.setStatusByIds(status, new Date(), ids);
+        if (count > 0) {
+            Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
+            Map<String, Object> docDataMap = new HashMap<>();
+            docDataMap.put("status", status);
+            docDataMap.put("updateTime", System.currentTimeMillis());
+            ids.stream().forEach(item -> {
+                sourceMap.put(String.valueOf(item), docDataMap);
+            });
+            super.updateMongoDataByIds(sourceMap);
+            return ResultUtil.success();
+        }
+        return ResultUtil.fail();
     }
 
     @Override
     public ResultInfo deleteBatch(List<Long> ids) {
-        return null;
+        long count = this.roleUserRepository.deleteByIdIn(ids);
+        if (count > 0) {
+            this.roleUserMongoRepository.deleteByIdIn(ids);
+            return ResultUtil.success();
+        }
+        return ResultUtil.fail();
     }
 
     @Override
     public int setStatusByRoleIds(Byte status, List<Long> roleIds) {
-        return 0;
+        Map<String, Object> updateParams = new ConcurrentHashMap<>();
+        updateParams.put("status", status);
+        AtomicInteger count = new AtomicInteger(0);
+        roleIds.stream().forEach(item -> {
+            Map<String, Object> queryParams = new ConcurrentHashMap<>();
+            queryParams.put("roleId", item);
+            boolean success = super.updateMongoData(queryParams, updateParams);
+            if (success) {
+                count.getAndSet(1);
+            }
+        });
+        return count.get();
     }
 
     @Override
     public int setStatusByUserIds(Byte status, List<Long> userIds) {
-        return 0;
-    }
-
-    @Override
-    public long deleteByRoleId(Long roleId) {
-        return 0;
+        Map<String, Object> updateParams = new ConcurrentHashMap<>();
+        updateParams.put("status", status);
+        AtomicInteger count = new AtomicInteger(0);
+        userIds.stream().forEach(item -> {
+            Map<String, Object> queryParams = new ConcurrentHashMap<>();
+            queryParams.put("userId", item);
+            boolean success = super.updateMongoData(queryParams, updateParams);
+            if (success) {
+                count.getAndSet(1);
+            }
+        });
+        return count.get();
     }
 
     @Override
     public long deleteByRoleIdIn(List<Long> roleIds) {
-        return 0;
+        long count = this.roleUserRepository.deleteByRoleIdIn(roleIds);
+        if (count > 0) {
+            this.roleUserMongoRepository.deleteByRoleIdIn(roleIds);
+        }
+        return count;
     }
 
     @Override
     public long deleteByUserIdIn(List<Long> userIds) {
-        return 0;
-    }
-
-    @Override
-    public long deleteByUserId(Long userId) {
-        return 0;
+        long count = this.roleUserRepository.deleteByUserIdIn(userIds);
+        if (count > 0) {
+            this.roleUserMongoRepository.deleteByUserIdIn(userIds);
+        }
+        return count;
     }
 
     @Override
     public ResultInfo syncDataToMongo() {
-        return null;
+        super.syncDataMongoDb();
+        return ResultUtil.success();
     }
 }
