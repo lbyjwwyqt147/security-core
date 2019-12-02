@@ -22,10 +22,11 @@
         <swagger2.version>2.9.2</swagger2.version>
         <mysql-version>8.0.18</mysql-version>
         <druid-version>1.1.20</druid-version>
-        <xxl-job-core-version>2.1.0</xxl-job-core-version>
+        <xxl-job-core-version>2.1.1</xxl-job-core-version>
         <security-oauth2-version>2.3.6.RELEASE</security-oauth2-version>
         <security-oauth2-autoconfigure-version>2.2.0.RELEASE</security-oauth2-autoconfigure-version>
         <cloud.common-version>0.0.2-SNAPSHOT</cloud.common-version>
+        <dict-core-version>0.0.2-SNAPSHOT</dict-core-version>
         <skipTests>true</skipTests>
     </properties>
 
@@ -99,7 +100,25 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
+        <dependency>
+            <groupId>pers.liujunyi.cloud</groupId>
+            <artifactId>dict-core</artifactId>
+            <version>${dict-core-version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>pers.liujunyi.cloud</groupId>
+                    <artifactId>common</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.springfox</groupId>
+                    <artifactId>springfox-swagger2</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.springfox</groupId>
+                    <artifactId>springfox-swagger-ui</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
