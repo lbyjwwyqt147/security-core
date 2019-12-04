@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import pers.liujunyi.cloud.common.annotation.ApiVersion;
 import pers.liujunyi.cloud.common.controller.BaseController;
 import pers.liujunyi.cloud.common.dto.IdParamDto;
-import pers.liujunyi.cloud.common.encrypt.annotation.Decrypt;
-import pers.liujunyi.cloud.common.encrypt.annotation.Encrypt;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.vo.tree.ZtreeNode;
 import pers.liujunyi.cloud.security.domain.authorization.MenuResourceDto;
@@ -53,8 +51,6 @@ public class MenuResourceController extends BaseController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1")
     })
-    @Decrypt
-    @Encrypt
     @PostMapping(value = "verify/menu/s")
     @ApiVersion(1)
     public ResultInfo saveRecord(@Valid  MenuResourceDto param) {

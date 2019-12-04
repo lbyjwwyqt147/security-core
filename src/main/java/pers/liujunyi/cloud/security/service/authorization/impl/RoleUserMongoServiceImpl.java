@@ -2,6 +2,7 @@ package pers.liujunyi.cloud.security.service.authorization.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.repository.mongo.BaseMongoRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
@@ -71,6 +72,24 @@ public class RoleUserMongoServiceImpl extends BaseMongoServiceImpl<RoleUser, Lon
             return this.roleInfoMongoRepository.findAllByIdIn(roleIds);
         }
         return null;
+    }
+
+    @Transactional(
+            value = "mongoTransactionManager",
+            rollbackFor = {RuntimeException.class, Exception.class}
+    )
+    @Override
+    public long deleteByRoleIdIn(List<Long> roleIds) {
+        return this.roleUserMongoRepository.deleteByRoleIdIn(roleIds);
+    }
+
+    @Transactional(
+            value = "mongoTransactionManager",
+            rollbackFor = {RuntimeException.class, Exception.class}
+    )
+    @Override
+    public long deleteByUserIdIn(List<Long> userIds) {
+        return  this.roleUserMongoRepository.deleteByUserIdIn(userIds);
     }
 
 }

@@ -29,16 +29,16 @@ public class RoleInfoDto  extends BaseDto {
 
     private static final long serialVersionUID = 4568418491964707673L;
     /** 角色编号 */
-    @ApiModelProperty(value = "编号")
-    @NotBlank(message = "编号 必须填写")
-    @Length(min = 1, max = 15, message = "编号 最多可以输入15个字符")
+    @ApiModelProperty(value = "角色编号")
+    @NotBlank(message = "角色编号 必须填写")
+    @Length(min = 1, max = 15, message = "角色编号 最多可以输入15个字符")
     @Pattern(regexp = RegexpUtils.CODE_REGEXP, message = "编号 " + RegexpUtils.CODE_MSG)
     private String roleNumber;
 
     /** 角色名称 */
-    @ApiModelProperty(value = "名称")
-    @NotBlank(message = "名称 必须填写")
-    @Length(min = 1, max = 32, message = "名称 最多可以输入32个字符")
+    @ApiModelProperty(value = "角色名称")
+    @NotBlank(message = "角色名称 必须填写")
+    @Length(min = 1, max = 32, message = "角色名称 最多可以输入32个字符")
     @Pattern(regexp = RegexpUtils.HANZI_REGEXP, message = "名称 " + RegexpUtils.HANZI_MSG)
     private String roleName;
 

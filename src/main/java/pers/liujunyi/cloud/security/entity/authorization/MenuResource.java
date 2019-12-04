@@ -88,7 +88,7 @@ public class MenuResource extends BaseEntity {
     private String fullMenuParentCode;
 
     /** 备注描述 */
-    @Column(length = 100,  columnDefinition="varchar(100) DEFAULT NULL COMMENT '备注描述'")
+    @Column(length = 50,  columnDefinition="varchar(100) DEFAULT NULL COMMENT '备注描述'")
     private String menuDescription;
 
     /** 预留字段1 */

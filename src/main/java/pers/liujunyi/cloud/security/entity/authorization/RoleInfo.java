@@ -67,6 +67,6 @@ public class RoleInfo extends BaseEntity {
     private String roleAuthorizationCode;
 
     /** 备注描述 */
-    @Column(length = 100,  columnDefinition="varchar(100) DEFAULT NULL COMMENT '备注描述'")
+    @Column(length = 50,  columnDefinition="varchar(100) DEFAULT NULL COMMENT '备注描述'")
     private String roleDescription;
 }

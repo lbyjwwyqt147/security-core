@@ -46,6 +46,11 @@ public class MenuResourceMongoServiceImpl extends BaseMongoServiceImpl<MenuResou
     }
 
     @Override
+    public MenuResource findFirstByMenuNumber(String menuNumber) {
+        return this.menuResourceMongoRepository.findFirstByMenuNumber(menuNumber);
+    }
+
+    @Override
     public List<ZtreeNode> menuResourceTree(Long pid, Byte status) {
         List<MenuResource> list = this.menuResourceMongoRepository.findByParentIdAndMenuStatusOrderBySerialNumberAsc(pid,  status);
         return this.startBuilderZtree(list);

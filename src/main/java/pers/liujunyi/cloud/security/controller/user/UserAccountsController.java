@@ -54,7 +54,7 @@ public class UserAccountsController extends BaseController {
     })
     @Encrypt
     @Decrypt
-    @PostMapping(value = "verify/ignore/accounts/s")
+    @PostMapping(value = "ignore/accounts/s")
     @ApiVersion(1)
     public ResultInfo saveRecord(@Valid @RequestBody UserAccountsDto param) {
         return this.userAccountsService.saveRecord(param);
@@ -194,7 +194,7 @@ public class UserAccountsController extends BaseController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
     })
-    @PostMapping(value = "verify/accounts/sync")
+    @PostMapping(value = "ignore/accounts/sync")
     @ApiVersion(1)
     public ResultInfo syncDataToMongo() {
         return this.userAccountsService.syncDataToMongo();

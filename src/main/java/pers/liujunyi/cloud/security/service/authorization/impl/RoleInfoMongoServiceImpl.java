@@ -47,8 +47,18 @@ public class RoleInfoMongoServiceImpl  extends BaseMongoServiceImpl<RoleInfo, Lo
     }
 
     @Override
+    public RoleInfo findFirstByRoleNumber(String roleNumber) {
+        return this.roleInfoMongoRepository.findFirstByRoleNumber(roleNumber);
+    }
+
+    @Override
     public List<ZtreeNode> roleTree(Long pid, Byte status) {
-        List<RoleInfo> list = this.roleInfoMongoRepository.findByParentIdAndRoleStatus(pid,  status);
+        List<RoleInfo> list = null;
+        if (status == null) {
+            list = this.roleInfoMongoRepository.findByParentId(pid);
+        } else {
+            list = this.roleInfoMongoRepository.findByParentIdAndRoleStatus(pid,  status);
+        }
         return this.startBuilderZtree(list);
     }
 
@@ -114,7 +124,7 @@ public class RoleInfoMongoServiceImpl  extends BaseMongoServiceImpl<RoleInfo, Lo
         List<ZtreeNode> treeNodes = new LinkedList<>();
         if (!CollectionUtils.isEmpty(list)){
             list.stream().forEach(item -> {
-                ZtreeNode zTreeNode = new ZtreeNode(item.getId(), item.getParentId(), item.getRoleNumber());
+                ZtreeNode zTreeNode = new ZtreeNode(item.getId(), item.getParentId(), item.getRoleName());
                 Map<String, String> attributesMap = new ConcurrentHashMap<>(2);
                 attributesMap.put("fullParent", item.getFullRoleParent());
                 attributesMap.put("roleNumber", item.getRoleNumber());

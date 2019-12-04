@@ -11,7 +11,7 @@ import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
 import pers.liujunyi.cloud.security.domain.authorization.PositionInfoDto;
 import pers.liujunyi.cloud.security.entity.authorization.PositionInfo;
 import pers.liujunyi.cloud.security.repository.jpa.authorization.PositionInfoRepository;
-import pers.liujunyi.cloud.security.repository.mongo.authorization.PositionInfoMongoRepository;
+import pers.liujunyi.cloud.security.service.authorization.PositionInfoMongoService;
 import pers.liujunyi.cloud.security.service.authorization.PositionInfoService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
@@ -35,7 +35,7 @@ public class PositionInfoServiceImpl extends BaseServiceImpl<PositionInfo, Long>
     @Autowired
     private PositionInfoRepository positionInfoRepository;
     @Autowired
-    private PositionInfoMongoRepository positionInfoMongoRepository;
+    private PositionInfoMongoService positionInfoMongoService;
 
     public PositionInfoServiceImpl(BaseRepository<PositionInfo, Long> baseRepository) {
         super(baseRepository);
@@ -43,7 +43,7 @@ public class PositionInfoServiceImpl extends BaseServiceImpl<PositionInfo, Long>
 
     @Override
     public ResultInfo saveRecord(PositionInfoDto record) {
-        boolean add = record.getId() != null ? true : false;
+        boolean add = record.getId() == null ? true : false;
         if (this.checkPostNumberRepetition(record.getPostNumber(), record.getId())) {
             return ResultUtil.params("岗位编号重复,请重新输入！");
         }
@@ -69,7 +69,7 @@ public class PositionInfoServiceImpl extends BaseServiceImpl<PositionInfo, Long>
         if (!add) {
             saveObject.setDataVersion(saveObject.getDataVersion() + 1);
         }
-        this.positionInfoMongoRepository.save(saveObject);
+        this.positionInfoMongoService.save(saveObject);
         return ResultUtil.success(saveObject.getId());
     }
 
@@ -103,8 +103,8 @@ public class PositionInfoServiceImpl extends BaseServiceImpl<PositionInfo, Long>
             return resultInfo;
         }
         long count = this.positionInfoRepository.deleteByIdIn(ids);
-        count = this.positionInfoMongoRepository.deleteByIdIn(ids);
         if (count > 0) {
+            this.positionInfoMongoService.deleteAllByIdIn(ids);
             return ResultUtil.success();
         }
         return ResultUtil.fail();
@@ -139,7 +139,7 @@ public class PositionInfoServiceImpl extends BaseServiceImpl<PositionInfo, Long>
      * @return
      */
     private Boolean checkPostNumberData (String postNumber) {
-        PositionInfo postResource = this.positionInfoMongoRepository.findFirstByPostNumber(postNumber);
+        PositionInfo postResource = this.positionInfoMongoService.findFirstByPostNumber(postNumber);
         if (postResource != null) {
             return true;
         }
@@ -152,11 +152,8 @@ public class PositionInfoServiceImpl extends BaseServiceImpl<PositionInfo, Long>
      * @return
      */
     private PositionInfo findById(Long id) {
-        Optional<PositionInfo> positionInfo = this.positionInfoMongoRepository.findById(id);
-        if (positionInfo.isPresent()) {
-            return positionInfo.get();
-        }
-        return null;
+        PositionInfo positionInfo = this.positionInfoMongoService.findById(id);
+        return positionInfo;
     }
 
     /**

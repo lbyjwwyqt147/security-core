@@ -22,6 +22,14 @@ import java.util.List;
 public interface MenuResourceMongoService extends BaseMongoService<MenuResource, Long> {
 
     /**
+     * 根据 编号 获取数据
+     * @param menuNumber 编号
+     * @return
+     */
+    MenuResource findFirstByMenuNumber(String menuNumber);
+
+
+    /**
      *  根据 pid 符合 ztree 结构的数据
      * @param pid
      * @param status

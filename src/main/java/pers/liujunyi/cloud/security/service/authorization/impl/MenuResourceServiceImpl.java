@@ -13,8 +13,8 @@ import pers.liujunyi.cloud.security.domain.authorization.MenuResourceDto;
 import pers.liujunyi.cloud.security.entity.authorization.MenuResource;
 import pers.liujunyi.cloud.security.entity.authorization.RoleResource;
 import pers.liujunyi.cloud.security.repository.jpa.authorization.MenuResourceRepository;
-import pers.liujunyi.cloud.security.repository.mongo.authorization.MenuResourceMongoRepository;
 import pers.liujunyi.cloud.security.repository.mongo.authorization.RoleResourceMongoRepository;
+import pers.liujunyi.cloud.security.service.authorization.MenuResourceMongoService;
 import pers.liujunyi.cloud.security.service.authorization.MenuResourceService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
@@ -38,7 +38,7 @@ public class MenuResourceServiceImpl extends BaseServiceImpl<MenuResource, Long>
     @Autowired
     private MenuResourceRepository menuResourceRepository;
     @Autowired
-    private MenuResourceMongoRepository menuResourceMongoRepository;
+    private MenuResourceMongoService menuResourceMongoService;
     @Autowired
     private RoleResourceMongoRepository roleResourceMongoRepository;
 
@@ -48,7 +48,7 @@ public class MenuResourceServiceImpl extends BaseServiceImpl<MenuResource, Long>
 
     @Override
     public ResultInfo saveRecord(MenuResourceDto record) {
-        boolean add = record.getId() != null ? true : false;
+        boolean add = record.getId() == null ? true : false;
         if (this.checkMenuNumberRepetition(record.getMenuNumber(), record.getId())) {
             return ResultUtil.params("资源编号重复,请重新输入！");
         }
@@ -73,10 +73,7 @@ public class MenuResourceServiceImpl extends BaseServiceImpl<MenuResource, Long>
         if (!add) {
             saveObject.setDataVersion(saveObject.getDataVersion() + 1);
         }
-        MenuResource mongoData = this.menuResourceMongoRepository.save(saveObject);
-        if (mongoData == null) {
-
-        }
+        this.menuResourceMongoService.save(saveObject);
         return ResultUtil.success(saveObject.getId());
     }
 
@@ -111,8 +108,8 @@ public class MenuResourceServiceImpl extends BaseServiceImpl<MenuResource, Long>
             return resultInfo;
         }
         long count = this.menuResourceRepository.deleteByIdIn(ids);
-        count = this.menuResourceMongoRepository.deleteByIdIn(ids);
         if (count > 0) {
+            this.menuResourceMongoService.deleteAllByIdIn(ids);
             return ResultUtil.success();
         }
         return ResultUtil.fail();
@@ -147,7 +144,7 @@ public class MenuResourceServiceImpl extends BaseServiceImpl<MenuResource, Long>
      * @return
      */
     private Boolean checkMenuNumberData (String menuNumber) {
-        MenuResource menuResource = this.menuResourceMongoRepository.findFirstByMenuNumber(menuNumber);
+        MenuResource menuResource = this.menuResourceMongoService.findFirstByMenuNumber(menuNumber);
         if (menuResource != null) {
             return true;
         }
@@ -160,11 +157,8 @@ public class MenuResourceServiceImpl extends BaseServiceImpl<MenuResource, Long>
      * @return
      */
     private MenuResource findById(Long id) {
-        Optional<MenuResource> menuResource = this.menuResourceMongoRepository.findById(id);
-        if (menuResource.isPresent()) {
-            return menuResource.get();
-        }
-        return null;
+        MenuResource menuResource = this.menuResourceMongoService.findById(id);
+        return menuResource;
     }
 
     /**

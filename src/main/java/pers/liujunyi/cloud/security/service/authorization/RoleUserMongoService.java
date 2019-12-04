@@ -66,4 +66,17 @@ public interface RoleUserMongoService extends BaseMongoService<RoleUser, Long> {
      */
     List<RoleInfo> getRoleInfoByUserId(Long userId);
 
+    /**
+     * 根据 roleId 删除
+     * @param roleIds 角色ID
+     * @return
+     */
+    long deleteByRoleIdIn(List<Long> roleIds);
+
+    /**
+     * 根据 userId 删除
+     * @param userIds 用户id
+     * @return
+     */
+    long deleteByUserIdIn(List<Long> userIds);
 }

@@ -9,7 +9,7 @@ import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.service.impl.BaseServiceImpl;
 import pers.liujunyi.cloud.security.entity.authorization.RoleResource;
 import pers.liujunyi.cloud.security.repository.jpa.authorization.RoleResourceRepository;
-import pers.liujunyi.cloud.security.repository.mongo.authorization.RoleResourceMongoRepository;
+import pers.liujunyi.cloud.security.service.authorization.RoleResourceMongoService;
 import pers.liujunyi.cloud.security.service.authorization.RoleResourceService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
@@ -34,7 +34,7 @@ public class RoleResourceServiceImpl  extends BaseServiceImpl<RoleResource, Long
     @Autowired
     private RoleResourceRepository roleResourceRepository;
     @Autowired
-    private RoleResourceMongoRepository roleResourceMongoRepository;
+    private RoleResourceMongoService roleResourceMongoService;
 
     public RoleResourceServiceImpl(BaseRepository<RoleResource, Long> baseRepository) {
         super(baseRepository);
@@ -50,7 +50,7 @@ public class RoleResourceServiceImpl  extends BaseServiceImpl<RoleResource, Long
         });
         List<RoleResource> saveObj = this.roleResourceRepository.saveAll(list);
         if (!CollectionUtils.isEmpty(saveObj)) {
-            this.roleResourceMongoRepository.saveAll(saveObj);
+            this.roleResourceMongoService.saveAll(saveObj);
             return ResultUtil.success();
         }
         return ResultUtil.fail();
@@ -77,7 +77,7 @@ public class RoleResourceServiceImpl  extends BaseServiceImpl<RoleResource, Long
     public ResultInfo deleteBatch(List<Long> ids) {
         long count = this.roleResourceRepository.deleteByIdIn(ids);
         if (count > 0) {
-            this.roleResourceMongoRepository.deleteByIdIn(ids);
+            this.roleResourceMongoService.deleteAllByIdIn(ids);
             return ResultUtil.success();
         }
         return ResultUtil.fail();
@@ -119,7 +119,7 @@ public class RoleResourceServiceImpl  extends BaseServiceImpl<RoleResource, Long
     public long deleteByRoleIdIn(List<Long> roleIds) {
         long count = this.roleResourceRepository.deleteByRoleIdIn(roleIds);
         if (count > 0) {
-            this.roleResourceMongoRepository.deleteByRoleIdIn(roleIds);
+            this.roleResourceMongoService.deleteByRoleIdIn(roleIds);
         }
         return count;
     }
@@ -128,7 +128,7 @@ public class RoleResourceServiceImpl  extends BaseServiceImpl<RoleResource, Long
     public long deleteByResourceIdIn(List<Long> resourceIds) {
         long count = this.roleResourceRepository.deleteByResourceIdIn(resourceIds);
         if (count > 0) {
-            this.roleResourceMongoRepository.deleteByResourceIdIn(resourceIds);
+            this.roleResourceMongoService.deleteByResourceIdIn(resourceIds);
         }
         return count;
     }

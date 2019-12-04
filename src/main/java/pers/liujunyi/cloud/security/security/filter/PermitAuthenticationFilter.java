@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -103,11 +100,12 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
             httpServletResponse.setStatus(HttpStatus.NO_CONTENT.value());
             return;
         }
+        String accessToken = null;
         try {
             // 获取url携带的参数信息
             Map<String, Object> params = HttpClientUtils.getAllRequestParam(httpServletRequest);
             String curRequestURI = "当前访问的URL地址：" + servletPath + HttpClientUtils.paramsConvertUrl(params);
-            String accessToken = httpServletRequest.getParameter("access_token");
+            accessToken = httpServletRequest.getParameter("access_token");
             String headerToken = httpServletRequest.getHeader(HEADER_AUTHORIZATION);
             if (StringUtils.isNotBlank(headerToken) && StringUtils.isBlank(accessToken)) {
                 accessToken = headerToken.indexOf("bearer") != -1 ? headerToken.split(" ")[1] : "";
@@ -146,22 +144,18 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
                 legitimate = this.setAuthentication(httpServletRequest, authentication, currentUser, accessToken);
             }
             if (!legitimate) {
-                Map<String, Object> map =  new HashMap<>();
-                map.put("success", false);
-                map.put("status", 401);
-                map.put("path", servletPath);
-                map.put("token", accessToken);
-                map.put("message", "无效的token信息.");
-                map.put("timestamp", String.valueOf(LocalDateTime.now()));
-                log.info(JSONObject.toJSONString(map));
-                httpServletResponse.setStatus(HttpServletResponse.SC_OK);
-                ResultUtil.writeJavaScript(httpServletResponse, map);
+                this.validationMessage(servletPath, accessToken, httpServletResponse);
                 return;
             }
             filterChain.doFilter(httpServletRequest, httpServletResponse);
         } catch (Exception e) {
              e.printStackTrace();
-             throw new DescribeException(e.getMessage());
+             if (e instanceof InternalAuthenticationServiceException) {
+                 this.validationMessage(servletPath, accessToken, httpServletResponse);
+             } else {
+                 throw new DescribeException(e.getMessage());
+             }
+
         }
     }
 
@@ -207,5 +201,24 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
     private boolean isAuthenticated() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication != null && !(authentication instanceof AnonymousAuthenticationToken);
+    }
+
+    /**
+     * 用户认证失败提示信息
+     * @param servletPath
+     * @param accessToken
+     * @param httpServletResponse
+     */
+    private void validationMessage(String servletPath, String accessToken, HttpServletResponse httpServletResponse) {
+        Map<String, Object> map =  new HashMap<>();
+        map.put("success", false);
+        map.put("status", 401);
+        map.put("path", servletPath);
+        map.put("token", accessToken);
+        map.put("message", "无效的token信息.");
+        map.put("timestamp", String.valueOf(LocalDateTime.now()));
+        log.info(JSONObject.toJSONString(map));
+        httpServletResponse.setStatus(HttpServletResponse.SC_OK);
+        ResultUtil.writeJavaScript(httpServletResponse, map);
     }
 }

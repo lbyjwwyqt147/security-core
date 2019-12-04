@@ -23,6 +23,13 @@ import java.util.Map;
 public interface RoleInfoMongoService extends BaseMongoService<RoleInfo, Long> {
 
     /**
+     * 根据 编号 获取数据
+     * @param roleNumber 编号
+     * @return
+     */
+    RoleInfo findFirstByRoleNumber(String roleNumber);
+
+    /**
      *  根据 pid 符合 ztree 结构的数据
      * @param pid
      * @param status

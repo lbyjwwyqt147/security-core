@@ -9,7 +9,7 @@ import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.service.impl.BaseServiceImpl;
 import pers.liujunyi.cloud.security.entity.authorization.RoleUser;
 import pers.liujunyi.cloud.security.repository.jpa.authorization.RoleUserRepository;
-import pers.liujunyi.cloud.security.repository.mongo.authorization.RoleUserMongoRepository;
+import pers.liujunyi.cloud.security.service.authorization.RoleUserMongoService;
 import pers.liujunyi.cloud.security.service.authorization.RoleUserService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
@@ -34,7 +34,7 @@ public class RoleUserServiceImpl  extends BaseServiceImpl<RoleUser, Long> implem
     @Autowired
     private RoleUserRepository roleUserRepository;
     @Autowired
-    private RoleUserMongoRepository roleUserMongoRepository;
+    private RoleUserMongoService roleUserMongoService;
 
     public RoleUserServiceImpl(BaseRepository<RoleUser, Long> baseRepository) {
         super(baseRepository);
@@ -50,7 +50,7 @@ public class RoleUserServiceImpl  extends BaseServiceImpl<RoleUser, Long> implem
         });
         List<RoleUser> saveObj = this.roleUserRepository.saveAll(list);
         if (!CollectionUtils.isEmpty(saveObj)) {
-            this.roleUserMongoRepository.saveAll(saveObj);
+            this.roleUserMongoService.saveAll(saveObj);
             return ResultUtil.success();
         }
         return ResultUtil.fail();
@@ -77,7 +77,7 @@ public class RoleUserServiceImpl  extends BaseServiceImpl<RoleUser, Long> implem
     public ResultInfo deleteBatch(List<Long> ids) {
         long count = this.roleUserRepository.deleteByIdIn(ids);
         if (count > 0) {
-            this.roleUserMongoRepository.deleteByIdIn(ids);
+            this.roleUserMongoService.deleteAllByIdIn(ids);
             return ResultUtil.success();
         }
         return ResultUtil.fail();
@@ -119,7 +119,7 @@ public class RoleUserServiceImpl  extends BaseServiceImpl<RoleUser, Long> implem
     public long deleteByRoleIdIn(List<Long> roleIds) {
         long count = this.roleUserRepository.deleteByRoleIdIn(roleIds);
         if (count > 0) {
-            this.roleUserMongoRepository.deleteByRoleIdIn(roleIds);
+            this.roleUserMongoService.deleteByRoleIdIn(roleIds);
         }
         return count;
     }
@@ -128,7 +128,7 @@ public class RoleUserServiceImpl  extends BaseServiceImpl<RoleUser, Long> implem
     public long deleteByUserIdIn(List<Long> userIds) {
         long count = this.roleUserRepository.deleteByUserIdIn(userIds);
         if (count > 0) {
-            this.roleUserMongoRepository.deleteByUserIdIn(userIds);
+            this.roleUserMongoService.deleteByUserIdIn(userIds);
         }
         return count;
     }

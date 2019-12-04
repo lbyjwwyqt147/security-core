@@ -74,7 +74,7 @@ public class PositionInfo extends BaseEntity {
     private String fullPostParentCode;
 
     /** 备注描述 */
-    @Column(length = 100,  columnDefinition="varchar(100) DEFAULT NULL COMMENT '备注描述'")
+    @Column(length = 50,  columnDefinition="varchar(100) DEFAULT NULL COMMENT '备注描述'")
     private String postDescription;
 
     /** 预留字段1 */

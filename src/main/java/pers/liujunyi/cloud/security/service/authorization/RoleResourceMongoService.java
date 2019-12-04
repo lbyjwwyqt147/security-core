@@ -76,4 +76,17 @@ public interface RoleResourceMongoService extends BaseMongoService<RoleResource,
      */
     List<MenuResource> getResourceInfoByRoleIdIn(List<Long> roleId);
 
+    /**
+     * 根据 roleId 删除
+     * @param roleIds 角色ID
+     * @return
+     */
+    long deleteByRoleIdIn(List<Long> roleIds);
+
+    /**
+     * 根据 resourceId 删除
+     * @param resourceIds 资源id
+     * @return
+     */
+    long deleteByResourceIdIn(List<Long> resourceIds);
 }

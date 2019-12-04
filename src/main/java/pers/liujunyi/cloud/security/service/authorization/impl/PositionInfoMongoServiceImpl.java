@@ -47,6 +47,11 @@ public class PositionInfoMongoServiceImpl extends BaseMongoServiceImpl<PositionI
     }
 
     @Override
+    public PositionInfo findFirstByPostNumber(String postNumber) {
+        return this.positionInfoMongoRepository.findFirstByPostNumber(postNumber);
+    }
+
+    @Override
     public List<ZtreeNode> positionTree(Long pid, Byte status) {
         List<PositionInfo> list = this.positionInfoMongoRepository.findByParentIdAndPostStatusOrderBySerialNumberAsc(pid,  status);
         return this.startBuilderZtree(list);

@@ -14,13 +14,16 @@ import pers.liujunyi.cloud.security.entity.authorization.RoleInfo;
 import pers.liujunyi.cloud.security.entity.authorization.RoleResource;
 import pers.liujunyi.cloud.security.entity.authorization.RoleUser;
 import pers.liujunyi.cloud.security.repository.jpa.authorization.RoleInfoRepository;
-import pers.liujunyi.cloud.security.repository.mongo.authorization.RoleInfoMongoRepository;
 import pers.liujunyi.cloud.security.repository.mongo.authorization.RoleResourceMongoRepository;
 import pers.liujunyi.cloud.security.repository.mongo.authorization.RoleUserMongoRepository;
+import pers.liujunyi.cloud.security.service.authorization.RoleInfoMongoService;
 import pers.liujunyi.cloud.security.service.authorization.RoleInfoService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /***
@@ -40,7 +43,7 @@ public class RoleInfoServiceImpl extends BaseServiceImpl<RoleInfo, Long> impleme
     @Autowired
     private RoleInfoRepository roleInfoRepository;
     @Autowired
-    private RoleInfoMongoRepository roleInfoMongoRepository;
+    private RoleInfoMongoService roleInfoMongoService;
     @Autowired
     private RoleUserMongoRepository roleUserMongoRepository;
     @Autowired
@@ -52,13 +55,18 @@ public class RoleInfoServiceImpl extends BaseServiceImpl<RoleInfo, Long> impleme
 
     @Override
     public ResultInfo saveRecord(RoleInfoDto record) {
-        boolean add = record.getId() != null ? true : false;
+        boolean add = record.getId() == null ? true : false;
         if (this.checkRoleNumberRepetition(record.getRoleNumber(), record.getId())) {
             return ResultUtil.params("角色编号重复,请重新输入！");
         }
         RoleInfo roleInfo = DozerBeanMapperUtil.copyProperties(record, RoleInfo.class);
         if (record.getRoleStatus() == null) {
             roleInfo.setRoleStatus(SecurityConstant.ENABLE_STATUS);
+        }
+        if (!add) {
+            roleInfo.setDataVersion(roleInfo.getDataVersion() + 1);
+        } else {
+            roleInfo.setDataVersion(1L);
         }
         if (record.getParentId().longValue() > 0) {
             RoleInfo parent = this.findById(record.getParentId());
@@ -72,10 +80,8 @@ public class RoleInfoServiceImpl extends BaseServiceImpl<RoleInfo, Long> impleme
         if (saveObject == null || saveObject.getId() == null) {
             return ResultUtil.fail();
         }
-        if (!add) {
-            saveObject.setDataVersion(saveObject.getDataVersion() + 1);
-        }
-        this.roleInfoMongoRepository.save(saveObject);
+
+        this.roleInfoMongoService.save(saveObject);
         return ResultUtil.success(saveObject.getId());
     }
 
@@ -109,8 +115,8 @@ public class RoleInfoServiceImpl extends BaseServiceImpl<RoleInfo, Long> impleme
             return resultInfo;
         }
         long count = this.roleInfoRepository.deleteByIdIn(ids);
-        count = this.roleInfoMongoRepository.deleteByIdIn(ids);
         if (count > 0) {
+            this.roleInfoMongoService.deleteAllByIdIn(ids);
             return ResultUtil.success();
         }
         return ResultUtil.fail();
@@ -145,7 +151,7 @@ public class RoleInfoServiceImpl extends BaseServiceImpl<RoleInfo, Long> impleme
      * @return
      */
     private Boolean checkRoleNumberData (String roleNumber) {
-        RoleInfo roleInfo = this.roleInfoMongoRepository.findFirstByRoleNumber(roleNumber);
+        RoleInfo roleInfo = this.roleInfoMongoService.findFirstByRoleNumber(roleNumber);
         if (roleInfo != null) {
             return true;
         }
@@ -158,11 +164,8 @@ public class RoleInfoServiceImpl extends BaseServiceImpl<RoleInfo, Long> impleme
      * @return
      */
     private RoleInfo findById(Long id) {
-        Optional<RoleInfo> roleInfo = this.roleInfoMongoRepository.findById(id);
-        if (roleInfo.isPresent()) {
-            return roleInfo.get();
-        }
-        return null;
+        RoleInfo roleInfo = this.roleInfoMongoService.findById(id);
+        return roleInfo;
     }
 
     /**

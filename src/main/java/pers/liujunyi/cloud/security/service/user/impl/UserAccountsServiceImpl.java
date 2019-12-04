@@ -194,11 +194,12 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
             if (!identical) {
                 return ResultUtil.params("原始密码错误");
             }
-            int count = this.userAccountsRepository.setUserPasswordById(currentPassWord, new Date(), id, dataVersion);
+            String newPwd = passwordEncoder.encode(currentPassWord);
+            int count = this.userAccountsRepository.setUserPasswordById(newPwd, new Date(), id, dataVersion);
             if (count > 0) {
                 Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
                 Map<String, Object> docDataMap = new HashMap<>();
-                docDataMap.put("userPassword", currentPassWord);
+                docDataMap.put("userPassword", newPwd);
                 docDataMap.put("changePasswordTime", System.currentTimeMillis());
                 docDataMap.put("updateTime", System.currentTimeMillis());
                 docDataMap.put("dataVersion", dataVersion + 1);

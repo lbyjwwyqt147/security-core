@@ -23,6 +23,13 @@ import java.util.Map;
 public interface PositionInfoMongoService extends BaseMongoService<PositionInfo, Long> {
 
     /**
+     * 根据 编号 获取数据
+     * @param postNumber 编号
+     * @return
+     */
+    PositionInfo findFirstByPostNumber(String postNumber);
+
+    /**
      *  根据 pid 符合 ztree 结构的数据
      * @param pid
      * @param status
