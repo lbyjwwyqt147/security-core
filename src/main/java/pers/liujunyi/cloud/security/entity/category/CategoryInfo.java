@@ -30,7 +30,7 @@ import javax.persistence.Entity;
 @NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@Document(collection = "categoryInfo")
+@Document(collection = "category_info")
 @DynamicInsert
 @DynamicUpdate
 @Table(appliesTo = "category_info", comment = "分类信息表")

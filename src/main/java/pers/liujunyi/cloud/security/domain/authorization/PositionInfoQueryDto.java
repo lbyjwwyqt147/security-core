@@ -24,6 +24,10 @@ import pers.liujunyi.cloud.common.query.mongo.BaseMongoQuery;
 @EqualsAndHashCode(callSuper = true)
 public class PositionInfoQueryDto extends BaseMongoQuery {
 
+    @ApiModelProperty(value = "pid")
+    @QueryCondition()
+    private Long parentId;
+
     @ApiModelProperty(value = "编号")
     @QueryCondition()
     private String postNumber;

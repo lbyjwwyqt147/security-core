@@ -54,10 +54,14 @@ public class RoleInfoMongoServiceImpl  extends BaseMongoServiceImpl<RoleInfo, Lo
     @Override
     public List<ZtreeNode> roleTree(Long pid, Byte status) {
         List<RoleInfo> list = null;
-        if (status == null) {
-            list = this.roleInfoMongoRepository.findByParentId(pid);
+        if (pid != null) {
+            if (status == null) {
+                list = this.roleInfoMongoRepository.findByParentId(pid);
+            } else {
+                list = this.roleInfoMongoRepository.findByParentIdAndRoleStatus(pid,  status);
+            }
         } else {
-            list = this.roleInfoMongoRepository.findByParentIdAndRoleStatus(pid,  status);
+            list = this.roleInfoMongoRepository.findAll();
         }
         return this.startBuilderZtree(list);
     }

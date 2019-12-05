@@ -26,6 +26,10 @@ public class RoleInfoQueryDto extends BaseMongoQuery {
 
     private static final long serialVersionUID = 5504924481837457087L;
 
+    @ApiModelProperty(value = "pid")
+    @QueryCondition()
+    private Long parentId;
+
     @ApiModelProperty(value = "名称")
     @QueryCondition(func = MatchType.like)
     private String roleName;

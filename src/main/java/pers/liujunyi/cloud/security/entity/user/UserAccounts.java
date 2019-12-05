@@ -33,7 +33,7 @@ import java.util.Date;
 @NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@Document(collection = "userAccounts")
+@Document(collection = "user_accounts")
 @DynamicInsert
 @DynamicUpdate
 @org.hibernate.annotations.Table(appliesTo = "user_accounts", comment = "用户账户表")

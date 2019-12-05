@@ -52,7 +52,16 @@ public class MenuResourceMongoServiceImpl extends BaseMongoServiceImpl<MenuResou
 
     @Override
     public List<ZtreeNode> menuResourceTree(Long pid, Byte status) {
-        List<MenuResource> list = this.menuResourceMongoRepository.findByParentIdAndMenuStatusOrderBySerialNumberAsc(pid,  status);
+        List<MenuResource> list = null;
+        if (pid != null) {
+            if (status != null) {
+                list = this.menuResourceMongoRepository.findByParentIdAndMenuStatusOrderBySerialNumberAsc(pid,  status);
+            } else {
+                list = this.menuResourceMongoRepository.findByParentIdOrderBySerialNumberAsc(pid);
+            }
+        } else {
+            list =  this.menuResourceMongoRepository.findAll(Sort.by(Sort.Direction.ASC, "serialNumber"));
+        }
         return this.startBuilderZtree(list);
     }
 
@@ -64,7 +73,7 @@ public class MenuResourceMongoServiceImpl extends BaseMongoServiceImpl<MenuResou
 
     @Override
     public ResultInfo findPageGird(MenuResourceQueryDto query) {
-        Sort sort = Sort.by(Sort.Direction.ASC, "serialNumberAsc");
+        Sort sort = Sort.by(Sort.Direction.ASC, "serialNumber");
         Pageable pageable = query.toPageable(sort);
         // 查询条件
         Query searchQuery = query.toSpecPageable(pageable);
@@ -101,7 +110,7 @@ public class MenuResourceMongoServiceImpl extends BaseMongoServiceImpl<MenuResou
         List<ZtreeNode> treeNodes = new LinkedList<>();
         if (!CollectionUtils.isEmpty(list)){
             list.stream().forEach(item -> {
-                ZtreeNode zTreeNode = new ZtreeNode(item.getId(), item.getParentId(), item.getMenuNumber());
+                ZtreeNode zTreeNode = new ZtreeNode(item.getId(), item.getParentId(), item.getMenuName());
                 Map<String, String> attributesMap = new ConcurrentHashMap<>(2);
                 attributesMap.put("fullParent", item.getFullMenuParent());
                 attributesMap.put("menuNumber", item.getMenuNumber());

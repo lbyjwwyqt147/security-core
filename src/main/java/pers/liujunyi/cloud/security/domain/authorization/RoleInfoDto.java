@@ -51,12 +51,13 @@ public class RoleInfoDto  extends BaseDto {
 
     /** 角色授权代码 授权代码需要加ROLE_前缀 */
     @ApiModelProperty(value = "角色授权代码")
+    @NotBlank(message = "角色授权代码 必须填写")
     @Length(min = 1, max = 15, message = "角色授权代码 最多可以输入15个字符")
     @Pattern(regexp = RegexpUtils.ENGLISH_LETTER_REGEXP, message = "角色授权代码 " + RegexpUtils.ENGLISH_LETTER_MSG)
     private String roleAuthorizationCode;
 
     /** 备注描述 */
     @ApiModelProperty(value = "备注描述")
-    @Length(min = 1, max = 100, message = "备注描述 最多可以输入100个字符")
+    @Length(min = 0, max = 50, message = "备注描述 最多可以输入100个字符")
     private String roleDescription;
 }

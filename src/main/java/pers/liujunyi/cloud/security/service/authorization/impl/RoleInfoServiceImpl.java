@@ -95,12 +95,12 @@ public class RoleInfoServiceImpl extends BaseServiceImpl<RoleInfo, Long> impleme
         }
         int count = this.roleInfoRepository.setStatusByIds(status, new Date(), ids);
         if (count > 0) {
-            Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>(ids.size());
+            Map<Long, Map<String, Object>> sourceMap = new ConcurrentHashMap<>(ids.size());
             ids.stream().forEach(item -> {
                 Map<String, Object> docDataMap = new HashMap<>(2);
                 docDataMap.put("roleStatus", status);
                 docDataMap.put("updateTime", System.currentTimeMillis());
-                sourceMap.put(item.toString(), docDataMap);
+                sourceMap.put(item, docDataMap);
             });
             super.updateMongoDataByIds(sourceMap);
             return ResultUtil.success();

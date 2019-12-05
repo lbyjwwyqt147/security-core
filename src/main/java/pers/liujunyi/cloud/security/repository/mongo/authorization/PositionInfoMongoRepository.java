@@ -34,6 +34,13 @@ public interface PositionInfoMongoRepository extends BaseMongoRepository<Positio
     List<PositionInfo> findByParentIdAndPostStatusOrderBySerialNumberAsc(Long pid, Byte postStatus);
 
     /**
+     * 根据pid 获取数据
+     * @param pid
+     * @return
+     */
+    List<PositionInfo> findByParentIdOrderBySerialNumberAsc(Long pid);
+
+    /**
      * 根据 fullPostParentCode 获取数据
      * @param fullPostParentCode
      * @param postStatus  0：正常  1：禁用

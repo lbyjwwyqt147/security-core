@@ -27,6 +27,10 @@ public class MenuResourceQueryDto  extends BaseMongoQuery {
 
     private static final long serialVersionUID = 9120664974717531105L;
 
+    @ApiModelProperty(value = "pid")
+    @QueryCondition()
+    private Long parentId;
+
     @ApiModelProperty(value = "名称")
     @QueryCondition(func = MatchType.like)
     private String menuName;

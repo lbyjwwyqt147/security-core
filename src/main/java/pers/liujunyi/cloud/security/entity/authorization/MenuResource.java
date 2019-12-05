@@ -29,7 +29,7 @@ import javax.persistence.Entity;
 @NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@Document(collection = "menuResource")
+@Document(collection = "menu_resource")
 @DynamicInsert
 @DynamicUpdate
 @org.hibernate.annotations.Table(appliesTo = "menu_resource", comment = "菜单资源表")

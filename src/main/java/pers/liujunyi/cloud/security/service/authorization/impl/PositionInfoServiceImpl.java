@@ -51,6 +51,11 @@ public class PositionInfoServiceImpl extends BaseServiceImpl<PositionInfo, Long>
         if (record.getPostStatus() == null) {
             positionInfo.setPostStatus(SecurityConstant.ENABLE_STATUS);
         }
+        if (!add) {
+            positionInfo.setDataVersion(positionInfo.getDataVersion() + 1);
+        } else {
+            positionInfo.setDataVersion(1L);
+        }
         if (record.getParentId().longValue() > 0) {
             PositionInfo parent = this.findById(record.getParentId());
             positionInfo.setFullPostParent(parent.getFullPostParent() + ":"  + parent.getId());
@@ -66,9 +71,7 @@ public class PositionInfoServiceImpl extends BaseServiceImpl<PositionInfo, Long>
         if (saveObject == null || saveObject.getId() == null) {
             return ResultUtil.fail();
         }
-        if (!add) {
-            saveObject.setDataVersion(saveObject.getDataVersion() + 1);
-        }
+
         this.positionInfoMongoService.save(saveObject);
         return ResultUtil.success(saveObject.getId());
     }
@@ -83,12 +86,12 @@ public class PositionInfoServiceImpl extends BaseServiceImpl<PositionInfo, Long>
         }
         int count = this.positionInfoRepository.setStatusByIds(status, new Date(), ids);
         if (count > 0) {
-            Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>(ids.size());
+            Map<Long, Map<String, Object>> sourceMap = new ConcurrentHashMap<>(ids.size());
             ids.stream().forEach(item -> {
                 Map<String, Object> docDataMap = new HashMap<>(2);
                 docDataMap.put("postStatus", status);
                 docDataMap.put("updateTime", System.currentTimeMillis());
-                sourceMap.put(item.toString(), docDataMap);
+                sourceMap.put(item, docDataMap);
             });
             super.updateMongoDataByIds(sourceMap);
             return ResultUtil.success();

@@ -102,14 +102,14 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
         if (count > 0) {
             JSONArray jsonArray = JSONArray.parseArray(putParams);
             int jsonSize = jsonArray.size();
-            Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
+            Map<Long, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
             for(int i = 0; i < jsonSize; i++){
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 Map<String, Object> docDataMap = new HashMap<>();
                 docDataMap.put("orgStatus", status);
                 docDataMap.put("updateTime", System.currentTimeMillis());
                 docDataMap.put("dataVersion", jsonObject.getLongValue("dataVersion") + 1);
-                sourceMap.put(jsonObject.getString("id"), docDataMap);
+                sourceMap.put(jsonObject.getLongValue("id"), docDataMap);
             }
             // 更新 Mongo 中的数据
             super.updateMongoDataByIds(sourceMap);

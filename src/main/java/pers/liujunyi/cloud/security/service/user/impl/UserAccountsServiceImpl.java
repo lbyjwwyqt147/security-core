@@ -150,12 +150,12 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
     public Boolean updateAccountsStatus(Byte status, Long id, Long dataVersion) {
         int count = this.userAccountsRepository.setUserStatusById(status, new Date(), id, dataVersion);
         if (count > 0) {
-            Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
+            Map<Long, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
             Map<String, Object> docDataMap = new HashMap<>();
             docDataMap.put("userStatus", status);
             docDataMap.put("updateTime", System.currentTimeMillis());
             docDataMap.put("dataVersion", dataVersion + 1);
-            sourceMap.put(String.valueOf(id), docDataMap);
+            sourceMap.put(id, docDataMap);
             // 更新 Mongo 中的数据
             super.updateMongoDataByIds(sourceMap);
             return true;
@@ -168,14 +168,14 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         if (count > 0) {
             JSONArray jsonArray = JSONArray.parseArray(putParams);
             int jsonSize = jsonArray.size();
-            Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
+            Map<Long, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
             for(int i = 0; i < jsonSize; i++){
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 Map<String, Object> docDataMap = new HashMap<>();
                 docDataMap.put("userStatus", status);
                 docDataMap.put("updateTime", System.currentTimeMillis());
                 docDataMap.put("dataVersion", jsonObject.getLongValue("dataVersion") + 1);
-                sourceMap.put(jsonObject.getString("id"), docDataMap);
+                sourceMap.put(jsonObject.getLongValue("id"), docDataMap);
             }
             super.updateMongoDataByIds(sourceMap);
             return true;
@@ -197,13 +197,13 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
             String newPwd = passwordEncoder.encode(currentPassWord);
             int count = this.userAccountsRepository.setUserPasswordById(newPwd, new Date(), id, dataVersion);
             if (count > 0) {
-                Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
+                Map<Long, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
                 Map<String, Object> docDataMap = new HashMap<>();
                 docDataMap.put("userPassword", newPwd);
                 docDataMap.put("changePasswordTime", System.currentTimeMillis());
                 docDataMap.put("updateTime", System.currentTimeMillis());
                 docDataMap.put("dataVersion", dataVersion + 1);
-                sourceMap.put(String.valueOf(id), docDataMap);
+                sourceMap.put(id, docDataMap);
                 super.updateMongoDataByIds(sourceMap);
                 return ResultUtil.success();
             }
@@ -223,7 +223,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         String userNickName = userAccountsUpdate.getUserNickName();
         boolean registeredSource  = userAccountsUpdate.getRegisteredSource() != null && userAccountsUpdate.getRegisteredSource() == 1;
         UserAccounts accounts = this.getUserAccounts(id);
-        Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
+        Map<Long, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
         Map<String, Object> docDataMap = new HashMap<>();
         if (StringUtils.isNotBlank(userAccounts) ) {
             if ( this.checkUserAccountsRepetition(userAccounts, id)) {
@@ -275,7 +275,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         if (saveObj != null) {
             docDataMap.put("updateTime", System.currentTimeMillis());
             docDataMap.put("dataVersion", userAccountsUpdate.getDataVersion() + 1);
-            sourceMap.put(String.valueOf(id), docDataMap);
+            sourceMap.put(id, docDataMap);
             // 更新 Mongo 中的数据
             super.updateMongoDataByIds(sourceMap);
             return ResultUtil.success();

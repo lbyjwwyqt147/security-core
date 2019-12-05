@@ -53,7 +53,16 @@ public class PositionInfoMongoServiceImpl extends BaseMongoServiceImpl<PositionI
 
     @Override
     public List<ZtreeNode> positionTree(Long pid, Byte status) {
-        List<PositionInfo> list = this.positionInfoMongoRepository.findByParentIdAndPostStatusOrderBySerialNumberAsc(pid,  status);
+        List<PositionInfo> list = null;
+        if (pid != null) {
+            if (status != null) {
+                list = this.positionInfoMongoRepository.findByParentIdAndPostStatusOrderBySerialNumberAsc(pid,  status);
+            } else {
+                list = this.positionInfoMongoRepository.findByParentIdOrderBySerialNumberAsc(pid);
+            }
+        } else {
+             list = this.positionInfoMongoRepository.findAll(Sort.by(Sort.Direction.ASC, "serialNumber"));
+        }
         return this.startBuilderZtree(list);
     }
 
@@ -65,7 +74,7 @@ public class PositionInfoMongoServiceImpl extends BaseMongoServiceImpl<PositionI
 
     @Override
     public ResultInfo findPageGird(PositionInfoQueryDto query) {
-        Sort sort = Sort.by(Sort.Direction.ASC, "serialNumberAsc");
+        Sort sort = Sort.by(Sort.Direction.ASC, "serialNumber");
         Pageable pageable = query.toPageable(sort);
         // 查询条件
         Query searchQuery = query.toSpecPageable(pageable);
@@ -121,7 +130,7 @@ public class PositionInfoMongoServiceImpl extends BaseMongoServiceImpl<PositionI
         List<ZtreeNode> treeNodes = new LinkedList<>();
         if (!CollectionUtils.isEmpty(list)){
             list.stream().forEach(item -> {
-                ZtreeNode zTreeNode = new ZtreeNode(item.getId(), item.getParentId(), item.getPostNumber());
+                ZtreeNode zTreeNode = new ZtreeNode(item.getId(), item.getParentId(), item.getPostName());
                 Map<String, String> attributesMap = new ConcurrentHashMap<>(2);
                 attributesMap.put("fullParent", item.getFullPostParent());
                 attributesMap.put("postNumber", item.getPostNumber());

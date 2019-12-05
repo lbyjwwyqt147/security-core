@@ -29,7 +29,7 @@ import javax.persistence.Entity;
 @NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@Document(collection = "roleInfo")
+@Document(collection = "role_info")
 @DynamicInsert
 @DynamicUpdate
 @org.hibernate.annotations.Table(appliesTo = "role_info", comment = "角色表")

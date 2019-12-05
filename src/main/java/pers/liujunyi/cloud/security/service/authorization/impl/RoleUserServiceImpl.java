@@ -60,12 +60,12 @@ public class RoleUserServiceImpl  extends BaseServiceImpl<RoleUser, Long> implem
     public ResultInfo updateStatus(Byte status, List<Long> ids) {
         int count = this.roleUserRepository.setStatusByIds(status, new Date(), ids);
         if (count > 0) {
-            Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
+            Map<Long, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
             Map<String, Object> docDataMap = new HashMap<>();
             docDataMap.put("status", status);
             docDataMap.put("updateTime", System.currentTimeMillis());
             ids.stream().forEach(item -> {
-                sourceMap.put(String.valueOf(item), docDataMap);
+                sourceMap.put(item, docDataMap);
             });
             super.updateMongoDataByIds(sourceMap);
             return ResultUtil.success();

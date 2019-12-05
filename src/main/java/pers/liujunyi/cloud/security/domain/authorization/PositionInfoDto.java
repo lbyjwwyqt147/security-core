@@ -73,16 +73,16 @@ public class PositionInfoDto extends BaseDto {
 
     /** 备注描述 */
     @ApiModelProperty(value = "备注描述")
-    @Length(min = 1, max = 100, message = "备注描述 最多可以输入100个字符")
+    @Length(min = 0, max = 50, message = "备注描述 最多可以输入100个字符")
     private String postDescription;
 
     /** 预留字段1 */
     @ApiModelProperty(value = "预留字段1")
-    @Length(min = 1, max = 45, message = "预留字段1 最多可以输入45个字符")
+    @Length(min = 0, max = 45, message = "预留字段1 最多可以输入45个字符")
     private String attributeOne;
 
     /** 预留字段2 */
     @ApiModelProperty(value = "预留字段2")
-    @Length(min = 1, max = 65, message = "预留字段2 最多可以输入65个字符")
+    @Length(min = 0, max = 65, message = "预留字段2 最多可以输入65个字符")
     private String attributeTwo;
 }

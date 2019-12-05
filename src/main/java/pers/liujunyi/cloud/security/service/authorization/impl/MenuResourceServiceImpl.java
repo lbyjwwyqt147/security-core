@@ -56,6 +56,11 @@ public class MenuResourceServiceImpl extends BaseServiceImpl<MenuResource, Long>
         if (record.getMenuStatus() == null) {
             menuResource.setMenuStatus(SecurityConstant.ENABLE_STATUS);
         }
+        if (!add) {
+            menuResource.setDataVersion(menuResource.getDataVersion() + 1);
+        } else {
+            menuResource.setDataVersion(1L);
+        }
         if (record.getParentId().longValue() > 0) {
             MenuResource parent = this.findById(record.getParentId());
             menuResource.setFullMenuParent(parent.getFullMenuParent() + ":"  + parent.getId());
@@ -69,9 +74,6 @@ public class MenuResourceServiceImpl extends BaseServiceImpl<MenuResource, Long>
         MenuResource saveObject = this.menuResourceRepository.save(menuResource);
         if (saveObject == null || saveObject.getId() == null) {
             return ResultUtil.fail();
-        }
-        if (!add) {
-            saveObject.setDataVersion(saveObject.getDataVersion() + 1);
         }
         this.menuResourceMongoService.save(saveObject);
         return ResultUtil.success(saveObject.getId());
@@ -87,12 +89,12 @@ public class MenuResourceServiceImpl extends BaseServiceImpl<MenuResource, Long>
         }
         int count = this.menuResourceRepository.setStatusByIds(status, new Date(), ids);
         if (count > 0) {
-            Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>(ids.size());
+            Map<Long, Map<String, Object>> sourceMap = new ConcurrentHashMap<>(ids.size());
             ids.stream().forEach(item -> {
                 Map<String, Object> docDataMap = new HashMap<>(2);
                 docDataMap.put("menuStatus", status);
                 docDataMap.put("updateTime", System.currentTimeMillis());
-                sourceMap.put(item.toString(), docDataMap);
+                sourceMap.put(item, docDataMap);
             });
             // 更新 Mongo 中的数据
             super.updateMongoDataByIds(sourceMap);

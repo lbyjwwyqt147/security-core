@@ -63,12 +63,12 @@ public class StaffOrgServiceImpl extends BaseServiceImpl<StaffOrg, Long> impleme
     public ResultInfo updateStatus(Byte status, List<Long> ids) {
         int count = this.staffOrgRepository.setStatusByIds(status, new Date(), ids);
         if (count > 0) {
-            Map<String, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
+            Map<Long, Map<String, Object>> sourceMap = new ConcurrentHashMap<>();
             Map<String, Object> docDataMap = new HashMap<>();
             docDataMap.put("status", status);
             docDataMap.put("updateTime", System.currentTimeMillis());
             ids.stream().forEach(item -> {
-                sourceMap.put(String.valueOf(item), docDataMap);
+                sourceMap.put(item, docDataMap);
             });
             // 更新 Mongo 中的数据
             super.updateMongoDataByIds(sourceMap);
