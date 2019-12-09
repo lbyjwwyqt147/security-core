@@ -49,7 +49,7 @@ public class MenuResourceServiceImpl extends BaseServiceImpl<MenuResource, Long>
     @Override
     public ResultInfo saveRecord(MenuResourceDto record) {
         boolean add = record.getId() == null ? true : false;
-        if (this.checkMenuNumberRepetition(record.getMenuNumber(), record.getId())) {
+        if (record.getMenuClassify().byteValue() < SecurityConstant.RESOURCE_BUTTON.byteValue() && this.checkMenuNumberRepetition(record.getMenuNumber(), record.getId())) {
             return ResultUtil.params("资源编号重复,请重新输入！");
         }
         MenuResource menuResource = DozerBeanMapperUtil.copyProperties(record, MenuResource.class);

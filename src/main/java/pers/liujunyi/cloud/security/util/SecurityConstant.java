@@ -30,6 +30,11 @@ public class SecurityConstant {
     /** 客户端的refresh_token的有效时间值(单位:秒) 这里设置为 24小时(1天) */
     public static final Integer REFRESH_TOKEN_VALIDITY_SECONDS = 60 * 60 * 24;
 
+    /** 资源类型：1 目录 2：界面  3：按钮 */
+    public static final Byte RESOURCE_DIRECTORY = 1;
+    public static final Byte RESOURCE_TECHWEB = 2;
+    public static final Byte RESOURCE_BUTTON = 3;
+
 
     /**
      * 数据状态值
