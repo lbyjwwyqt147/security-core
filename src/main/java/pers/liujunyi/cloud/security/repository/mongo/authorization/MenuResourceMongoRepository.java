@@ -41,6 +41,14 @@ public interface MenuResourceMongoRepository extends BaseMongoRepository<MenuRes
     List<MenuResource> findByParentIdOrderBySerialNumberAsc(Long pid);
 
     /**
+     * 根据pid  menuNumber 获取数据
+     * @param pid
+     * @param menuNumber
+     * @return
+     */
+    List<MenuResource> findByParentIdAndMenuNumber(Long pid, String menuNumber);
+
+    /**
      * 根据 fullMenuParentCode 获取数据
      * @param fullMenuParentCode
      * @param menuStatus  0：正常  1：禁用

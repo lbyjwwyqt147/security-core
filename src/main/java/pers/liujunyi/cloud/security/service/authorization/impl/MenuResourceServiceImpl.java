@@ -49,8 +49,15 @@ public class MenuResourceServiceImpl extends BaseServiceImpl<MenuResource, Long>
     @Override
     public ResultInfo saveRecord(MenuResourceDto record) {
         boolean add = record.getId() == null ? true : false;
-        if (record.getMenuClassify().byteValue() < SecurityConstant.RESOURCE_BUTTON.byteValue() && this.checkMenuNumberRepetition(record.getMenuNumber(), record.getId())) {
-            return ResultUtil.params("资源编号重复,请重新输入！");
+        // 按钮
+        if (record.getMenuClassify().byteValue() == SecurityConstant.RESOURCE_BUTTON.byteValue()) {
+            if (this.checkMenuNumberRepetition(record.getMenuNumber(), record.getId(), record.getParentId(), record.getMenuClassify())) {
+                return ResultUtil.params("已经存在相同功能类别,请重新输入！");
+            }
+        } else {
+            if (this.checkMenuNumberRepetition(record.getMenuNumber(), record.getId(), record.getParentId(), record.getMenuClassify())) {
+                return ResultUtil.params("资源编号重复,请重新输入！");
+            }
         }
         MenuResource menuResource = DozerBeanMapperUtil.copyProperties(record, MenuResource.class);
         if (record.getMenuStatus() == null) {
@@ -128,13 +135,25 @@ public class MenuResourceServiceImpl extends BaseServiceImpl<MenuResource, Long>
      * @param menuNumber
      * @return 重复返回 true   不重复返回  false
      */
-    private Boolean checkMenuNumberRepetition(String menuNumber, Long id) {
-        if (id == null){
-            return this.checkMenuNumberData(menuNumber);
+    private Boolean checkMenuNumberRepetition(String menuNumber, Long id, Long pid, Byte menuClassify) {
+        // 按钮
+        if (menuClassify.byteValue() == SecurityConstant.RESOURCE_BUTTON.byteValue()) {
+            if (id == null){
+                return this.checkMenuNumberData(menuNumber, pid);
+            } else {
+                MenuResource menuResource = this.findById(id);
+                if (menuResource != null && !menuResource.getMenuNumber().equals(menuNumber)) {
+                    return this.checkMenuNumberData(menuNumber, pid);
+                }
+            }
         } else {
-            MenuResource menuResource = this.findById(id);
-            if (menuResource != null && !menuResource.getMenuNumber().equals(menuNumber)) {
+            if (id == null){
                 return this.checkMenuNumberData(menuNumber);
+            } else {
+                MenuResource menuResource = this.findById(id);
+                if (menuResource != null && !menuResource.getMenuNumber().equals(menuNumber)) {
+                    return this.checkMenuNumberData(menuNumber);
+                }
             }
         }
         return false;
@@ -151,6 +170,20 @@ public class MenuResourceServiceImpl extends BaseServiceImpl<MenuResource, Long>
             return true;
         }
         return false;
+    }
+
+    /**
+     * 检查库中是否存在menuNumber 数据
+     * @param menuNumber
+     * @param pid
+     * @return
+     */
+    private Boolean checkMenuNumberData (String menuNumber, Long pid) {
+        List<MenuResource> menuResources = this.menuResourceMongoService.findByParentIdAndMenuNumber(pid, menuNumber);
+        if (CollectionUtils.isEmpty(menuResources)) {
+            return false;
+        }
+        return true;
     }
 
     /**

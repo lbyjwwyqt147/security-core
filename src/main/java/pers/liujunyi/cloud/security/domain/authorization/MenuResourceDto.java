@@ -83,6 +83,8 @@ public class MenuResourceDto extends BaseDto {
     @Pattern(regexp = RegexpUtils.ENGLISH_LETTER_REGEXP, message = "权限授权代码 " + RegexpUtils.ENGLISH_LETTER_MSG)
     private String menuAuthorizationCode;
 
+    private Byte buttonCategory;
+
     /** 完整的层次名称 */
     private String fullMenuName;
 

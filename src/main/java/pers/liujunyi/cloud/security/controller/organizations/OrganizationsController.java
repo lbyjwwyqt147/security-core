@@ -12,7 +12,6 @@ import pers.liujunyi.cloud.common.dto.IdParamDto;
 import pers.liujunyi.cloud.common.encrypt.annotation.Decrypt;
 import pers.liujunyi.cloud.common.encrypt.annotation.Encrypt;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
-import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.vo.tree.ZtreeNode;
 import pers.liujunyi.cloud.security.domain.organizations.OrganizationsDto;
 import pers.liujunyi.cloud.security.domain.organizations.OrganizationsQueryDto;
@@ -25,7 +24,7 @@ import java.util.List;
 
 /***
  * 文件名称: OrganizationsController.java
- * 文件描述: 组织机构 Controller
+ * 文件描述: 组织结构 Controller
  * 公 司:
  * 内容摘要:
  * 其他说明:
@@ -34,7 +33,7 @@ import java.util.List;
  * @version 1.0
  * @author ljy
  */
-@Api(tags = "组织机构 API")
+@Api(tags = "组织结构 API")
 @RestController
 public class OrganizationsController extends BaseController {
 
@@ -61,25 +60,6 @@ public class OrganizationsController extends BaseController {
         return this.organizationsService.saveRecord(param);
     }
 
-    /**
-     * 单条删除数据
-     *
-     * @param param
-     * @return
-     */
-    @ApiOperation(value = "单条删除数据")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
-            @ApiImplicitParam(name = "id", value = "id",  required = true, dataType = "String")
-    })
-    @Encrypt
-    @Decrypt
-    @DeleteMapping(value = "verify/organization/d")
-    @ApiVersion(1)
-    public ResultInfo singleDelete(@Valid @RequestBody IdParamDto param) {
-        this.organizationsService.deleteSingle(Long.valueOf(param.getId()));
-        return ResultUtil.success();
-    }
 
     /**
      * 批量删除
@@ -118,12 +98,12 @@ public class OrganizationsController extends BaseController {
 
 
     /**
-     * 根据 pid 获取 组织机构tree 结构数据 (只包含正常数据 不包含禁用数据)
+     * 根据 pid 获取 组织结构tree 结构数据 (只包含正常数据 不包含禁用数据)
      *
      * @param id
      * @return
      */
-    @ApiOperation(value = "根据 pid 获取 组织机构tree 结构数据 (只包含正常数据 不包含禁用数据)")
+    @ApiOperation(value = "根据 pid 获取 组织结构tree 结构数据 (只包含正常数据 不包含禁用数据)")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "pid", value = "pid",  required = true, dataType = "Long")
@@ -135,12 +115,12 @@ public class OrganizationsController extends BaseController {
     }
 
     /**
-     * 根据 pid 获取 组织机构tree 结构数据 (包含禁用数据)
+     * 根据 pid 获取 组织结构tree 结构数据 (包含禁用数据)
      *
      * @param id
      * @return
      */
-    @ApiOperation(value = "根据 pid 获取 组织机构tree 结构数据 (包含禁用数据)")
+    @ApiOperation(value = "根据 pid 获取 组织结构tree 结构数据 (包含禁用数据)")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "pid", value = "pid",  required = true, dataType = "Long")
@@ -152,12 +132,12 @@ public class OrganizationsController extends BaseController {
     }
 
     /**
-     * 根据 fullParentCode 获取 组织机构tree 结构数据
+     * 根据 fullParentCode 获取 组织结构tree 结构数据
      *
      * @param code
      * @return
      */
-    @ApiOperation(value = "根据 fullParentCode 获取 组织机构tree 结构数据")
+    @ApiOperation(value = "根据 fullParentCode 获取 组织结构tree 结构数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
             @ApiImplicitParam(name = "code", value = "code",  required = true, dataType = "String")
@@ -189,25 +169,6 @@ public class OrganizationsController extends BaseController {
         return this.organizationsService.updateStatus(param.getStatus(), param.getIdList(), param.getPutParams());
     }
 
-    /**
-     *  修改数据状态
-     *
-     * @param param
-     * @return
-     */
-    @ApiOperation(value = "修改数据状态")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
-            @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String"),
-            @ApiImplicitParam(name = "status", value = "status",  required = true, dataType = "integer")
-    })
-    @Encrypt
-    @Decrypt
-    @PutMapping(value = "verify/organization/p")
-    @ApiVersion(1)
-    public ResultInfo updateStatus(@Valid @RequestBody IdParamDto param ) {
-        return this.organizationsService.updateStatus(param.getStatus(), param.getId(), param.getDataVersion());
-    }
 
     /**
      * 根据id 获取详细信息

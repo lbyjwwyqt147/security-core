@@ -89,7 +89,7 @@ public class LoginController extends BaseController {
     private TokenStore tokenStore;
 
     /**
-     * 获取当前登录用户信息
+     * 退出
      * @param
      * @return
      */

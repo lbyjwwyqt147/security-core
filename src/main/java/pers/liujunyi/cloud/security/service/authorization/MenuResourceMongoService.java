@@ -64,4 +64,12 @@ public interface MenuResourceMongoService extends BaseMongoService<MenuResource,
      * @return
      */
     MenuResource findById(Long id);
+
+    /**
+     * 根据pid  menuNumber 获取数据
+     * @param pid
+     * @param menuNumber
+     * @return
+     */
+    List<MenuResource> findByParentIdAndMenuNumber(Long pid, String menuNumber);
 }

@@ -23,6 +23,13 @@ import java.util.Map;
 public interface OrganizationsMongoService extends BaseMongoService<Organizations, Long> {
 
     /**
+     * 根据 机构编号 获取数据
+     * @param orgNumber
+     * @return
+     */
+    Organizations findFirstByOrgNumber(String orgNumber);
+
+    /**
      *  根据 pid 符合 ztree 结构的数据
      * @param pid
      * @param status

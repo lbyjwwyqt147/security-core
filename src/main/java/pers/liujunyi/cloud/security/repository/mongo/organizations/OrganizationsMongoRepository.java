@@ -35,6 +35,13 @@ public interface OrganizationsMongoRepository extends BaseMongoRepository<Organi
     List<Organizations> findByParentIdAndOrgStatusOrderBySeqAsc(Long pid, Byte orgStatus);
 
     /**
+     * 根据pid 获取数据
+     * @param pid
+     * @return
+     */
+    List<Organizations> findByParentIdOrderBySeqAsc(Long pid);
+
+    /**
      * 根据 fullParentCode 获取数据
      * @param fullParentCode
      * @param orgStatus  0：正常  1：禁用

@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MenuResourceMongoServiceImpl extends BaseMongoServiceImpl<MenuResource, Long>  implements MenuResourceMongoService {
 
     @Autowired
-    private MenuResourceMongoRepository menuResourceMongoRepository;
+    protected MenuResourceMongoRepository menuResourceMongoRepository;
 
     public MenuResourceMongoServiceImpl(BaseMongoRepository<MenuResource, Long> baseMongoRepository) {
         super(baseMongoRepository);
@@ -100,6 +100,11 @@ public class MenuResourceMongoServiceImpl extends BaseMongoServiceImpl<MenuResou
         return null;
     }
 
+    @Override
+    public List<MenuResource> findByParentIdAndMenuNumber(Long pid, String menuNumber) {
+        return this.menuResourceMongoRepository.findByParentIdAndMenuNumber(pid, menuNumber);
+    }
+
 
     /**
      * 构建 ztree
@@ -114,6 +119,7 @@ public class MenuResourceMongoServiceImpl extends BaseMongoServiceImpl<MenuResou
                 Map<String, String> attributesMap = new ConcurrentHashMap<>(2);
                 attributesMap.put("fullParent", item.getFullMenuParent());
                 attributesMap.put("menuNumber", item.getMenuNumber());
+                attributesMap.put("menuClassify", item.getMenuClassify().toString());
                 zTreeNode.setOtherAttributes(attributesMap);
                 treeNodes.add(zTreeNode);
             });

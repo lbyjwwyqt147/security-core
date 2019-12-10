@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.repository.jpa.BaseRepository;
@@ -12,22 +11,24 @@ import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.service.impl.BaseServiceImpl;
 import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
-import pers.liujunyi.cloud.common.util.UserContext;
 import pers.liujunyi.cloud.security.domain.organizations.OrganizationsDto;
 import pers.liujunyi.cloud.security.entity.organizations.Organizations;
 import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
 import pers.liujunyi.cloud.security.repository.jpa.organizations.OrganizationsRepository;
-import pers.liujunyi.cloud.security.repository.mongo.organizations.OrganizationsMongoRepository;
 import pers.liujunyi.cloud.security.repository.mongo.organizations.StaffOrgMongoRepository;
+import pers.liujunyi.cloud.security.service.organizations.OrganizationsMongoService;
 import pers.liujunyi.cloud.security.service.organizations.OrganizationsService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /***
  * 文件名称: OrganizationsServiceImpl.java
- * 文件描述: 组织机构 Service Impl
+ * 文件描述: 组织结构 Service Impl
  * 公 司:
  * 内容摘要:
  * 其他说明:
@@ -42,7 +43,7 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
     @Autowired
     private OrganizationsRepository organizationsRepository;
     @Autowired
-    private OrganizationsMongoRepository organizationsMongoRepository;
+    private OrganizationsMongoService organizationsMongoService;
     @Autowired
     private StaffOrgMongoRepository staffOrgMongoRepository;
 
@@ -53,9 +54,9 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
 
     @Override
     public ResultInfo saveRecord(OrganizationsDto record) {
-        boolean add = record.getId() != null ? true : false;
+        boolean add = record.getId() == null ? true : false;
         if (this.checkOrgNumberRepetition(record.getOrgNumber(), record.getId())) {
-            return ResultUtil.params("机构代码重复,请重新输入！");
+            return ResultUtil.params("结构代码重复,请重新输入！");
         }
         Organizations organizations = DozerBeanMapperUtil.copyProperties(record, Organizations.class);
         if (record.getSeq() == null) {
@@ -63,10 +64,6 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
         }
         if (record.getOrgStatus() == null) {
             organizations.setOrgStatus(SecurityConstant.ENABLE_STATUS);
-        }
-        if (record.getId() != null) {
-            organizations.setUpdateTime(new Date());
-            organizations.setUpdateUserId(UserContext.currentUserId());
         }
         if (record.getParentId().longValue() > 0) {
             Organizations parent = this.getOrganizations(record.getParentId());
@@ -85,13 +82,15 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
         }
         if (!add) {
             saveObject.setDataVersion(saveObject.getDataVersion() + 1);
+        } else {
+            saveObject.setDataVersion(1L);
         }
-        this.organizationsMongoRepository.save(saveObject);
+        this.organizationsMongoService.save(saveObject);
         return ResultUtil.success(saveObject.getId());
     }
 
     @Override
-    public ResultInfo updateStatus(Byte status, List<Long> ids,String putParams) {
+    public ResultInfo updateStatus(Byte status, List<Long> ids, String putParams) {
         if (status.byteValue() == 1) {
             ResultInfo resultInfo = this.checkUseCondition(ids, "禁用");
             if (!resultInfo.getSuccess()) {
@@ -119,27 +118,6 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
 
     }
 
-    @Override
-    public ResultInfo updateStatus(Byte status, Long id, Long version) {
-        if (status.byteValue() == 1) {
-            List<Long> ids = new LinkedList<>();
-            ids.add(id);
-            ResultInfo resultInfo = this.checkUseCondition(ids, "禁用");
-            if (!resultInfo.getSuccess()) {
-                return resultInfo;
-            }
-        }
-        int count = this.organizationsRepository.setStatusById(status, new Date(), id, version);
-        if (count > 0) {
-            Map<String, Object> docDataMap = new HashMap<>();
-            docDataMap.put("orgStatus", status);
-            docDataMap.put("dataVersion", version + 1);
-            docDataMap.put("updateTime", System.currentTimeMillis());
-            super.updateMongoDataById(id, docDataMap);
-            return ResultUtil.success();
-        }
-        return ResultUtil.fail();
-    }
 
     @Override
     public ResultInfo deleteBatch(List<Long> ids) {
@@ -149,50 +127,16 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
         }
         long count = this.organizationsRepository.deleteByIdIn(ids);
         if (count > 0) {
-            this.organizationsMongoRepository.deleteByIdIn(ids);
+            this.organizationsMongoService.deleteAllByIdIn(ids);
             return ResultUtil.success();
         }
         return ResultUtil.fail();
     }
 
-    @Override
-    public ResultInfo deleteSingle(Long id) {
-
-        this.organizationsRepository.deleteById(id);
-        this.organizationsMongoRepository.deleteById(id);
-        return ResultUtil.success();
-    }
 
     @Override
     public ResultInfo syncDataToMongo() {
-        Sort sort =  Sort.by(Sort.Direction.ASC, "id");
-        List<Organizations> list = this.organizationsRepository.findAll(sort);
-        if (!CollectionUtils.isEmpty(list)) {
-            this.organizationsMongoRepository.deleteAll();
-            // 限制条数
-            int pointsDataLimit = 1000;
-            int size = list.size();
-            //判断是否有必要分批
-            if(pointsDataLimit < size){
-                //分批数
-                int part = size/pointsDataLimit;
-                for (int i = 0; i < part; i++) {
-                    //1000条
-                    List<Organizations> partList = new LinkedList<>(list.subList(0, pointsDataLimit));
-                    //剔除
-                    list.subList(0, pointsDataLimit).clear();
-                    this.organizationsMongoRepository.saveAll(partList);
-                }
-                //表示最后剩下的数据
-                if (!CollectionUtils.isEmpty(list)) {
-                    this.organizationsMongoRepository.saveAll(list);
-                }
-            } else {
-                this.organizationsMongoRepository.saveAll(list);
-            }
-        } else {
-            this.organizationsMongoRepository.deleteAll();
-        }
+        super.syncDataMongoDb();
         return ResultUtil.success();
     }
 
@@ -203,16 +147,12 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
      * @return
      */
     private Organizations getOrganizations(Long id) {
-        Optional<Organizations> organizations = this.organizationsMongoRepository.findById(id);
-        if (organizations.isPresent()) {
-            return organizations.get();
-        }
-        return null;
+        return this.organizationsMongoService.getOne(id);
     }
 
 
     /**
-     * 检测机构代码是否重复
+     * 检测结构代码是否重复
      * @param orgNumber
      * @return 重复返回 true   不重复返回  false
      */
@@ -234,7 +174,7 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
      * @return
      */
     private Boolean checkOrgNumberData (String orgNumber) {
-        Organizations organizations = this.organizationsMongoRepository.findFirstByOrgNumber(orgNumber);
+        Organizations organizations = this.organizationsMongoService.findFirstByOrgNumber(orgNumber);
         if (organizations != null) {
             return true;
         }

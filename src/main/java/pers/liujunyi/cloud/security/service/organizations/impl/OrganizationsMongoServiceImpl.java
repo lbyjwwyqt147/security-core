@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 /***
  * 文件名称: OrganizationsMongoServiceImpl.java
- * 文件描述: 组织机构 Mongo Service impl
+ * 文件描述: 组织结构 Mongo Service impl
  * 公 司:
  * 内容摘要:
  * 其他说明:
@@ -47,8 +47,22 @@ public class OrganizationsMongoServiceImpl extends BaseMongoServiceImpl<Organiza
 
 
     @Override
+    public Organizations findFirstByOrgNumber(String orgNumber) {
+        return this.organizationsMongoRepository.findFirstByOrgNumber(orgNumber);
+    }
+
+    @Override
     public List<ZtreeNode> orgTree(Long pid, Byte status) {
-        List<Organizations> list = this.organizationsMongoRepository.findByParentIdAndOrgStatusOrderBySeqAsc(pid,  status);
+        List<Organizations> list = null;
+        if (pid != null) {
+            if (status != null) {
+                list = this.organizationsMongoRepository.findByParentIdAndOrgStatusOrderBySeqAsc(pid,  status);
+            } else {
+                list = this.organizationsMongoRepository.findByParentIdOrderBySeqAsc(pid);
+            }
+        } else {
+            list =  this.organizationsMongoRepository.findAll(Sort.by(Sort.Direction.ASC, "seq"));
+        }
         return this.startBuilderZtree(list);
     }
 
@@ -189,7 +203,7 @@ public class OrganizationsMongoServiceImpl extends BaseMongoServiceImpl<Organiza
 
 
     /**
-     * 根据一组id 获取机构名称
+     * 根据一组id 获取结构名称
      * @param ids
      * @return key = id  value = name
      */
@@ -225,7 +239,7 @@ public class OrganizationsMongoServiceImpl extends BaseMongoServiceImpl<Organiza
     }
 
     /**
-     * 获取组织机构 全名称
+     * 获取组织结构 全名称
      * @param fullParent
      * @return
      */

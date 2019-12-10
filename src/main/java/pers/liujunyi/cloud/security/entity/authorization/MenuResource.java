@@ -78,6 +78,9 @@ public class MenuResource extends BaseEntity {
     @Column(length = 15,  columnDefinition="varchar(15) DEFAULT NULL COMMENT '权限授权代码  授权代码不需要加ROLE_前缀'")
     private String menuAuthorizationCode;
 
+    /** 按钮类别 */
+    @Column(columnDefinition="tinyint(4) DEFAULT NULL COMMENT '按钮类别：1：保存  2：删除 3：修改 7：导入 8：导出 10：同步 '")
+    private Byte buttonCategory;
 
     /** 完整的层级Id */
     @Column(length = 45, columnDefinition="varchar(45) DEFAULT NULL COMMENT '完整的层级Id'")

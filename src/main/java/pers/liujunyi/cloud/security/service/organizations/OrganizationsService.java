@@ -36,14 +36,6 @@ public interface OrganizationsService extends BaseService<Organizations, Long> {
      */
     ResultInfo updateStatus(Byte status, List<Long> ids, String putParams);
 
-    /**
-     * 修改状态
-     * @param status
-     * @param id
-     * @param version
-     * @return
-     */
-    ResultInfo updateStatus(Byte status, Long id, Long version);
 
     /**
      * 批量删除
@@ -52,12 +44,6 @@ public interface OrganizationsService extends BaseService<Organizations, Long> {
      */
     ResultInfo deleteBatch(List<Long> ids);
 
-    /**
-     * 单条删除
-     * @param id
-     * @return
-     */
-    ResultInfo deleteSingle(Long id);
 
     /**
      * 同步数据到es中
