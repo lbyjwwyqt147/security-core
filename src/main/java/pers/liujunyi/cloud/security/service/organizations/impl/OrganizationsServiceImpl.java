@@ -6,10 +6,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import pers.liujunyi.cloud.common.repository.jpa.BaseRepository;
+import pers.liujunyi.cloud.common.repository.jpa.BaseJpaRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
-import pers.liujunyi.cloud.common.service.impl.BaseServiceImpl;
+import pers.liujunyi.cloud.common.service.impl.BaseJpaMongoServiceImpl;
 import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
 import pers.liujunyi.cloud.security.domain.organizations.OrganizationsDto;
 import pers.liujunyi.cloud.security.entity.organizations.Organizations;
@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author ljy
  */
 @Service
-public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Long> implements OrganizationsService {
+public class OrganizationsServiceImpl extends BaseJpaMongoServiceImpl<Organizations, Long> implements OrganizationsService {
 
     @Autowired
     private OrganizationsRepository organizationsRepository;
@@ -47,7 +47,7 @@ public class OrganizationsServiceImpl extends BaseServiceImpl<Organizations, Lon
     @Autowired
     private StaffOrgMongoRepository staffOrgMongoRepository;
 
-    public OrganizationsServiceImpl(BaseRepository<Organizations, Long> baseRepository) {
+    public OrganizationsServiceImpl(BaseJpaRepository<Organizations, Long> baseRepository) {
         super(baseRepository);
     }
 

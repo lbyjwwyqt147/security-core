@@ -1,7 +1,7 @@
 package pers.liujunyi.cloud.security.service.organizations;
 
 import pers.liujunyi.cloud.common.restful.ResultInfo;
-import pers.liujunyi.cloud.common.service.BaseService;
+import pers.liujunyi.cloud.common.service.BaseJpaMongoService;
 import pers.liujunyi.cloud.security.domain.organizations.OrganizationsDto;
 import pers.liujunyi.cloud.security.entity.organizations.Organizations;
 
@@ -18,7 +18,7 @@ import java.util.List;
  * @version 1.0
  * @author ljy
  */
-public interface OrganizationsService extends BaseService<Organizations, Long> {
+public interface OrganizationsService extends BaseJpaMongoService<Organizations, Long> {
 
     /**
      * 保存数据

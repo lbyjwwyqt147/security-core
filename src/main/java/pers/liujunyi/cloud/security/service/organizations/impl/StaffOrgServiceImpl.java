@@ -4,13 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import pers.liujunyi.cloud.common.repository.jpa.BaseRepository;
+import pers.liujunyi.cloud.common.repository.jpa.BaseJpaRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
-import pers.liujunyi.cloud.common.service.impl.BaseServiceImpl;
+import pers.liujunyi.cloud.common.service.impl.BaseJpaMongoServiceImpl;
 import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
-import pers.liujunyi.cloud.security.repository.mongo.organizations.StaffOrgMongoRepository;
 import pers.liujunyi.cloud.security.repository.jpa.organizations.StaffOrgRepository;
+import pers.liujunyi.cloud.security.repository.mongo.organizations.StaffOrgMongoRepository;
 import pers.liujunyi.cloud.security.service.organizations.StaffOrgService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author ljy
  */
 @Service
-public class StaffOrgServiceImpl extends BaseServiceImpl<StaffOrg, Long> implements StaffOrgService {
+public class StaffOrgServiceImpl extends BaseJpaMongoServiceImpl<StaffOrg, Long> implements StaffOrgService {
 
     @Autowired
     private StaffOrgRepository staffOrgRepository;
@@ -38,7 +38,7 @@ public class StaffOrgServiceImpl extends BaseServiceImpl<StaffOrg, Long> impleme
     private StaffOrgMongoRepository staffOrgMongoRepository;
 
 
-    public StaffOrgServiceImpl(BaseRepository<StaffOrg, Long> baseRepository) {
+    public StaffOrgServiceImpl(BaseJpaRepository<StaffOrg, Long> baseRepository) {
         super(baseRepository);
     }
 

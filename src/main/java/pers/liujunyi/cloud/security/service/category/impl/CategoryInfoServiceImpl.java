@@ -5,16 +5,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.exception.ErrorCodeEnum;
-import pers.liujunyi.cloud.common.repository.jpa.BaseRepository;
+import pers.liujunyi.cloud.common.repository.jpa.BaseJpaRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
-import pers.liujunyi.cloud.common.service.impl.BaseServiceImpl;
+import pers.liujunyi.cloud.common.service.impl.BaseJpaMongoServiceImpl;
 import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
 import pers.liujunyi.cloud.common.util.UserContext;
 import pers.liujunyi.cloud.security.domain.category.CategoryInfoDto;
 import pers.liujunyi.cloud.security.entity.category.CategoryInfo;
-import pers.liujunyi.cloud.security.repository.mongo.category.CategoryInfoMongoRepository;
 import pers.liujunyi.cloud.security.repository.jpa.category.CategoryInfoRepository;
+import pers.liujunyi.cloud.security.repository.mongo.category.CategoryInfoMongoRepository;
 import pers.liujunyi.cloud.security.service.category.CategoryInfoService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
@@ -33,14 +33,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author ljy
  */
 @Service
-public class CategoryInfoServiceImpl extends BaseServiceImpl<CategoryInfo, Long> implements CategoryInfoService {
+public class CategoryInfoServiceImpl extends BaseJpaMongoServiceImpl<CategoryInfo, Long> implements CategoryInfoService {
 
     @Autowired
     private CategoryInfoRepository categoryInfoRepository;
     @Autowired
     private CategoryInfoMongoRepository categoryInfoMongoRepository;
 
-    public CategoryInfoServiceImpl(BaseRepository<CategoryInfo, Long> baseRepository) {
+    public CategoryInfoServiceImpl(BaseJpaRepository<CategoryInfo, Long> baseRepository) {
         super(baseRepository);
     }
 

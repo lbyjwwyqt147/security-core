@@ -3,10 +3,10 @@ package pers.liujunyi.cloud.security.service.authorization.impl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pers.liujunyi.cloud.common.repository.jpa.BaseRepository;
+import pers.liujunyi.cloud.common.repository.jpa.BaseJpaRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
-import pers.liujunyi.cloud.common.service.impl.BaseServiceImpl;
+import pers.liujunyi.cloud.common.service.impl.BaseJpaMongoServiceImpl;
 import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
 import pers.liujunyi.cloud.security.domain.authorization.PositionInfoDto;
 import pers.liujunyi.cloud.security.entity.authorization.PositionInfo;
@@ -15,7 +15,10 @@ import pers.liujunyi.cloud.security.service.authorization.PositionInfoMongoServi
 import pers.liujunyi.cloud.security.service.authorization.PositionInfoService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /***
@@ -30,14 +33,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author ljy
  */
 @Service
-public class PositionInfoServiceImpl extends BaseServiceImpl<PositionInfo, Long> implements PositionInfoService {
+public class PositionInfoServiceImpl extends BaseJpaMongoServiceImpl<PositionInfo, Long> implements PositionInfoService {
 
     @Autowired
     private PositionInfoRepository positionInfoRepository;
     @Autowired
     private PositionInfoMongoService positionInfoMongoService;
 
-    public PositionInfoServiceImpl(BaseRepository<PositionInfo, Long> baseRepository) {
+    public PositionInfoServiceImpl(BaseJpaRepository<PositionInfo, Long> baseRepository) {
         super(baseRepository);
     }
 
@@ -149,15 +152,6 @@ public class PositionInfoServiceImpl extends BaseServiceImpl<PositionInfo, Long>
         return false;
     }
 
-    /**
-     *
-     * @param id
-     * @return
-     */
-    private PositionInfo findById(Long id) {
-        PositionInfo positionInfo = this.positionInfoMongoService.findById(id);
-        return positionInfo;
-    }
 
     /**
      * 检测数据是否被系统使用

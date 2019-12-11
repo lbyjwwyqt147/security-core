@@ -1,7 +1,7 @@
 package pers.liujunyi.cloud.security.service.category;
 
 import pers.liujunyi.cloud.common.restful.ResultInfo;
-import pers.liujunyi.cloud.common.service.BaseService;
+import pers.liujunyi.cloud.common.service.BaseJpaMongoService;
 import pers.liujunyi.cloud.security.domain.category.CategoryInfoDto;
 import pers.liujunyi.cloud.security.entity.category.CategoryInfo;
 
@@ -18,7 +18,7 @@ import java.util.List;
  * @version 1.0
  * @author ljy
  */
-public interface CategoryInfoService extends BaseService<CategoryInfo, Long> {
+public interface CategoryInfoService extends BaseJpaMongoService<CategoryInfo, Long> {
 
     /**
      * 保存数据

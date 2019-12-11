@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import pers.liujunyi.cloud.common.repository.jpa.BaseRepository;
+import pers.liujunyi.cloud.common.repository.jpa.BaseJpaRepository;
 import pers.liujunyi.cloud.security.entity.authorization.RoleUser;
 
 import java.util.Date;
@@ -22,7 +22,7 @@ import java.util.List;
  * @author ljy
  */
 @Repository
-public interface RoleUserRepository extends BaseRepository<RoleUser, Long> {
+public interface RoleUserRepository extends BaseJpaRepository<RoleUser, Long> {
 
     /**
      * 根据 id 修改状态

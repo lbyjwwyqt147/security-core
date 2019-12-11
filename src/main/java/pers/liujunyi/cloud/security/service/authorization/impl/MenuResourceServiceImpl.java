@@ -4,10 +4,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import pers.liujunyi.cloud.common.repository.jpa.BaseRepository;
+import pers.liujunyi.cloud.common.repository.jpa.BaseJpaRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
-import pers.liujunyi.cloud.common.service.impl.BaseServiceImpl;
+import pers.liujunyi.cloud.common.service.impl.BaseJpaMongoServiceImpl;
 import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
 import pers.liujunyi.cloud.security.domain.authorization.MenuResourceDto;
 import pers.liujunyi.cloud.security.entity.authorization.MenuResource;
@@ -18,7 +18,10 @@ import pers.liujunyi.cloud.security.service.authorization.MenuResourceMongoServi
 import pers.liujunyi.cloud.security.service.authorization.MenuResourceService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /***
@@ -33,7 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author ljy
  */
 @Service
-public class MenuResourceServiceImpl extends BaseServiceImpl<MenuResource, Long> implements MenuResourceService {
+public class MenuResourceServiceImpl extends BaseJpaMongoServiceImpl<MenuResource, Long> implements MenuResourceService {
 
     @Autowired
     private MenuResourceRepository menuResourceRepository;
@@ -42,7 +45,7 @@ public class MenuResourceServiceImpl extends BaseServiceImpl<MenuResource, Long>
     @Autowired
     private RoleResourceMongoRepository roleResourceMongoRepository;
 
-    public MenuResourceServiceImpl(BaseRepository<MenuResource, Long> baseRepository) {
+    public MenuResourceServiceImpl(BaseJpaRepository<MenuResource, Long> baseRepository) {
         super(baseRepository);
     }
 
@@ -186,15 +189,6 @@ public class MenuResourceServiceImpl extends BaseServiceImpl<MenuResource, Long>
         return true;
     }
 
-    /**
-     *
-     * @param id
-     * @return
-     */
-    private MenuResource findById(Long id) {
-        MenuResource menuResource = this.menuResourceMongoService.findById(id);
-        return menuResource;
-    }
 
     /**
      * 检测数据是否被系统使用

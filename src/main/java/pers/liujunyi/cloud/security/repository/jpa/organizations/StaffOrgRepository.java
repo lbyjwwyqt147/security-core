@@ -3,7 +3,7 @@ package pers.liujunyi.cloud.security.repository.jpa.organizations;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
-import pers.liujunyi.cloud.common.repository.jpa.BaseRepository;
+import pers.liujunyi.cloud.common.repository.jpa.BaseJpaRepository;
 import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
 
 import java.util.Date;
@@ -20,7 +20,7 @@ import java.util.List;
  * @version 1.0
  * @author ljy
  */
-public interface StaffOrgRepository extends BaseRepository<StaffOrg, Long> {
+public interface StaffOrgRepository extends BaseJpaRepository<StaffOrg, Long> {
 
     /**
      * 根据 id 修改状态

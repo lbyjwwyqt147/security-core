@@ -1,7 +1,7 @@
 package pers.liujunyi.cloud.security.service.authorization;
 
 import pers.liujunyi.cloud.common.restful.ResultInfo;
-import pers.liujunyi.cloud.common.service.BaseService;
+import pers.liujunyi.cloud.common.service.BaseJpaMongoService;
 import pers.liujunyi.cloud.security.domain.authorization.PositionInfoDto;
 import pers.liujunyi.cloud.security.entity.authorization.PositionInfo;
 
@@ -18,7 +18,7 @@ import java.util.List;
  * @version 1.0
  * @author ljy
  */
-public interface PositionInfoService extends BaseService<PositionInfo, Long> {
+public interface PositionInfoService extends BaseJpaMongoService<PositionInfo, Long> {
 
     /**
      * 保存数据

@@ -4,10 +4,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import pers.liujunyi.cloud.common.repository.jpa.BaseRepository;
+import pers.liujunyi.cloud.common.repository.jpa.BaseJpaRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
-import pers.liujunyi.cloud.common.service.impl.BaseServiceImpl;
+import pers.liujunyi.cloud.common.service.impl.BaseJpaMongoServiceImpl;
 import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
 import pers.liujunyi.cloud.security.domain.authorization.RoleInfoDto;
 import pers.liujunyi.cloud.security.entity.authorization.RoleInfo;
@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author ljy
  */
 @Service
-public class RoleInfoServiceImpl extends BaseServiceImpl<RoleInfo, Long> implements RoleInfoService {
+public class RoleInfoServiceImpl extends BaseJpaMongoServiceImpl<RoleInfo, Long> implements RoleInfoService {
 
     @Autowired
     private RoleInfoRepository roleInfoRepository;
@@ -49,7 +49,7 @@ public class RoleInfoServiceImpl extends BaseServiceImpl<RoleInfo, Long> impleme
     @Autowired
     private RoleResourceMongoRepository roleResourceMongoRepository;
 
-    public RoleInfoServiceImpl(BaseRepository<RoleInfo, Long> baseRepository) {
+    public RoleInfoServiceImpl(BaseJpaRepository<RoleInfo, Long> baseRepository) {
         super(baseRepository);
     }
 
@@ -158,15 +158,6 @@ public class RoleInfoServiceImpl extends BaseServiceImpl<RoleInfo, Long> impleme
         return false;
     }
 
-    /**
-     *
-     * @param id
-     * @return
-     */
-    private RoleInfo findById(Long id) {
-        RoleInfo roleInfo = this.roleInfoMongoService.findById(id);
-        return roleInfo;
-    }
 
     /**
      * 检测数据是否被系统使用

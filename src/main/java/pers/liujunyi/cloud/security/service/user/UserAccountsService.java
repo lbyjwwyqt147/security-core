@@ -1,7 +1,7 @@
 package pers.liujunyi.cloud.security.service.user;
 
 import pers.liujunyi.cloud.common.restful.ResultInfo;
-import pers.liujunyi.cloud.common.service.BaseService;
+import pers.liujunyi.cloud.common.service.BaseJpaMongoService;
 import pers.liujunyi.cloud.security.domain.user.UserAccountsDto;
 import pers.liujunyi.cloud.security.domain.user.UserAccountsUpdateDto;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
@@ -20,7 +20,7 @@ import java.util.List;
  * @version 1.0
  * @author ljy
  */
-public interface UserAccountsService extends BaseService<UserAccounts, Long> {
+public interface UserAccountsService extends BaseJpaMongoService<UserAccounts, Long> {
 
     /**
      * 保存数据

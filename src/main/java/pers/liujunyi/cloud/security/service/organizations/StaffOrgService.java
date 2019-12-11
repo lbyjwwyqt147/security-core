@@ -1,7 +1,7 @@
 package pers.liujunyi.cloud.security.service.organizations;
 
 import pers.liujunyi.cloud.common.restful.ResultInfo;
-import pers.liujunyi.cloud.common.service.BaseService;
+import pers.liujunyi.cloud.common.service.BaseJpaMongoService;
 import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
 
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.List;
  * @version 1.0
  * @author ljy
  */
-public interface StaffOrgService extends BaseService<StaffOrg, Long> {
+public interface StaffOrgService extends BaseJpaMongoService<StaffOrg, Long> {
 
     /**
      * 保存数据

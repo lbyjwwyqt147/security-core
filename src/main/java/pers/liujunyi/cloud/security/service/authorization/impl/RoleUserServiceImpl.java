@@ -3,10 +3,10 @@ package pers.liujunyi.cloud.security.service.authorization.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import pers.liujunyi.cloud.common.repository.jpa.BaseRepository;
+import pers.liujunyi.cloud.common.repository.jpa.BaseJpaRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
-import pers.liujunyi.cloud.common.service.impl.BaseServiceImpl;
+import pers.liujunyi.cloud.common.service.impl.BaseJpaMongoServiceImpl;
 import pers.liujunyi.cloud.security.entity.authorization.RoleUser;
 import pers.liujunyi.cloud.security.repository.jpa.authorization.RoleUserRepository;
 import pers.liujunyi.cloud.security.service.authorization.RoleUserMongoService;
@@ -29,14 +29,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author ljy
  */
 @Service
-public class RoleUserServiceImpl  extends BaseServiceImpl<RoleUser, Long> implements RoleUserService {
+public class RoleUserServiceImpl  extends BaseJpaMongoServiceImpl<RoleUser, Long> implements RoleUserService {
 
     @Autowired
     private RoleUserRepository roleUserRepository;
     @Autowired
     private RoleUserMongoService roleUserMongoService;
 
-    public RoleUserServiceImpl(BaseRepository<RoleUser, Long> baseRepository) {
+    public RoleUserServiceImpl(BaseJpaRepository<RoleUser, Long> baseRepository) {
         super(baseRepository);
     }
 

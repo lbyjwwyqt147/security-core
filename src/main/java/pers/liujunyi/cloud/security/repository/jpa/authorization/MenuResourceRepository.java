@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import pers.liujunyi.cloud.common.repository.jpa.BaseRepository;
+import pers.liujunyi.cloud.common.repository.jpa.BaseJpaRepository;
 import pers.liujunyi.cloud.security.entity.authorization.MenuResource;
 
 import java.util.Date;
@@ -22,7 +22,7 @@ import java.util.List;
  * @author ljy
  */
 @Repository
-public interface MenuResourceRepository extends BaseRepository<MenuResource, Long> {
+public interface MenuResourceRepository extends BaseJpaRepository<MenuResource, Long> {
 
     /**
      * 修改状态

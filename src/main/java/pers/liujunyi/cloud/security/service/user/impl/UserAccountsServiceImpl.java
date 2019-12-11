@@ -12,16 +12,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.encrypt.AesEncryptUtils;
 import pers.liujunyi.cloud.common.encrypt.autoconfigure.EncryptProperties;
-import pers.liujunyi.cloud.common.repository.jpa.BaseRepository;
+import pers.liujunyi.cloud.common.repository.jpa.BaseJpaRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
-import pers.liujunyi.cloud.common.service.impl.BaseServiceImpl;
+import pers.liujunyi.cloud.common.service.impl.BaseJpaMongoServiceImpl;
 import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
 import pers.liujunyi.cloud.security.domain.user.UserAccountsDto;
 import pers.liujunyi.cloud.security.domain.user.UserAccountsUpdateDto;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
-import pers.liujunyi.cloud.security.repository.mongo.user.UserAccountsMongoRepository;
 import pers.liujunyi.cloud.security.repository.jpa.user.UserAccountsRepository;
+import pers.liujunyi.cloud.security.repository.mongo.user.UserAccountsMongoRepository;
 import pers.liujunyi.cloud.security.service.user.UserAccountsService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
@@ -40,7 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author ljy
  */
 @Service
-public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long> implements UserAccountsService {
+public class UserAccountsServiceImpl extends BaseJpaMongoServiceImpl<UserAccounts, Long> implements UserAccountsService {
 
     @Autowired
     private UserAccountsRepository userAccountsRepository;
@@ -50,7 +50,7 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
     private EncryptProperties encryptProperties;
 
 
-    public UserAccountsServiceImpl(BaseRepository<UserAccounts, Long> baseRepository) {
+    public UserAccountsServiceImpl(BaseJpaRepository<UserAccounts, Long> baseRepository) {
         super(baseRepository);
     }
 
@@ -63,19 +63,19 @@ public class UserAccountsServiceImpl extends BaseServiceImpl<UserAccounts, Long>
         switch (result) {
             case "-10":
                 if (registeredSource) {
-                    return ResultUtil.params("员工手机号："+record.getUserAccounts()+"已被录入,请重新输入");
+                    return ResultUtil.params("手机号："+record.getUserAccounts()+"已被注册,请重新输入");
                 } else {
                     return ResultUtil.params("账号已经被注册,请重新输入");
                 }
             case "-20":
                 if (registeredSource) {
-                    return ResultUtil.params("员工编号："+record.getUserNumber()+"已经存在,请重新输入");
+                    return ResultUtil.params("编号："+record.getUserNumber()+"已经存在,请重新输入");
                 } else {
-                    return ResultUtil.params("用户编号重复,请重新输入");
+                    return ResultUtil.params("编号重复,请重新输入");
                 }
             case "-30":
                 if (registeredSource) {
-                    return ResultUtil.params("员工手机号："+record.getMobilePhone()+"已被录入,请重新输入");
+                    return ResultUtil.params("手机号："+record.getMobilePhone()+"已被使用,请重新输入");
                 } else {
                     return ResultUtil.params("你绑定的手机号已被使用,请重新输入");
                 }
