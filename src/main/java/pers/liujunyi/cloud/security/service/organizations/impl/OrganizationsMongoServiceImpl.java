@@ -61,7 +61,11 @@ public class OrganizationsMongoServiceImpl extends BaseMongoServiceImpl<Organiza
                 list = this.organizationsMongoRepository.findByParentIdOrderBySeqAsc(pid);
             }
         } else {
-            list =  this.organizationsMongoRepository.findAll(Sort.by(Sort.Direction.ASC, "seq"));
+            if (status != null) {
+                list = this.organizationsMongoRepository.findByOrgStatusOrderBySeqAsc(status);
+            } else {
+                list =  this.organizationsMongoRepository.findAll(Sort.by(Sort.Direction.ASC, "seq"));
+            }
         }
         return this.startBuilderZtree(list);
     }

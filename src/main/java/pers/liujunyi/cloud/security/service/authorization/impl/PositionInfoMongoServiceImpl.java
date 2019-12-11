@@ -61,7 +61,11 @@ public class PositionInfoMongoServiceImpl extends BaseMongoServiceImpl<PositionI
                 list = this.positionInfoMongoRepository.findByParentIdOrderBySerialNumberAsc(pid);
             }
         } else {
-             list = this.positionInfoMongoRepository.findAll(Sort.by(Sort.Direction.ASC, "serialNumber"));
+            if (status != null) {
+                list = this.positionInfoMongoRepository.findByPostStatusOrderBySerialNumberAsc(status);
+            } else {
+                list = this.positionInfoMongoRepository.findAll(Sort.by(Sort.Direction.ASC, "serialNumber"));
+            }
         }
         return this.startBuilderZtree(list);
     }

@@ -60,7 +60,11 @@ public class MenuResourceMongoServiceImpl extends BaseMongoServiceImpl<MenuResou
                 list = this.menuResourceMongoRepository.findByParentIdOrderBySerialNumberAsc(pid);
             }
         } else {
-            list =  this.menuResourceMongoRepository.findAll(Sort.by(Sort.Direction.ASC, "serialNumber"));
+            if (status != null) {
+                list = this.menuResourceMongoRepository.findByMenuStatusOrderBySerialNumberAsc(status);
+            } else {
+                list =  this.menuResourceMongoRepository.findAll(Sort.by(Sort.Direction.ASC, "serialNumber"));
+            }
         }
         return this.startBuilderZtree(list);
     }

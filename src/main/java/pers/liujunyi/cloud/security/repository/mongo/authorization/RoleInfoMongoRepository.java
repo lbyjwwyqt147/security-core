@@ -40,6 +40,13 @@ public interface RoleInfoMongoRepository extends BaseMongoRepository<RoleInfo, L
      */
     List<RoleInfo> findByParentId(Long pid);
 
+    /**
+     * 根据roleStatus获取数据
+     * @param roleStatus  0：正常  1：禁用
+     * @return
+     */
+    List<RoleInfo> findByRoleStatus(Byte roleStatus);
+
 
     /**
      * 根据 fullRoleParentCode 获取数据

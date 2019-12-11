@@ -61,7 +61,11 @@ public class RoleInfoMongoServiceImpl  extends BaseMongoServiceImpl<RoleInfo, Lo
                 list = this.roleInfoMongoRepository.findByParentIdAndRoleStatus(pid,  status);
             }
         } else {
-            list = this.roleInfoMongoRepository.findAll();
+            if (status != null) {
+                list = this.roleInfoMongoRepository.findByRoleStatus(status);
+            } else {
+                list = this.roleInfoMongoRepository.findAll();
+            }
         }
         return this.startBuilderZtree(list);
     }
