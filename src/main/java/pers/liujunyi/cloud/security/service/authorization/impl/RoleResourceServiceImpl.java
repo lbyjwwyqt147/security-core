@@ -42,6 +42,9 @@ public class RoleResourceServiceImpl  extends BaseJpaMongoServiceImpl<RoleResour
 
     @Override
     public ResultInfo saveRecord(RoleResource resource, List<Long> resourceIds) {
+        List<Long> roleIds = new LinkedList<>();
+        roleIds.add(resource.getRoleId());
+        this.deleteByRoleIdIn(roleIds);
         List<RoleResource> list = new LinkedList<>();
         resourceIds.stream().forEach(item -> {
             resource.setResourceId(item);

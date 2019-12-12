@@ -6,13 +6,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.repository.mongo.BaseMongoRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
+import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.service.impl.BaseMongoServiceImpl;
 import pers.liujunyi.cloud.security.entity.authorization.RoleInfo;
 import pers.liujunyi.cloud.security.entity.authorization.RoleUser;
 import pers.liujunyi.cloud.security.repository.mongo.authorization.RoleInfoMongoRepository;
 import pers.liujunyi.cloud.security.repository.mongo.authorization.RoleUserMongoRepository;
 import pers.liujunyi.cloud.security.service.authorization.RoleUserMongoService;
+import pers.liujunyi.cloud.security.util.SecurityConstant;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,7 +54,19 @@ public class RoleUserMongoServiceImpl extends BaseMongoServiceImpl<RoleUser, Lon
 
     @Override
     public ResultInfo findPageGird(RoleUser query) {
-        return null;
+        List<RoleInfo> roleInfoList = new LinkedList<>();
+        List<RoleUser> roleUsers = this.findByUserIdAndStatus(query.getUserId(), SecurityConstant.ENABLE_STATUS);
+        if (!CollectionUtils.isEmpty(roleUsers)) {
+            List<Long> roleIds = roleUsers.stream().map(RoleUser::getRoleId).collect(Collectors.toList());
+            if (query.getRoleId() == null) {
+                roleInfoList = this.roleInfoMongoRepository.findAllByIdIn(roleIds);
+            } else {
+                roleInfoList = this.roleInfoMongoRepository.findByIdNotIn(roleIds);
+            }
+        }
+        ResultInfo result = ResultUtil.success(roleInfoList, super.secretKey);
+        result.setTotal((long)roleInfoList.size());
+        return  result;
     }
 
     @Override
@@ -67,7 +82,7 @@ public class RoleUserMongoServiceImpl extends BaseMongoServiceImpl<RoleUser, Lon
     @Override
     public List<RoleInfo> getRoleInfoByUserId(Long userId) {
         List<RoleUser> roleUsers = this.findByUserIdAndStatus(userId, null);
-        if (CollectionUtils.isEmpty(roleUsers)) {
+        if (!CollectionUtils.isEmpty(roleUsers)) {
             List<Long> roleIds = roleUsers.stream().map(RoleUser::getRoleId).collect(Collectors.toList());
             return this.roleInfoMongoRepository.findAllByIdIn(roleIds);
         }

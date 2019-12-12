@@ -41,6 +41,7 @@ public class MenuResourceMongoServiceImpl extends BaseMongoServiceImpl<MenuResou
     @Autowired
     protected MenuResourceMongoRepository menuResourceMongoRepository;
 
+
     public MenuResourceMongoServiceImpl(BaseMongoRepository<MenuResource, Long> baseMongoRepository) {
         super(baseMongoRepository);
     }
@@ -52,22 +53,9 @@ public class MenuResourceMongoServiceImpl extends BaseMongoServiceImpl<MenuResou
 
     @Override
     public List<ZtreeNode> menuResourceTree(Long pid, Byte status) {
-        List<MenuResource> list = null;
-        if (pid != null) {
-            if (status != null) {
-                list = this.menuResourceMongoRepository.findByParentIdAndMenuStatusOrderBySerialNumberAsc(pid,  status);
-            } else {
-                list = this.menuResourceMongoRepository.findByParentIdOrderBySerialNumberAsc(pid);
-            }
-        } else {
-            if (status != null) {
-                list = this.menuResourceMongoRepository.findByMenuStatusOrderBySerialNumberAsc(status);
-            } else {
-                list =  this.menuResourceMongoRepository.findAll(Sort.by(Sort.Direction.ASC, "serialNumber"));
-            }
-        }
-        return this.startBuilderZtree(list);
+        return this.startBuilderZtree(this.findList(pid, status));
     }
+
 
     @Override
     public List<ZtreeNode> menuResourceFullParentCodeTree(String fullParentCode) {
@@ -109,6 +97,24 @@ public class MenuResourceMongoServiceImpl extends BaseMongoServiceImpl<MenuResou
         return this.menuResourceMongoRepository.findByParentIdAndMenuNumber(pid, menuNumber);
     }
 
+    @Override
+    public List<MenuResource> findList(Long pid, Byte status) {
+        List<MenuResource> list = null;
+        if (pid != null) {
+            if (status != null) {
+                list = this.menuResourceMongoRepository.findByParentIdAndMenuStatusOrderBySerialNumberAsc(pid,  status);
+            } else {
+                list = this.menuResourceMongoRepository.findByParentIdOrderBySerialNumberAsc(pid);
+            }
+        } else {
+            if (status != null) {
+                list = this.menuResourceMongoRepository.findByMenuStatusOrderBySerialNumberAsc(status);
+            } else {
+                list =  this.menuResourceMongoRepository.findAll(Sort.by(Sort.Direction.ASC, "serialNumber"));
+            }
+        }
+        return list;
+    }
 
     /**
      * 构建 ztree

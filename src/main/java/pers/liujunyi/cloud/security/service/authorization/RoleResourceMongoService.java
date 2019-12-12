@@ -2,6 +2,7 @@ package pers.liujunyi.cloud.security.service.authorization;
 
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.service.BaseMongoService;
+import pers.liujunyi.cloud.common.vo.tree.ZtreeNode;
 import pers.liujunyi.cloud.security.entity.authorization.MenuResource;
 import pers.liujunyi.cloud.security.entity.authorization.RoleResource;
 
@@ -35,6 +36,14 @@ public interface RoleResourceMongoService extends BaseMongoService<RoleResource,
      * @return
      */
     List<RoleResource> findByResourceIdInAndStatus(List<Long> resourceIds, Byte status);
+
+    /**
+     *  根据 资源pid 符合 ztree 结构的数据
+     * @param roleId 角色ID
+     * @param resourcePid  资源pid
+     * @return
+     */
+    List<ZtreeNode> resourceSelectedTree(Long roleId, Long resourcePid);
 
 
     /**

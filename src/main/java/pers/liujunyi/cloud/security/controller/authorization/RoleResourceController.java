@@ -11,12 +11,14 @@ import pers.liujunyi.cloud.common.controller.BaseController;
 import pers.liujunyi.cloud.common.dto.IdParamDto;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.util.SystemUtils;
+import pers.liujunyi.cloud.common.vo.tree.ZtreeNode;
 import pers.liujunyi.cloud.security.entity.authorization.RoleResource;
 import pers.liujunyi.cloud.security.service.authorization.RoleResourceMongoService;
 import pers.liujunyi.cloud.security.service.authorization.RoleResourceService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /***
  * 文件名称: RoleResourceController.java
@@ -59,6 +61,24 @@ public class RoleResourceController extends BaseController {
         return this.roleResourceService.saveRecord(resource, SystemUtils.idToLong(resourceIds));
     }
 
+    /**
+     * 根据 角色ID 资源PID 获取 资源tree 结构数据
+     *
+     * @param roleId  角色ID
+     * @param resourcePid         资源ID
+     * @return
+     */
+    @ApiOperation(value = "根据 角色ID 资源PID 获取 资源tree 结构数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "roleId", value = "roleId",  required = true, dataType = "Long"),
+            @ApiImplicitParam(name = "resourcePid", value = "resourcePid",  required = true, dataType = "Long")
+    })
+    @GetMapping(value = "tree/role/resource/z")
+    @ApiVersion(1)
+    public List<ZtreeNode> resourceSelectedTree(Long roleId, Long resourcePid) {
+        return this.roleResourceMongoService.resourceSelectedTree(roleId, resourcePid);
+    }
 
     /**
      * 批量删除

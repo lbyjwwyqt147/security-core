@@ -28,6 +28,13 @@ public interface MenuResourceMongoService extends BaseMongoService<MenuResource,
      */
     MenuResource findFirstByMenuNumber(String menuNumber);
 
+    /**
+     *
+     * @param pid
+     * @param status
+     * @return
+     */
+    List<MenuResource> findList(Long pid, Byte status);
 
     /**
      *  根据 pid 符合 ztree 结构的数据
@@ -36,6 +43,7 @@ public interface MenuResourceMongoService extends BaseMongoService<MenuResource,
      * @return
      */
     List<ZtreeNode> menuResourceTree(Long pid, Byte status);
+
 
     /**
      * 根据 fullMenuParentCode 获取 符合 ztree 结构的数据
@@ -57,13 +65,6 @@ public interface MenuResourceMongoService extends BaseMongoService<MenuResource,
      * @return
      */
     ResultInfo selectById(Long id);
-
-    /**
-     * 根据ID获取信息
-     * @param id
-     * @return
-     */
-    MenuResource findById(Long id);
 
     /**
      * 根据pid  menuNumber 获取数据

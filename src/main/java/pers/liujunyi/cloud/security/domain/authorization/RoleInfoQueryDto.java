@@ -33,4 +33,8 @@ public class RoleInfoQueryDto extends BaseMongoQuery {
     @ApiModelProperty(value = "名称")
     @QueryCondition(func = MatchType.like)
     private String roleName;
+
+    @ApiModelProperty(value = "状态")
+    @QueryCondition()
+    private Byte roleStatus;
 }
