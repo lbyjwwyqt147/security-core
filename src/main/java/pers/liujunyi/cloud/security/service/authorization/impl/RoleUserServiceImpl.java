@@ -44,9 +44,11 @@ public class RoleUserServiceImpl  extends BaseJpaMongoServiceImpl<RoleUser, Long
     public ResultInfo saveRecord(RoleUser user, List<Long> roleIds) {
         List<RoleUser> list = new LinkedList<>();
         roleIds.stream().forEach(item -> {
-            user.setRoleId(item);
-            user.setStatus(SecurityConstant.ENABLE_STATUS);
-            list.add(user);
+            RoleUser roleUser = new RoleUser();
+            roleUser.setUserId(user.getUserId());
+            roleUser.setRoleId(item);
+            roleUser.setStatus(SecurityConstant.ENABLE_STATUS);
+            list.add(roleUser);
         });
         List<RoleUser> saveObj = this.roleUserRepository.saveAll(list);
         if (!CollectionUtils.isEmpty(saveObj)) {

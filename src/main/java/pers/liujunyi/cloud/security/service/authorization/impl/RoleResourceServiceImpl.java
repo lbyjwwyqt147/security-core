@@ -47,9 +47,11 @@ public class RoleResourceServiceImpl  extends BaseJpaMongoServiceImpl<RoleResour
         this.deleteByRoleIdIn(roleIds);
         List<RoleResource> list = new LinkedList<>();
         resourceIds.stream().forEach(item -> {
-            resource.setResourceId(item);
-            resource.setStatus(SecurityConstant.ENABLE_STATUS);
-            list.add(resource);
+            RoleResource roleResource = new RoleResource();
+            roleResource.setRoleId(resource.getRoleId());
+            roleResource.setResourceId(item);
+            roleResource.setStatus(SecurityConstant.ENABLE_STATUS);
+            list.add(roleResource);
         });
         List<RoleResource> saveObj = this.roleResourceRepository.saveAll(list);
         if (!CollectionUtils.isEmpty(saveObj)) {
