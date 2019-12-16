@@ -63,6 +63,10 @@ public class RoleUserMongoServiceImpl extends BaseMongoServiceImpl<RoleUser, Lon
             } else {
                 roleInfoList = this.roleInfoMongoRepository.findByIdNotIn(roleIds);
             }
+        } else {
+            if (query.getRoleId() != null) {
+                roleInfoList = this.roleInfoMongoRepository.findByRoleStatus(SecurityConstant.ENABLE_STATUS);
+            }
         }
         ResultInfo result = ResultUtil.success(roleInfoList, super.secretKey);
         result.setTotal((long)roleInfoList.size());
@@ -105,6 +109,15 @@ public class RoleUserMongoServiceImpl extends BaseMongoServiceImpl<RoleUser, Lon
     @Override
     public long deleteByUserIdIn(List<Long> userIds) {
         return  this.roleUserMongoRepository.deleteByUserIdIn(userIds);
+    }
+
+    @Transactional(
+            value = "mongoTransactionManager",
+            rollbackFor = {RuntimeException.class, Exception.class}
+    )
+    @Override
+    public long deleteByUserIdAndRoleIdIn(Long userId, List<Long> roleIds) {
+        return this.roleUserMongoRepository.deleteByUserIdAndRoleIdIn(userId, roleIds);
     }
 
 }

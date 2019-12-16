@@ -41,22 +41,22 @@ public class RoleUserController extends BaseController {
     /**
      * 保存数据
      *
-     * @param user
+     * @param userIds
      * @param roleIds
      * @return
      */
     @ApiOperation(value = "保存数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
-            @ApiImplicitParam(name = "user", value = "user",  required = true, dataType = "String"),
+            @ApiImplicitParam(name = "userIds", value = "userId",  required = true, dataType = "String"),
             @ApiImplicitParam(name = "roleIds", value = "用户id 多个用,隔开",  required = true, dataType = "String")
 
     })
     @PostMapping(value = "verify/role/user/s")
     @ApiVersion(1)
-    public ResultInfo saveRecord(RoleUser user, @Valid @NotNull(message = "用户 必须选择")
-    @RequestParam(name = "userIds", required = true) String roleIds) {
-        return this.roleUserService.saveRecord(user, SystemUtils.idToLong(roleIds));
+    public ResultInfo saveRecord(String userIds, @Valid @NotNull(message = "用户 必须选择")
+    @RequestParam(name = "roleIds", required = true) String roleIds) {
+        return this.roleUserService.saveRecord(userIds, SystemUtils.idToLong(roleIds));
     }
 
 
@@ -74,7 +74,7 @@ public class RoleUserController extends BaseController {
     @DeleteMapping(value = "verify/role/user/d/b")
     @ApiVersion(1)
     public ResultInfo batchDelete(@Valid IdParamDto param) {
-        return this.roleUserService.deleteBatch(param.getIdList());
+        return this.roleUserService.deleteBatch(param.getId(), param.getIdList());
     }
 
     /**

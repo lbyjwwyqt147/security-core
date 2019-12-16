@@ -7,6 +7,7 @@ import pers.liujunyi.cloud.common.repository.jpa.BaseJpaRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.service.impl.BaseJpaMongoServiceImpl;
+import pers.liujunyi.cloud.common.util.SystemUtils;
 import pers.liujunyi.cloud.security.entity.authorization.RoleUser;
 import pers.liujunyi.cloud.security.repository.jpa.authorization.RoleUserRepository;
 import pers.liujunyi.cloud.security.service.authorization.RoleUserMongoService;
@@ -41,15 +42,20 @@ public class RoleUserServiceImpl  extends BaseJpaMongoServiceImpl<RoleUser, Long
     }
 
     @Override
-    public ResultInfo saveRecord(RoleUser user, List<Long> roleIds) {
+    public ResultInfo saveRecord(String userIds, List<Long> roleIds) {
         List<RoleUser> list = new LinkedList<>();
-        roleIds.stream().forEach(item -> {
-            RoleUser roleUser = new RoleUser();
-            roleUser.setUserId(user.getUserId());
-            roleUser.setRoleId(item);
-            roleUser.setStatus(SecurityConstant.ENABLE_STATUS);
-            list.add(roleUser);
+        List<Long> userIdList = SystemUtils.idToLong(userIds);
+        this.deleteByUserIdIn(userIdList);
+        userIdList.stream().forEach(userId -> {
+            roleIds.stream().forEach(item -> {
+                RoleUser roleUser = new RoleUser();
+                roleUser.setUserId(userId);
+                roleUser.setRoleId(item);
+                roleUser.setStatus(SecurityConstant.ENABLE_STATUS);
+                list.add(roleUser);
+            });
         });
+
         List<RoleUser> saveObj = this.roleUserRepository.saveAll(list);
         if (!CollectionUtils.isEmpty(saveObj)) {
             this.roleUserMongoService.saveAll(saveObj);
@@ -76,10 +82,10 @@ public class RoleUserServiceImpl  extends BaseJpaMongoServiceImpl<RoleUser, Long
     }
 
     @Override
-    public ResultInfo deleteBatch(List<Long> ids) {
-        long count = this.roleUserRepository.deleteByIdIn(ids);
+    public ResultInfo deleteBatch(Long userId, List<Long> roleIds) {
+        long count = this.roleUserRepository.deleteByUserIdAndRoleIdIn(userId, roleIds);
         if (count > 0) {
-            this.roleUserMongoService.deleteAllByIdIn(ids);
+            this.roleUserMongoService.deleteByUserIdAndRoleIdIn(userId, roleIds);
             return ResultUtil.success();
         }
         return ResultUtil.fail();

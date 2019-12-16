@@ -94,4 +94,13 @@ public interface RoleUserRepository extends BaseJpaRepository<RoleUser, Long> {
     @Modifying(clearAutomatically = true)
     long deleteByUserId(Long userId);
 
+    /**
+     * 根据 userId  roleIds 删除
+     * @param userId 用户id
+     * @param roleIds  角色ID
+     * @return
+     */
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
+    @Modifying(clearAutomatically = true)
+    long deleteByUserIdAndRoleIdIn(Long userId, List<Long> roleIds);
 }

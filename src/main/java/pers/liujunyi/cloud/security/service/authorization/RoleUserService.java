@@ -21,11 +21,11 @@ public interface RoleUserService  extends BaseJpaMongoService<RoleUser, Long> {
 
     /**
      * 保存数据
-     * @param user  资源
+     * @param userIds  人员
      * @param roleIds 角色ID
      * @return
      */
-    ResultInfo saveRecord(RoleUser user, List<Long> roleIds);
+    ResultInfo saveRecord(String userIds, List<Long> roleIds);
 
     /**
      * 修改状态
@@ -37,10 +37,11 @@ public interface RoleUserService  extends BaseJpaMongoService<RoleUser, Long> {
 
     /**
      * 批量删除
-     * @param ids
+     * @param userId
+     * @param roleIds
      * @return
      */
-    ResultInfo deleteBatch(List<Long> ids);
+    ResultInfo deleteBatch(Long userId, List<Long> roleIds);
 
     /**
      * 根据 roleId 修改状态
@@ -64,6 +65,7 @@ public interface RoleUserService  extends BaseJpaMongoService<RoleUser, Long> {
      * @return
      */
     long deleteByRoleIdIn(List<Long> roleIds);
+
 
     /**
      * 根据 userId 删除

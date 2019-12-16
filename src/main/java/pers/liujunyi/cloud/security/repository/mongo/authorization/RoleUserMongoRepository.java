@@ -66,4 +66,11 @@ public interface RoleUserMongoRepository extends BaseMongoRepository<RoleUser, L
      */
     long deleteByUserIdIn(List<Long> userIds);
 
+    /**
+     * 根据 userId roleIds 删除
+     * @param userId 用户id
+     * @param roleIds 角色ID
+     * @return
+     */
+    long deleteByUserIdAndRoleIdIn(Long userId, List<Long> roleIds);
 }
