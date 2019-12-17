@@ -9,6 +9,7 @@ import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.service.impl.BaseJpaMongoServiceImpl;
 import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
+import pers.liujunyi.cloud.common.util.UserContext;
 import pers.liujunyi.cloud.security.domain.authorization.RoleInfoDto;
 import pers.liujunyi.cloud.security.entity.authorization.RoleInfo;
 import pers.liujunyi.cloud.security.entity.authorization.RoleResource;
@@ -65,6 +66,9 @@ public class RoleInfoServiceImpl extends BaseJpaMongoServiceImpl<RoleInfo, Long>
         }
         if (!add) {
             roleInfo.setDataVersion(roleInfo.getDataVersion() + 1);
+            roleInfo.setTenementId(UserContext.currentTenementId());
+            roleInfo.setUpdateTime(new Date());
+            roleInfo.setUpdateUserId(UserContext.currentUserId());
         } else {
             roleInfo.setDataVersion(1L);
         }
@@ -76,7 +80,7 @@ public class RoleInfoServiceImpl extends BaseJpaMongoServiceImpl<RoleInfo, Long>
         } else {
             roleInfo.setFullRoleParent("0");
         }
-        RoleInfo saveObject = this.roleInfoRepository.save(roleInfo);
+        RoleInfo saveObject = DozerBeanMapperUtil.copyProperties(this.roleInfoRepository.save(roleInfo), RoleInfo.class);
         if (saveObject == null || saveObject.getId() == null) {
             return ResultUtil.fail();
         }

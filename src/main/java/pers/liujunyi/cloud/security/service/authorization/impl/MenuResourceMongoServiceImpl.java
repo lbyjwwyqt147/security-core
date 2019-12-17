@@ -98,6 +98,17 @@ public class MenuResourceMongoServiceImpl extends BaseMongoServiceImpl<MenuResou
     }
 
     @Override
+    public List<MenuResource> findByParentIdInAndMenuStatusOrderBySerialNumberAsc(List<Long> pid, Byte menuStatus) {
+        return this.menuResourceMongoRepository.findByParentIdInAndMenuStatusOrderBySerialNumberAsc(pid, menuStatus);
+    }
+
+    @Override
+    public List<MenuResource> findByIdInAndMenuClassifyInAndMenuStatusOrderBySerialNumberAsc(List<Long> ids,
+                                                                                             List<Byte> menuClassify, Byte menuStatus) {
+        return this.menuResourceMongoRepository.findByIdInAndMenuClassifyInAndMenuStatusOrderBySerialNumberAsc(ids, menuClassify, menuStatus);
+    }
+
+    @Override
     public List<MenuResource> findList(Long pid, Byte status) {
         List<MenuResource> list = null;
         if (pid != null) {

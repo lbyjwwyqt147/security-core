@@ -98,4 +98,18 @@ public interface RoleResourceMongoService extends BaseMongoService<RoleResource,
      * @return
      */
     long deleteByResourceIdIn(List<Long> resourceIds);
+
+    /**
+     * 获取用户所分配的资源菜单
+     * @param userId
+     * @return
+     */
+    ResultInfo getUserResourceMenu(Long userId);
+
+    /**
+     * 获取用户所分配的资源菜单
+     * @param userId
+     * @return
+     */
+    List<MenuResource> getUserResourceFunction(Long userId);
 }

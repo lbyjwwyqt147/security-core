@@ -73,4 +73,23 @@ public interface MenuResourceMongoService extends BaseMongoService<MenuResource,
      * @return
      */
     List<MenuResource> findByParentIdAndMenuNumber(Long pid, String menuNumber);
+
+    /**
+     * 根据pid  menuStatus 获取数据
+     * @param pid
+     * @param menuStatus
+     * @return
+     */
+    List<MenuResource> findByParentIdInAndMenuStatusOrderBySerialNumberAsc(List<Long> pid, Byte menuStatus);
+
+
+    /**
+     * 根据ids menuStatus获取数据
+     * @param ids
+     * @param menuClassify  资源类型
+     * @param menuStatus  0：正常  1：禁用
+     * @return
+     */
+    List<MenuResource> findByIdInAndMenuClassifyInAndMenuStatusOrderBySerialNumberAsc(List<Long> ids, List<Byte> menuClassify, Byte menuStatus);
+
 }

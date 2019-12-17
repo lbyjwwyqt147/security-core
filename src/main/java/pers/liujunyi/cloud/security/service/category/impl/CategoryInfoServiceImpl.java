@@ -49,14 +49,18 @@ public class CategoryInfoServiceImpl extends BaseJpaMongoServiceImpl<CategoryInf
     public ResultInfo saveRecord(CategoryInfoDto record) {
         ResultInfo result = ResultUtil.success();
         if (record.getId() != null) {
+            record.setTenementId(UserContext.currentTenementId());
             record.setUpdateTime(new Date());
             record.setUpdateUserId(UserContext.currentUserId());
+            record.setDataVersion(record.getDataVersion() + 1);
+        } else {
+            record.setDataVersion(1L);
         }
         if (record.getCategoryStatus() == null) {
             record.setCategoryStatus(SecurityConstant.ENABLE_STATUS);
         }
         CategoryInfo categoryInfo = DozerBeanMapperUtil.copyProperties(record, CategoryInfo.class);
-        CategoryInfo saveObj =  this.categoryInfoRepository.save(categoryInfo);
+        CategoryInfo saveObj =  DozerBeanMapperUtil.copyProperties(this.categoryInfoRepository.save(categoryInfo), CategoryInfo.class);
         if (saveObj != null && saveObj.getId() != null) {
             this.categoryInfoMongoRepository.save(saveObj);
         }else {

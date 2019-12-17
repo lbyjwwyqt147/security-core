@@ -9,6 +9,7 @@ import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.service.impl.BaseJpaMongoServiceImpl;
 import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
+import pers.liujunyi.cloud.common.util.UserContext;
 import pers.liujunyi.cloud.security.domain.authorization.MenuResourceDto;
 import pers.liujunyi.cloud.security.entity.authorization.MenuResource;
 import pers.liujunyi.cloud.security.entity.authorization.RoleResource;
@@ -68,6 +69,9 @@ public class MenuResourceServiceImpl extends BaseJpaMongoServiceImpl<MenuResourc
         }
         if (!add) {
             menuResource.setDataVersion(menuResource.getDataVersion() + 1);
+            menuResource.setTenementId(UserContext.currentTenementId());
+            menuResource.setUpdateTime(new Date());
+            menuResource.setUpdateUserId(UserContext.currentUserId());
         } else {
             menuResource.setDataVersion(1L);
         }
@@ -81,7 +85,7 @@ public class MenuResourceServiceImpl extends BaseJpaMongoServiceImpl<MenuResourc
             menuResource.setFullMenuParent("0");
             menuResource.setMenuLevel((byte) 1);
         }
-        MenuResource saveObject = this.menuResourceRepository.save(menuResource);
+        MenuResource saveObject = DozerBeanMapperUtil.copyProperties(this.menuResourceRepository.save(menuResource), MenuResource.class);
         if (saveObject == null || saveObject.getId() == null) {
             return ResultUtil.fail();
         }

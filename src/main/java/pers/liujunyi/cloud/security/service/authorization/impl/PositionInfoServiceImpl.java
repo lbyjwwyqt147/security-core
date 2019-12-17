@@ -8,6 +8,7 @@ import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.service.impl.BaseJpaMongoServiceImpl;
 import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
+import pers.liujunyi.cloud.common.util.UserContext;
 import pers.liujunyi.cloud.security.domain.authorization.PositionInfoDto;
 import pers.liujunyi.cloud.security.entity.authorization.PositionInfo;
 import pers.liujunyi.cloud.security.repository.jpa.authorization.PositionInfoRepository;
@@ -56,6 +57,9 @@ public class PositionInfoServiceImpl extends BaseJpaMongoServiceImpl<PositionInf
         }
         if (!add) {
             positionInfo.setDataVersion(positionInfo.getDataVersion() + 1);
+            positionInfo.setTenementId(UserContext.currentTenementId());
+            positionInfo.setUpdateTime(new Date());
+            positionInfo.setUpdateUserId(UserContext.currentUserId());
         } else {
             positionInfo.setDataVersion(1L);
         }
@@ -70,11 +74,10 @@ public class PositionInfoServiceImpl extends BaseJpaMongoServiceImpl<PositionInf
             positionInfo.setPostLevel((byte) 1);
         }
         positionInfo.setFullPostName(record.getPostName());
-        PositionInfo saveObject = this.positionInfoRepository.save(positionInfo);
+        PositionInfo saveObject = DozerBeanMapperUtil.copyProperties(this.positionInfoRepository.save(positionInfo), PositionInfo.class);
         if (saveObject == null || saveObject.getId() == null) {
             return ResultUtil.fail();
         }
-
         this.positionInfoMongoService.save(saveObject);
         return ResultUtil.success(saveObject.getId());
     }

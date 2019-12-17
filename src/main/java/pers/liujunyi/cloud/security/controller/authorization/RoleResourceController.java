@@ -113,6 +113,22 @@ public class RoleResourceController extends BaseController {
         return this.roleResourceMongoService.findPageGird(query);
     }
 
+    /**
+     *   获取用户所分配的资源菜单
+     *
+     * @param userId
+     * @return
+     */
+    @ApiOperation(value = " 获取用户所分配的资源菜单")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "userId", value = "userId",  required = true, dataType = "Long")
+    })
+    @GetMapping(value = "tree/role/resource/menu")
+    @ApiVersion(1)
+    public ResultInfo getUserResourceMenu(Long userId) {
+        return this.roleResourceMongoService.getUserResourceMenu(userId);
+    }
 
     /**
      *  修改数据状态

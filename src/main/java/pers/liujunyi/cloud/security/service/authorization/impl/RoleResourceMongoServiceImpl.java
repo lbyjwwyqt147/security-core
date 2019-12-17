@@ -6,16 +6,22 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.repository.mongo.BaseMongoRepository;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
+import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.service.impl.BaseMongoServiceImpl;
+import pers.liujunyi.cloud.common.vo.menus.ModuleTreeBuilder;
+import pers.liujunyi.cloud.common.vo.menus.ModuleVo;
 import pers.liujunyi.cloud.common.vo.tree.ZtreeBuilder;
 import pers.liujunyi.cloud.common.vo.tree.ZtreeNode;
 import pers.liujunyi.cloud.security.entity.authorization.MenuResource;
 import pers.liujunyi.cloud.security.entity.authorization.RoleResource;
+import pers.liujunyi.cloud.security.entity.authorization.RoleUser;
 import pers.liujunyi.cloud.security.repository.mongo.authorization.RoleResourceMongoRepository;
+import pers.liujunyi.cloud.security.repository.mongo.authorization.RoleUserMongoRepository;
 import pers.liujunyi.cloud.security.service.authorization.MenuResourceMongoService;
 import pers.liujunyi.cloud.security.service.authorization.RoleResourceMongoService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +46,8 @@ public class RoleResourceMongoServiceImpl extends BaseMongoServiceImpl<RoleResou
     private RoleResourceMongoRepository roleResourceMongoRepository;
     @Autowired
     private MenuResourceMongoService menuResourceMongoService;
+    @Autowired
+    private RoleUserMongoRepository roleUserMongoRepository;
 
     public RoleResourceMongoServiceImpl(BaseMongoRepository<RoleResource, Long> baseMongoRepository) {
         super(baseMongoRepository);
@@ -123,6 +131,51 @@ public class RoleResourceMongoServiceImpl extends BaseMongoServiceImpl<RoleResou
         return this.roleResourceMongoRepository.deleteByResourceIdIn(resourceIds);
     }
 
+    @Override
+    public ResultInfo getUserResourceMenu(Long userId) {
+        List<MenuResource> resourceList = this.findUserResource(userId, (byte)1);
+        if (!CollectionUtils.isEmpty(resourceList)) {
+            List<ModuleVo> moduleVoList = new ArrayList<>();
+            resourceList.stream().forEach(item -> {
+                ModuleVo vo = new ModuleVo();
+                vo.setId(item.getId());
+                vo.setMenuIcon(item.getMenuIcon());
+                vo.setMenuOpenUrl(item.getMenuPath());
+                vo.setModuleCode(item.getMenuNumber());
+                vo.setModuleName(item.getMenuName());
+                vo.setModulePid(item.getParentId());
+                vo.setModuleType(item.getMenuClassify());
+                vo.setStatus(item.getMenuStatus());
+                moduleVoList.add(vo);
+            });
+            List<ModuleVo> voList = ModuleTreeBuilder.buildListToTree(moduleVoList);
+            List<Long> menuIds = resourceList.stream().filter(s -> s.getMenuClassify() == 2).map(MenuResource::getId).collect(Collectors.toList());
+            List<MenuResource> functionList = this.menuResourceMongoService.findByParentIdInAndMenuStatusOrderBySerialNumberAsc(menuIds, SecurityConstant.ENABLE_STATUS);
+            if (!CollectionUtils.isEmpty(functionList)) {
+                Map<Long,List<MenuResource>> menuResourceMap = functionList.stream().collect(Collectors.groupingBy(MenuResource::getParentId));
+                voList.stream().forEach(item -> {
+                    if (!CollectionUtils.isEmpty(item.getChildren())) {
+                        item.getChildren().stream().forEach(child -> {
+                            if (child.getModuleType() == 2) {
+                                List<MenuResource> buttons = menuResourceMap.get(child.getId());
+                                if (!CollectionUtils.isEmpty(buttons)) {
+                                    child.setFunctionButtonGroup(buttons.stream().map(MenuResource::getMenuNumber).collect(Collectors.toList()));
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+            return ResultUtil.success(voList);
+        }
+        return ResultUtil.fail();
+    }
+
+    @Override
+    public List<MenuResource> getUserResourceFunction(Long userId) {
+        return this.findUserResource(userId, (byte)0);
+    }
+
     /**
      * 构建 ztree
      * @param list
@@ -147,4 +200,32 @@ public class RoleResourceMongoServiceImpl extends BaseMongoServiceImpl<RoleResou
         return ZtreeBuilder.buildListToTree(treeNodes);
     }
 
+    /**
+     * 获取用户资源
+     * @param userId
+     * @param type
+     * @return
+     */
+    private List<MenuResource> findUserResource(Long userId, Byte type) {
+        List<MenuResource> resourceList = null;
+        //获取人员拥有的角色
+        List<RoleUser> roleUserList = this.roleUserMongoRepository.findByUserIdAndStatus(userId, SecurityConstant.ENABLE_STATUS);
+        if (!CollectionUtils.isEmpty(roleUserList)) {
+            List<Long> roleIds = roleUserList.stream().map(RoleUser::getRoleId).distinct().collect(Collectors.toList());
+            //根据角色获取角色分配的资源
+            List<RoleResource> roleResourceList = this.roleResourceMongoRepository.findByRoleIdInAndStatus(roleIds, SecurityConstant.ENABLE_STATUS);
+            if (!CollectionUtils.isEmpty(roleResourceList)) {
+                List<Long> resourceIds = roleResourceList.stream().map(RoleResource::getResourceId).distinct().collect(Collectors.toList());
+                List<Byte> menuClassify = new LinkedList<>();
+                if (type == 1) {
+                    menuClassify.add((byte)1);
+                    menuClassify.add((byte)2);
+                } else {
+                    menuClassify.add((byte)3);
+                }
+                resourceList = this.menuResourceMongoService.findByIdInAndMenuClassifyInAndMenuStatusOrderBySerialNumberAsc(resourceIds, menuClassify, SecurityConstant.ENABLE_STATUS);
+            }
+        }
+        return resourceList;
+    }
 }

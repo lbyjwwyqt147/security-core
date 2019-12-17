@@ -11,6 +11,7 @@ import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.service.impl.BaseJpaMongoServiceImpl;
 import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
+import pers.liujunyi.cloud.common.util.UserContext;
 import pers.liujunyi.cloud.security.domain.organizations.OrganizationsDto;
 import pers.liujunyi.cloud.security.entity.organizations.Organizations;
 import pers.liujunyi.cloud.security.entity.organizations.StaffOrg;
@@ -75,6 +76,7 @@ public class OrganizationsServiceImpl extends BaseJpaMongoServiceImpl<Organizati
             organizations.setFullParent("0");
             organizations.setOrgLevel((byte) 1);
         }
+        organizations.setTenementId(UserContext.currentTenementId());
         organizations.setFullName(record.getOrgName());
         Organizations saveObject = this.organizationsRepository.save(organizations);
         if (saveObject == null || saveObject.getId() == null) {
@@ -82,6 +84,8 @@ public class OrganizationsServiceImpl extends BaseJpaMongoServiceImpl<Organizati
         }
         if (!add) {
             saveObject.setDataVersion(saveObject.getDataVersion() + 1);
+            saveObject.setUpdateTime(new Date());
+            saveObject.setUpdateUserId(UserContext.currentUserId());
         } else {
             saveObject.setDataVersion(1L);
         }
