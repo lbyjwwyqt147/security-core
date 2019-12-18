@@ -22,7 +22,7 @@ public class SecurityConstant {
     public static final String DATA_GRID_MESSAGE = "无数据";
     public static final String RESOURCE_ID = "resource_id";
     /** 客户端 */
-    public static final String CLIEN_ID = "client_photo";
+    public static final String CLIEN_ID = "cloud_centre";
     /** secret客户端安全码 */
     public static final String CLIENT_SECRET = "secret";
     /** 客户端的access_token的有效时间值(单位:秒) 这里设置为 24小时(1天) */
@@ -34,6 +34,9 @@ public class SecurityConstant {
     public static final Byte RESOURCE_DIRECTORY = 1;
     public static final Byte RESOURCE_TECHWEB = 2;
     public static final Byte RESOURCE_BUTTON = 3;
+
+    // 权限就是那些以ROLE_为前缀的角色
+    public static final String ROLE_PREFIX = "ROLE_";
 
 
     /**

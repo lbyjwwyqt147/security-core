@@ -7,6 +7,7 @@ import pers.liujunyi.cloud.security.entity.authorization.MenuResource;
 import pers.liujunyi.cloud.security.entity.authorization.RoleResource;
 
 import java.util.List;
+import java.util.Map;
 
 /***
  * 文件名称: RoleResourceMongoService.java
@@ -83,7 +84,15 @@ public interface RoleResourceMongoService extends BaseMongoService<RoleResource,
      * @param roleId
      * @return 返回 资源信息
      */
-    List<MenuResource> getResourceInfoByRoleIdIn(List<Long> roleId);
+    List<MenuResource> getResourceInfoByRoleIdIn(List<Long> roleId, Byte menuClassify);
+
+    /**
+     * 根据角色ID 获取所属资源信息
+     * @param roleId
+     * @return 返回 资源信息
+     */
+    Map<Long, List<MenuResource>> getResourceByRoleIdIn(List<Long> roleId, Byte menuClassify);
+
 
     /**
      * 根据 roleId 删除

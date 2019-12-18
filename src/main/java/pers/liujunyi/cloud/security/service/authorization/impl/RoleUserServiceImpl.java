@@ -45,7 +45,7 @@ public class RoleUserServiceImpl  extends BaseJpaMongoServiceImpl<RoleUser, Long
     public ResultInfo saveRecord(String userIds, List<Long> roleIds) {
         List<RoleUser> list = new LinkedList<>();
         List<Long> userIdList = SystemUtils.idToLong(userIds);
-        this.deleteByUserIdIn(userIdList);
+       // this.deleteByUserIdIn(userIdList);
         userIdList.stream().forEach(userId -> {
             roleIds.stream().forEach(item -> {
                 RoleUser roleUser = new RoleUser();

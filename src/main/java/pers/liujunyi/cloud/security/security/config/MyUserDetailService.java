@@ -1,6 +1,7 @@
 package pers.liujunyi.cloud.security.security.config;
 
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -9,12 +10,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.exception.DescribeException;
 import pers.liujunyi.cloud.common.exception.ErrorCodeEnum;
+import pers.liujunyi.cloud.security.entity.authorization.RoleInfo;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
 import pers.liujunyi.cloud.security.repository.mongo.user.UserAccountsMongoRepository;
+import pers.liujunyi.cloud.security.service.authorization.RoleUserMongoService;
+import pers.liujunyi.cloud.security.util.SecurityConstant;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -36,6 +42,8 @@ public class MyUserDetailService implements UserDetailsService {
 
     @Autowired
     private UserAccountsMongoRepository userAccountsMongoRepository;
+    @Autowired
+    private RoleUserMongoService roleUserMongoService;
 
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
@@ -71,20 +79,21 @@ public class MyUserDetailService implements UserDetailsService {
      */
     private Set<GrantedAuthority> getAuthority(UserAccounts userAccounts) {
         Set<GrantedAuthority> grantedAuths = new HashSet<>();
-        //模拟一个权限角色
-        //角色必须是ROLE_开头，可以在数据库中设置
+        String prefix = SecurityConstant.ROLE_PREFIX;
+        //模拟一个权限角色  角色必须是ROLE_开头
         grantedAuths.add(new SimpleGrantedAuthority("ROLE_CLIENT"));
-        grantedAuths.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-         /*for (Role role : member.getRoles()) {
-            //角色必须是ROLE_开头，可以在数据库中设置
-            GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(role.getRoleName());
-            grantedAuthorities.add(grantedAuthority);
-            //获取权限
-            for (Permission permission : role.getPermissions()) {
-                GrantedAuthority authority = new SimpleGrantedAuthority(permission.getUri());
-                grantedAuthorities.add(authority);
-            }
-        }*/
+        // 获取用户拥有的角色
+        List<RoleInfo> roleInfoList = this.roleUserMongoService.getRoleInfoByUserId(userAccounts.getId());
+        if (!CollectionUtils.isEmpty(roleInfoList)) {
+            roleInfoList.stream().forEach(role -> {
+                if (StringUtils.isNotBlank(role.getRoleAuthorizationCode())) {
+                    //角色授权码
+                    String authorizedCode = prefix + role.getRoleAuthorizationCode().trim().toUpperCase();
+                    GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(authorizedCode);
+                    grantedAuths.add(grantedAuthority);
+                }
+            });
+        }
         return grantedAuths;
     }
 }

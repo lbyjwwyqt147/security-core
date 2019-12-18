@@ -41,6 +41,7 @@ import pers.liujunyi.cloud.security.domain.user.LoginDto;
 import pers.liujunyi.cloud.security.domain.user.UserDetailsDto;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
 import pers.liujunyi.cloud.security.repository.mongo.user.UserAccountsMongoRepository;
+import pers.liujunyi.cloud.security.security.filter.CustomInvocationSecurityMetadataSource;
 import pers.liujunyi.cloud.security.service.user.UserAccountsService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
@@ -141,7 +142,7 @@ public class LoginController extends BaseController {
             request.setAttribute(BaseRedisKeys.USER_ID, accounts.getId());
             request.setAttribute(BaseRedisKeys.LESSEE, accounts.getTenementId());
             String token = this.decodeToken();
-            //String token = this.clientToken(authentication);
+          //  this.clientToken(authentication);
             log.info("当前登录人【" + loginDto.getUserAccount() + "】的token:" + token);
             UserDetails userDetails = DozerBeanMapperUtil.copyProperties(accounts, UserDetails.class);
             userDetails.setUserId(accounts.getId());
@@ -201,7 +202,7 @@ public class LoginController extends BaseController {
             request.removeAttribute(BaseRedisKeys.USER_ID);
             request.removeAttribute(OAuth2AuthenticationDetails.ACCESS_TOKEN_VALUE);
             TokenLocalContext.remove();
-
+            CustomInvocationSecurityMetadataSource.resourceMap = null;
         }
         return ResultUtil.success();
     }

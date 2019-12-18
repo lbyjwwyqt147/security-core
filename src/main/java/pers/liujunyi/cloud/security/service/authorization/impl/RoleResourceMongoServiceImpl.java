@@ -21,10 +21,7 @@ import pers.liujunyi.cloud.security.service.authorization.MenuResourceMongoServi
 import pers.liujunyi.cloud.security.service.authorization.RoleResourceMongoService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -102,13 +99,43 @@ public class RoleResourceMongoServiceImpl extends BaseMongoServiceImpl<RoleResou
     }
 
     @Override
-    public List<MenuResource> getResourceInfoByRoleIdIn(List<Long> roleId) {
+    public List<MenuResource> getResourceInfoByRoleIdIn(List<Long> roleId, Byte menuClassify) {
         List<RoleResource> roleResources = this.findByRoleIdInAndStatus(roleId, null);
-        if (CollectionUtils.isEmpty(roleResources)) {
+        if (!CollectionUtils.isEmpty(roleResources)) {
             List<Long> resourceIds = roleResources.stream().map(RoleResource::getResourceId).distinct().collect(Collectors.toList());
-            return this.menuResourceMongoService.findAllByIdIn(resourceIds);
+            if (menuClassify != null && menuClassify == 3) {
+                List<Byte> classify = new LinkedList<>();
+                classify.add(menuClassify);
+                return this.menuResourceMongoService.findByIdInAndMenuClassifyInAndMenuStatusOrderBySerialNumberAsc(resourceIds, classify, SecurityConstant.ENABLE_STATUS);
+            } else {
+                return this.menuResourceMongoService.findAllByIdIn(resourceIds);
+            }
         }
         return null;
+    }
+
+    @Override
+    public Map<Long, List<MenuResource>> getResourceByRoleIdIn(List<Long> roleId, Byte menuClassify) {
+        Map<Long, List<MenuResource>> map = new HashMap<>();
+        List<RoleResource> roleResources = this.findByRoleIdInAndStatus(roleId, SecurityConstant.ENABLE_STATUS);
+        if (!CollectionUtils.isEmpty(roleResources)) {
+            List<MenuResource> resourceList = null;
+            Map<Long, List<RoleResource>> resourceIdMap = roleResources.stream().collect(Collectors.groupingBy(RoleResource::getRoleId));
+            for (Map.Entry<Long, List<RoleResource>> entry : resourceIdMap.entrySet()) {
+                List<Long> resourceIds = entry.getValue().stream().map(RoleResource::getResourceId).distinct().collect(Collectors.toList());
+                if (menuClassify != null && menuClassify == 3) {
+                    List<Byte> classify = new LinkedList<>();
+                    classify.add(menuClassify);
+                    resourceList = this.menuResourceMongoService.findByIdInAndMenuClassifyInAndMenuStatusOrderBySerialNumberAsc(resourceIds, classify, SecurityConstant.ENABLE_STATUS);
+                } else {
+                    resourceList = this.menuResourceMongoService.findAllByIdIn(resourceIds);
+                }
+                if (!CollectionUtils.isEmpty(resourceList)) {
+                    map.put(entry.getKey(), resourceList);
+                }
+            }
+        }
+        return map;
     }
 
 
@@ -134,23 +161,27 @@ public class RoleResourceMongoServiceImpl extends BaseMongoServiceImpl<RoleResou
     @Override
     public ResultInfo getUserResourceMenu(Long userId) {
         List<MenuResource> resourceList = this.findUserResource(userId, (byte)1);
+        List<Long> buttonIds = new LinkedList<>();
         if (!CollectionUtils.isEmpty(resourceList)) {
             List<ModuleVo> moduleVoList = new ArrayList<>();
             resourceList.stream().forEach(item -> {
-                ModuleVo vo = new ModuleVo();
-                vo.setId(item.getId());
-                vo.setMenuIcon(item.getMenuIcon());
-                vo.setMenuOpenUrl(item.getMenuPath());
-                vo.setModuleCode(item.getMenuNumber());
-                vo.setModuleName(item.getMenuName());
-                vo.setModulePid(item.getParentId());
-                vo.setModuleType(item.getMenuClassify());
-                vo.setStatus(item.getMenuStatus());
-                moduleVoList.add(vo);
+                if (item.getMenuClassify() != 3) {
+                    ModuleVo vo = new ModuleVo();
+                    vo.setId(item.getId());
+                    vo.setMenuIcon(item.getMenuIcon());
+                    vo.setMenuOpenUrl(item.getMenuPath());
+                    vo.setModuleCode(item.getMenuNumber());
+                    vo.setModuleName(item.getMenuName());
+                    vo.setModulePid(item.getParentId());
+                    vo.setModuleType(item.getMenuClassify());
+                    vo.setStatus(item.getMenuStatus());
+                    moduleVoList.add(vo);
+                } else {
+                    buttonIds.add(item.getId());
+                }
             });
             List<ModuleVo> voList = ModuleTreeBuilder.buildListToTree(moduleVoList);
-            List<Long> menuIds = resourceList.stream().filter(s -> s.getMenuClassify() == 2).map(MenuResource::getId).collect(Collectors.toList());
-            List<MenuResource> functionList = this.menuResourceMongoService.findByParentIdInAndMenuStatusOrderBySerialNumberAsc(menuIds, SecurityConstant.ENABLE_STATUS);
+            List<MenuResource> functionList = this.menuResourceMongoService.findAllByIdIn(buttonIds);
             if (!CollectionUtils.isEmpty(functionList)) {
                 Map<Long,List<MenuResource>> menuResourceMap = functionList.stream().collect(Collectors.groupingBy(MenuResource::getParentId));
                 voList.stream().forEach(item -> {
@@ -220,6 +251,7 @@ public class RoleResourceMongoServiceImpl extends BaseMongoServiceImpl<RoleResou
                 if (type == 1) {
                     menuClassify.add((byte)1);
                     menuClassify.add((byte)2);
+                    menuClassify.add((byte)3);
                 } else {
                     menuClassify.add((byte)3);
                 }

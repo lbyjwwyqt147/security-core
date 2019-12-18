@@ -85,9 +85,9 @@ public class RoleUserMongoServiceImpl extends BaseMongoServiceImpl<RoleUser, Lon
 
     @Override
     public List<RoleInfo> getRoleInfoByUserId(Long userId) {
-        List<RoleUser> roleUsers = this.findByUserIdAndStatus(userId, null);
+        List<RoleUser> roleUsers = this.findByUserIdAndStatus(userId, SecurityConstant.ENABLE_STATUS);
         if (!CollectionUtils.isEmpty(roleUsers)) {
-            List<Long> roleIds = roleUsers.stream().map(RoleUser::getRoleId).collect(Collectors.toList());
+            List<Long> roleIds = roleUsers.stream().map(RoleUser::getRoleId).distinct().collect(Collectors.toList());
             return this.roleInfoMongoRepository.findAllByIdIn(roleIds);
         }
         return null;

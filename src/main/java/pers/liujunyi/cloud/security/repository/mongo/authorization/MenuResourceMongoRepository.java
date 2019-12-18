@@ -50,6 +50,14 @@ public interface MenuResourceMongoRepository extends BaseMongoRepository<MenuRes
     List<MenuResource> findByIdInAndMenuClassifyInAndMenuStatusOrderBySerialNumberAsc(List<Long> ids, List<Byte> menuClassify, Byte menuStatus);
 
     /**
+     * 根据menuClassify menuStatus获取数据
+     * @param menuClassify  资源类型
+     * @param menuStatus  0：正常  1：禁用
+     * @return
+     */
+    List<MenuResource> findByMenuClassifyInAndMenuStatusAndMenuPathIsNotNull(Byte menuClassify, Byte menuStatus);
+
+    /**
      * 根据pid 获取数据
      * @param pid
      * @return
