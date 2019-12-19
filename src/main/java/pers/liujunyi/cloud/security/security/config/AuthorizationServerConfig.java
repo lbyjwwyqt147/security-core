@@ -102,7 +102,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 //允许授权范围
                 .scopes(SCOPE_READ, SCOPE_WRITE, TRUST)
                 //客户端可以使用的权限
-                .authorities("ROLE_CLIENT")
+                .authorities(SecurityConstant.RESOURCE_AUTHORITIES)
                 //secret客户端安全码
                 .secret(secret)
                 //指定可以接受令牌和授权码的重定向URIs authorization_code认证方法用到

@@ -35,8 +35,10 @@ public class SecurityConstant {
     public static final Byte RESOURCE_TECHWEB = 2;
     public static final Byte RESOURCE_BUTTON = 3;
 
-    // 权限就是那些以ROLE_为前缀的角色
+    /** 权限就是那些以ROLE_为前缀的角色 */
     public static final String ROLE_PREFIX = "ROLE_";
+    /** OAuth2 客户端需要的角色 */
+    public static final String RESOURCE_AUTHORITIES = "ROLE_CLIENT_SIDE";
 
 
     /**

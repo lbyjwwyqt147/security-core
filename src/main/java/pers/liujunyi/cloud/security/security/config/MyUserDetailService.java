@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.exception.DescribeException;
 import pers.liujunyi.cloud.common.exception.ErrorCodeEnum;
+import pers.liujunyi.cloud.common.util.SecurityLocalContext;
 import pers.liujunyi.cloud.security.entity.authorization.RoleInfo;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
 import pers.liujunyi.cloud.security.repository.mongo.user.UserAccountsMongoRepository;
@@ -20,6 +21,7 @@ import pers.liujunyi.cloud.security.service.authorization.RoleUserMongoService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -68,6 +70,18 @@ public class MyUserDetailService implements UserDetailsService {
 
            User user = new User(userName, userAccounts.getUserPassword(),
                    enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, grantedAuthorities);
+           // 设置当前登录人的角色权限授权码
+           SecurityLocalContext.remove();
+           int authSize = grantedAuthorities.size();
+           String[] authorities = new String[authSize];
+           int i = 0;
+           Iterator<GrantedAuthority> it = grantedAuthorities.iterator();
+           while (it.hasNext()) {
+               GrantedAuthority grantedAuthority = it.next();
+               authorities[i] = grantedAuthority.getAuthority();
+               i++;
+           }
+           SecurityLocalContext.setAuthorities(authorities);
            return user;
 
     }
@@ -81,7 +95,7 @@ public class MyUserDetailService implements UserDetailsService {
         Set<GrantedAuthority> grantedAuths = new HashSet<>();
         String prefix = SecurityConstant.ROLE_PREFIX;
         //模拟一个权限角色  角色必须是ROLE_开头
-        grantedAuths.add(new SimpleGrantedAuthority("ROLE_CLIENT"));
+        grantedAuths.add(new SimpleGrantedAuthority(SecurityConstant.RESOURCE_AUTHORITIES));
         // 获取用户拥有的角色
         List<RoleInfo> roleInfoList = this.roleUserMongoService.getRoleInfoByUserId(userAccounts.getId());
         if (!CollectionUtils.isEmpty(roleInfoList)) {
