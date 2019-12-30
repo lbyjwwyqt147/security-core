@@ -3,6 +3,7 @@ package pers.liujunyi.cloud.security.security.hander;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -33,6 +34,7 @@ import java.util.Map;
  */
 @Log4j2
 @Component
+@RefreshScope
 public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 
     @Value("${server.port}")

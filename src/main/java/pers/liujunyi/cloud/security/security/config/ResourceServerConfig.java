@@ -3,6 +3,7 @@ package pers.liujunyi.cloud.security.security.config;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -34,6 +35,7 @@ import pers.liujunyi.cloud.security.util.SecurityConstant;
 @Configuration
 @EnableResourceServer
 @Log4j2
+@RefreshScope
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
     @Autowired

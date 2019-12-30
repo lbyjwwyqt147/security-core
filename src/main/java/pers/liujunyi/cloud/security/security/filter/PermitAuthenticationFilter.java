@@ -6,6 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -57,6 +58,7 @@ import java.util.Set;
  */
 @Log4j2
 @Component
+@RefreshScope
 public class PermitAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String BEARER_AUTHENTICATION = "bearer ";
