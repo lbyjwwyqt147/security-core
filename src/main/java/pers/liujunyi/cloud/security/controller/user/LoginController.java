@@ -170,7 +170,7 @@ public class LoginController extends BaseController {
      * @return
      */
     @ApiOperation(value = "获取当前登录用户信息")
-    @GetMapping(value = "verify/user/info")
+    @GetMapping(value = "ignore/user/info")
     public Principal user(Principal principal) {
         //获取当前用户信息
         log.debug("user", principal);
