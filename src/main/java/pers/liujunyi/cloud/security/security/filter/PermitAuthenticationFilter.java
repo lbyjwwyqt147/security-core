@@ -115,10 +115,12 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
             if (StringUtils.isNotBlank(accessToken)) {
                 // 从token中获取用户
                 Object redisAuthentication = this.redisTemplateUtil.hget(BaseRedisKeys.USER_LOGIN_TOKNE, accessToken);
-                currentUser = JSONObject.parseObject(redisAuthentication.toString(), UserDetailsDto.class);
-                httpServletRequest.setAttribute(BaseRedisKeys.USER_ID, currentUser.getUserId());
-                httpServletRequest.setAttribute(BaseRedisKeys.LESSEE, currentUser.getLessee());
-                httpServletRequest.setAttribute(BaseRedisKeys.USER_INFO, JSON.toJSONString(currentUser));
+                if (redisAuthentication != null) {
+                    currentUser = JSONObject.parseObject(redisAuthentication.toString(), UserDetailsDto.class);
+                    httpServletRequest.setAttribute(BaseRedisKeys.USER_ID, currentUser.getUserId());
+                    httpServletRequest.setAttribute(BaseRedisKeys.LESSEE, currentUser.getLessee());
+                    httpServletRequest.setAttribute(BaseRedisKeys.USER_INFO, JSON.toJSONString(currentUser));
+                }
             }
             //从request中解析PreAuthenticatedAuthenticationToken(注意这里并不是OAuth2Authentication)
             Authentication authentication = this.tokenExtractor.extract(httpServletRequest);
