@@ -60,7 +60,7 @@ public class CustomAccessDecisionManager implements AccessDecisionManager {
                 // 为了解决 当前 Authentication authentication 无法获取当前登录人的角色权限信息，我把当前登录人的角色权限授权码 设置在了ThreadLocal 里面（不知这种方式是否正确）
                 String[] authorities = SecurityLocalContext.getAuthorities();
                 for(String authoritie : authorities){
-                    //grantedAuthority 为用户所被赋予的权限。 needRole 为访问相应的资源应该具有的权限。
+                    //authoritie 为用户所被赋予的权限。 needRole 为访问相应的资源应该具有的权限。
                     //判断两个请求的url的权限和用户具有的权限是否相同，如相同，允许访问 权限就是那些以ROLE_为前缀的角色
                     if (needRole.trim().equals(authoritie.trim())){
                         //匹配到对应的角色，则允许通过

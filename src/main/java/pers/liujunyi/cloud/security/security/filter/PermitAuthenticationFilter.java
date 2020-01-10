@@ -126,8 +126,8 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
             Authentication authentication = this.tokenExtractor.extract(httpServletRequest);
             // 不需要进行权限校验的url
             String[] antMatchers = excludeAntMatchers.trim().split(",");
+            PathMatcher requestMatcher = new AntPathMatcher();
             for (String matchers : antMatchers) {
-                PathMatcher requestMatcher = new AntPathMatcher();
                 boolean through = requestMatcher.match(matchers.trim(), servletPath);
                 if (through) {
                     // this.setAuthentication(httpServletRequest, authentication, currentUser, accessToken);
