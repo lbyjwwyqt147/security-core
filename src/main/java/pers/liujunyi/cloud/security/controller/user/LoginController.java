@@ -34,6 +34,7 @@ import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
 import pers.liujunyi.cloud.common.util.HttpClientUtils;
+import pers.liujunyi.cloud.common.util.SecurityLocalContext;
 import pers.liujunyi.cloud.common.util.TokenLocalContext;
 import pers.liujunyi.cloud.common.vo.BaseRedisKeys;
 import pers.liujunyi.cloud.common.vo.user.UserDetails;
@@ -157,6 +158,7 @@ public class LoginController extends BaseController {
             this.saveUserToRedis(token, detailsDto);
             // 设置登录时间
             this.userAccountsService.setLoginTimeById(new Date(), accounts.getLoginTime(), accounts.getLoginCount(), accounts.getId(), accounts.getDataVersion());
+
             return ResultUtil.success(userDetails, token);
         } catch (AuthenticationException e){
             e.printStackTrace();
@@ -195,14 +197,17 @@ public class LoginController extends BaseController {
     @ApiVersion(1)
     public ResultInfo revokeToken(String access_token, HttpServletRequest request) {
         //注销当前用户
-        if (consumerTokenServices.revokeToken(access_token)) {
-            this.redisTemplateUtil.hdel(BaseRedisKeys.USER_LOGIN_TOKNE, access_token.trim());
+        String token = access_token.trim();
+        if (consumerTokenServices.revokeToken(token)) {
+            this.redisTemplateUtil.hdel(BaseRedisKeys.USER_LOGIN_TOKNE, token);
+            this.redisTemplateUtil.hdel(BaseRedisKeys.USER_AUTHORITIES_TOKEN, token);
             request.removeAttribute(BaseRedisKeys.USER_INFO);
             request.removeAttribute(BaseRedisKeys.LESSEE);
             request.removeAttribute(BaseRedisKeys.USER_ID);
             request.removeAttribute(OAuth2AuthenticationDetails.ACCESS_TOKEN_VALUE);
             TokenLocalContext.remove();
             CustomInvocationSecurityMetadataSource.resourceMap = null;
+            SecurityLocalContext.remove();
         }
         return ResultUtil.success();
     }
@@ -262,10 +267,12 @@ public class LoginController extends BaseController {
         if (redisToken != null && !redisToken.toString().trim().equals("")) {
             String oldToken = String.valueOf(redisToken).trim();
             this.redisTemplateUtil.hdel(BaseRedisKeys.USER_LOGIN_TOKNE, oldToken);
+            this.redisTemplateUtil.hdel(BaseRedisKeys.USER_AUTHORITIES_TOKEN, oldToken);
         }
         TokenLocalContext.remove();
         TokenLocalContext.setToken(token);
         this.redisTemplateUtil.hset(BaseRedisKeys.USER_DETAILS_TOKNE, userDetails.getUserId().toString(), token, SecurityConstant.ACCESS_TOKEN_VALIDITY_SECONDS.longValue());
         this.redisTemplateUtil.hset(BaseRedisKeys.USER_LOGIN_TOKNE, token, JSONObject.toJSONString(userDetails), SecurityConstant.ACCESS_TOKEN_VALIDITY_SECONDS.longValue());
+        this.redisTemplateUtil.hset(BaseRedisKeys.USER_AUTHORITIES_TOKEN, token, userDetails.getAuthorities(), SecurityConstant.ACCESS_TOKEN_VALIDITY_SECONDS.longValue() );
     }
 }

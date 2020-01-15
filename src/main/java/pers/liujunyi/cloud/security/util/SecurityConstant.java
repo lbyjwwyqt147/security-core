@@ -40,7 +40,6 @@ public class SecurityConstant {
     /** OAuth2 客户端需要的角色 */
     public static final String RESOURCE_AUTHORITIES = "ROLE_CLIENT_SIDE";
 
-
     /**
      * 数据状态值
      * @param status
