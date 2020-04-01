@@ -49,7 +49,7 @@ public class MenuResourceController extends BaseController {
      * @param param
      * @return
      */
-    @MethodLog(desc = "保存数据", operModule = "资源信息")
+    @MethodLog(desc = "保存数据", operModule = "资源信息", serviceClass = "MenuResourceService")
     @ApiOperation(value = "保存数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1")
@@ -154,7 +154,7 @@ public class MenuResourceController extends BaseController {
      * @param param
      * @return
      */
-    @MethodLog(desc = "修改数据状态", operModule = "资源信息", operType = OperateLogType.UPDATE)
+    @MethodLog(desc = "修改数据状态", operModule = "资源信息", operType = OperateLogType.UPDATE, paramIsArray = true, serviceClass = "MenuResourceService", findDataMethod = "findByIdIn")
     @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),

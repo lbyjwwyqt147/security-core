@@ -48,7 +48,7 @@ public class PositionInfoController extends BaseController {
      * @param param
      * @return
      */
-    @MethodLog(desc = "保存数据", operModule = "岗位信息")
+    @MethodLog(desc = "保存数据", operModule = "岗位信息", serviceClass = "PositionInfoService")
     @ApiOperation(value = "保存数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1")
@@ -153,7 +153,7 @@ public class PositionInfoController extends BaseController {
      * @param param
      * @return
      */
-    @MethodLog(desc = "修改数据状态", operModule = "岗位信息", operType = OperateLogType.UPDATE)
+    @MethodLog(desc = "修改数据状态", operModule = "岗位信息", operType = OperateLogType.UPDATE, paramIsArray = true, serviceClass = "PositionInfoService", findDataMethod = "findByIdIn")
     @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),

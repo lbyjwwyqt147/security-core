@@ -7,10 +7,12 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pers.liujunyi.cloud.common.annotation.ApiVersion;
+import pers.liujunyi.cloud.common.annotation.MethodLog;
 import pers.liujunyi.cloud.common.controller.BaseController;
 import pers.liujunyi.cloud.common.dto.IdParamDto;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
+import pers.liujunyi.cloud.common.util.OperateLogType;
 import pers.liujunyi.cloud.security.domain.category.CategoryInfoDto;
 import pers.liujunyi.cloud.security.domain.category.CategoryInfoQueryDto;
 import pers.liujunyi.cloud.security.service.category.CategoryInfoMongoService;
@@ -44,6 +46,7 @@ public class CategoryInfoController extends BaseController {
      * @param param
      * @return
      */
+    @MethodLog(desc = "保存数据", operModule = "分类信息", serviceClass = "CategoryInfoService")
     @ApiOperation(value = "保存数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1")
@@ -61,6 +64,7 @@ public class CategoryInfoController extends BaseController {
      * @param param 　 多个id 用 , 隔开
      * @return
      */
+    @MethodLog(desc = "删除数据", operModule = "分类信息", operType = OperateLogType.DELETE)
     @ApiOperation(value = "删除多条数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
@@ -95,6 +99,7 @@ public class CategoryInfoController extends BaseController {
      * @param param
      * @return
      */
+    @MethodLog(desc = "修改数据状态", operModule = "分类信息", operType = OperateLogType.UPDATE, paramIsArray = true,  serviceClass = "CategoryInfoService", findDataMethod = "findByIdIn")
     @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),

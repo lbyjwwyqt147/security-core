@@ -50,7 +50,7 @@ public class UserAccountsController extends BaseController {
      * @param param
      * @return
      */
-    @MethodLog(desc = "注册账户", operModule = "用户账户")
+    @MethodLog(desc = "注册账户", operModule = "用户账户", serviceClass = "UserAccountsService")
     @ApiOperation(value = "注册账户")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1")
@@ -111,7 +111,7 @@ public class UserAccountsController extends BaseController {
      * @param param
      * @return
      */
-    @MethodLog(desc = "修改数据状态", operModule = "用户账户", operType = OperateLogType.UPDATE)
+    @MethodLog(desc = "修改数据状态", operModule = "用户账户", operType = OperateLogType.UPDATE, paramIsArray = true, serviceClass = "UserAccountsService", findDataMethod = "findByIdIn")
     @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
@@ -132,7 +132,7 @@ public class UserAccountsController extends BaseController {
      * @param param
      * @return
      */
-    @MethodLog(desc = "修改数据状态", operModule = "用户账户", operType = OperateLogType.UPDATE)
+    @MethodLog(desc = "修改数据状态", operModule = "用户账户", operType = OperateLogType.UPDATE, serviceClass = "UserAccountsService")
     @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
@@ -155,7 +155,7 @@ public class UserAccountsController extends BaseController {
      * @param currentPassWord
      * @return
      */
-    @MethodLog(desc = "重置密码", operModule = "用户账户", operType = OperateLogType.UPDATE)
+    @MethodLog(desc = "重置密码", operModule = "用户账户", operType = OperateLogType.UPDATE, serviceClass = "UserAccountsService")
     @ApiOperation(value = "修改重置密码")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),

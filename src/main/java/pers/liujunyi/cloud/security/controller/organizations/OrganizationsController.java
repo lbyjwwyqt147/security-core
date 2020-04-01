@@ -50,7 +50,7 @@ public class OrganizationsController extends BaseController {
      * @param param
      * @return
      */
-    @MethodLog(desc = "保存数据", operModule = "组织结构")
+    @MethodLog(desc = "保存数据", operModule = "组织结构", serviceClass = "OrganizationsService")
     @ApiOperation(value = "保存数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1")
@@ -159,7 +159,7 @@ public class OrganizationsController extends BaseController {
      * @param param
      * @return
      */
-    @MethodLog(desc = "修改数据状态", operModule = "组织结构", operType = OperateLogType.UPDATE)
+    @MethodLog(desc = "修改数据状态", operModule = "组织结构", operType = OperateLogType.UPDATE, paramIsArray = true, serviceClass = "OrganizationsService", findDataMethod = "findByIdIn")
     @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
