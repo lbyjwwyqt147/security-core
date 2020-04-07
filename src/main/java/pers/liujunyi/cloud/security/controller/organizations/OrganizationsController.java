@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pers.liujunyi.cloud.common.annotation.ApiVersion;
-import pers.liujunyi.cloud.common.annotation.MethodLog;
+import pers.liujunyi.cloud.common.annotation.ControllerMethodLog;
 import pers.liujunyi.cloud.common.controller.BaseController;
 import pers.liujunyi.cloud.common.dto.IdParamDto;
 import pers.liujunyi.cloud.common.encrypt.annotation.Decrypt;
@@ -17,6 +17,7 @@ import pers.liujunyi.cloud.common.util.OperateLogType;
 import pers.liujunyi.cloud.common.vo.tree.ZtreeNode;
 import pers.liujunyi.cloud.security.domain.organizations.OrganizationsDto;
 import pers.liujunyi.cloud.security.domain.organizations.OrganizationsQueryDto;
+import pers.liujunyi.cloud.security.entity.organizations.Organizations;
 import pers.liujunyi.cloud.security.service.organizations.OrganizationsMongoService;
 import pers.liujunyi.cloud.security.service.organizations.OrganizationsService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
@@ -50,7 +51,7 @@ public class OrganizationsController extends BaseController {
      * @param param
      * @return
      */
-    @MethodLog(desc = "保存数据", operModule = "组织结构", serviceClass = "OrganizationsService")
+    @ControllerMethodLog(desc = "保存数据", operModule = "组织结构", serviceClass = OrganizationsService.class, entityBeanClass = Organizations.class)
     @ApiOperation(value = "保存数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1")
@@ -70,7 +71,7 @@ public class OrganizationsController extends BaseController {
      * @param param 　 多个id 用 , 隔开
      * @return
      */
-    @MethodLog(desc = "删除数据", operModule = "组织结构", operType = OperateLogType.DELETE)
+    @ControllerMethodLog(desc = "删除数据", operModule = "组织结构", operType = OperateLogType.DELETE, serviceClass = OrganizationsService.class, entityBeanClass = Organizations.class)
     @ApiOperation(value = "删除多条数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
@@ -159,7 +160,7 @@ public class OrganizationsController extends BaseController {
      * @param param
      * @return
      */
-    @MethodLog(desc = "修改数据状态", operModule = "组织结构", operType = OperateLogType.UPDATE, paramIsArray = true, serviceClass = "OrganizationsService", findDataMethod = "findByIdIn")
+    @ControllerMethodLog(desc = "修改数据状态", operModule = "组织结构", operType = OperateLogType.UPDATE, paramIsArray = true, serviceClass = OrganizationsService.class, entityBeanClass = Organizations.class, findDataMethod = "findByIdIn")
     @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),

@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pers.liujunyi.cloud.common.annotation.ApiVersion;
-import pers.liujunyi.cloud.common.annotation.MethodLog;
+import pers.liujunyi.cloud.common.annotation.ControllerMethodLog;
 import pers.liujunyi.cloud.common.controller.BaseController;
 import pers.liujunyi.cloud.common.dto.IdParamDto;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
@@ -15,6 +15,7 @@ import pers.liujunyi.cloud.common.util.OperateLogType;
 import pers.liujunyi.cloud.common.vo.tree.ZtreeNode;
 import pers.liujunyi.cloud.security.domain.authorization.PositionInfoDto;
 import pers.liujunyi.cloud.security.domain.authorization.PositionInfoQueryDto;
+import pers.liujunyi.cloud.security.entity.authorization.PositionInfo;
 import pers.liujunyi.cloud.security.service.authorization.PositionInfoMongoService;
 import pers.liujunyi.cloud.security.service.authorization.PositionInfoService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
@@ -48,7 +49,7 @@ public class PositionInfoController extends BaseController {
      * @param param
      * @return
      */
-    @MethodLog(desc = "保存数据", operModule = "岗位信息", serviceClass = "PositionInfoService")
+    @ControllerMethodLog(desc = "保存数据", operModule = "岗位信息", serviceClass = PositionInfoService.class, entityBeanClass = PositionInfo.class)
     @ApiOperation(value = "保存数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1")
@@ -66,7 +67,7 @@ public class PositionInfoController extends BaseController {
      * @param param 　 多个id 用 , 隔开
      * @return
      */
-    @MethodLog(desc = "删除数据", operModule = "岗位信息", operType = OperateLogType.DELETE)
+    @ControllerMethodLog(desc = "删除数据", operModule = "岗位信息", operType = OperateLogType.DELETE, serviceClass = PositionInfoService.class, entityBeanClass = PositionInfo.class)
     @ApiOperation(value = "删除多条数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
@@ -153,7 +154,7 @@ public class PositionInfoController extends BaseController {
      * @param param
      * @return
      */
-    @MethodLog(desc = "修改数据状态", operModule = "岗位信息", operType = OperateLogType.UPDATE, paramIsArray = true, serviceClass = "PositionInfoService", findDataMethod = "findByIdIn")
+    @ControllerMethodLog(desc = "修改数据状态", operModule = "岗位信息", operType = OperateLogType.UPDATE, paramIsArray = true, serviceClass = PositionInfoService.class, entityBeanClass = PositionInfo.class, findDataMethod = "findByIdIn")
     @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),

@@ -25,7 +25,7 @@ import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.web.bind.annotation.*;
 import pers.liujunyi.cloud.common.annotation.ApiVersion;
-import pers.liujunyi.cloud.common.annotation.MethodLog;
+import pers.liujunyi.cloud.common.annotation.ControllerMethodLog;
 import pers.liujunyi.cloud.common.controller.BaseController;
 import pers.liujunyi.cloud.common.encrypt.annotation.Decrypt;
 import pers.liujunyi.cloud.common.encrypt.annotation.Encrypt;
@@ -33,7 +33,10 @@ import pers.liujunyi.cloud.common.exception.ErrorCodeEnum;
 import pers.liujunyi.cloud.common.redis.RedisTemplateUtils;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
-import pers.liujunyi.cloud.common.util.*;
+import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
+import pers.liujunyi.cloud.common.util.HttpClientUtils;
+import pers.liujunyi.cloud.common.util.SecurityLocalContext;
+import pers.liujunyi.cloud.common.util.TokenLocalContext;
 import pers.liujunyi.cloud.common.vo.BaseRedisKeys;
 import pers.liujunyi.cloud.common.vo.user.UserDetails;
 import pers.liujunyi.cloud.security.domain.user.LoginDto;
@@ -103,7 +106,7 @@ public class LoginController extends BaseController {
      * @param loginDto
      * @return
      */
-    @MethodLog(desc = "用户登陆", operModule = "登录", logType = 3)
+    @ControllerMethodLog(desc = "用户登陆", operModule = "登录", logType = 3, serviceClass = UserAccountsService.class, entityBeanClass = UserAccounts.class)
     @ApiOperation(value = "用户登陆")
     @PostMapping(value = "user/login")
     @ApiVersion(1)
@@ -187,7 +190,7 @@ public class LoginController extends BaseController {
      * @param access_token
      * @return
      */
-    @MethodLog(desc = "用户登录退出", operModule = "登录", logType = 4)
+    @ControllerMethodLog(desc = "用户登录退出", operModule = "登录", logType = 4, serviceClass = UserAccountsService.class, entityBeanClass = UserAccounts.class)
     @ApiOperation(value = "用户登录退出")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),

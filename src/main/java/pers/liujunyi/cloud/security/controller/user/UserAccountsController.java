@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pers.liujunyi.cloud.common.annotation.ApiVersion;
-import pers.liujunyi.cloud.common.annotation.MethodLog;
+import pers.liujunyi.cloud.common.annotation.ControllerMethodLog;
 import pers.liujunyi.cloud.common.controller.BaseController;
 import pers.liujunyi.cloud.common.dto.IdParamDto;
 import pers.liujunyi.cloud.common.encrypt.annotation.Decrypt;
@@ -17,6 +17,7 @@ import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.util.OperateLogType;
 import pers.liujunyi.cloud.security.domain.user.UserAccountsDto;
 import pers.liujunyi.cloud.security.domain.user.UserAccountsQueryDto;
+import pers.liujunyi.cloud.security.entity.user.UserAccounts;
 import pers.liujunyi.cloud.security.service.user.UserAccountsMongoService;
 import pers.liujunyi.cloud.security.service.user.UserAccountsService;
 
@@ -50,7 +51,7 @@ public class UserAccountsController extends BaseController {
      * @param param
      * @return
      */
-    @MethodLog(desc = "注册账户", operModule = "用户账户", serviceClass = "UserAccountsService")
+    @ControllerMethodLog(desc = "注册账户", operModule = "用户账户", serviceClass = UserAccountsService.class, entityBeanClass = UserAccounts.class)
     @ApiOperation(value = "注册账户")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1")
@@ -69,7 +70,7 @@ public class UserAccountsController extends BaseController {
      * @param id
      * @return
      */
-    @MethodLog(desc = "删除数据", operModule = "用户账户", operType = OperateLogType.DELETE)
+    @ControllerMethodLog(desc = "删除数据", operModule = "用户账户", operType = OperateLogType.DELETE, serviceClass = UserAccountsService.class, entityBeanClass = UserAccounts.class)
     @ApiOperation(value = "单条删除数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
@@ -91,7 +92,7 @@ public class UserAccountsController extends BaseController {
      * @param param 　 多个id 用 , 隔开
      * @return
      */
-    @MethodLog(desc = "删除数据", operModule = "用户账户", operType = OperateLogType.DELETE)
+    @ControllerMethodLog(desc = "删除数据", operModule = "用户账户", operType = OperateLogType.DELETE,  serviceClass = UserAccountsService.class, entityBeanClass = UserAccounts.class)
     @ApiOperation(value = "删除多条数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
@@ -111,7 +112,7 @@ public class UserAccountsController extends BaseController {
      * @param param
      * @return
      */
-    @MethodLog(desc = "修改数据状态", operModule = "用户账户", operType = OperateLogType.UPDATE, paramIsArray = true, serviceClass = "UserAccountsService", findDataMethod = "findByIdIn")
+    @ControllerMethodLog(desc = "修改数据状态", operModule = "用户账户", operType = OperateLogType.UPDATE, paramIsArray = true, serviceClass = UserAccountsService.class, entityBeanClass = UserAccounts.class, findDataMethod = "findByIdIn")
     @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
@@ -132,7 +133,7 @@ public class UserAccountsController extends BaseController {
      * @param param
      * @return
      */
-    @MethodLog(desc = "修改数据状态", operModule = "用户账户", operType = OperateLogType.UPDATE, serviceClass = "UserAccountsService")
+    @ControllerMethodLog(desc = "修改数据状态", operModule = "用户账户", operType = OperateLogType.UPDATE, serviceClass = UserAccountsService.class, entityBeanClass = UserAccounts.class)
     @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
@@ -155,7 +156,7 @@ public class UserAccountsController extends BaseController {
      * @param currentPassWord
      * @return
      */
-    @MethodLog(desc = "重置密码", operModule = "用户账户", operType = OperateLogType.UPDATE, serviceClass = "UserAccountsService")
+    @ControllerMethodLog(desc = "重置密码", operModule = "用户账户", operType = OperateLogType.UPDATE,  serviceClass = UserAccountsService.class, entityBeanClass = UserAccounts.class)
     @ApiOperation(value = "修改重置密码")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),

@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pers.liujunyi.cloud.common.annotation.ApiVersion;
-import pers.liujunyi.cloud.common.annotation.MethodLog;
+import pers.liujunyi.cloud.common.annotation.ControllerMethodLog;
 import pers.liujunyi.cloud.common.controller.BaseController;
 import pers.liujunyi.cloud.common.dto.IdParamDto;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
@@ -15,6 +15,7 @@ import pers.liujunyi.cloud.common.util.OperateLogType;
 import pers.liujunyi.cloud.common.vo.tree.ZtreeNode;
 import pers.liujunyi.cloud.security.domain.authorization.RoleInfoDto;
 import pers.liujunyi.cloud.security.domain.authorization.RoleInfoQueryDto;
+import pers.liujunyi.cloud.security.entity.authorization.RoleInfo;
 import pers.liujunyi.cloud.security.service.authorization.RoleInfoMongoService;
 import pers.liujunyi.cloud.security.service.authorization.RoleInfoService;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
@@ -49,7 +50,7 @@ public class RoleInfoController extends BaseController {
      * @param param
      * @return
      */
-    @MethodLog(desc = "保存数据", operModule = "角色信息", serviceClass = "RoleInfoService")
+    @ControllerMethodLog(desc = "保存数据", operModule = "角色信息", serviceClass = RoleInfoService.class, entityBeanClass = RoleInfo.class)
     @ApiOperation(value = "保存数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1")
@@ -67,7 +68,7 @@ public class RoleInfoController extends BaseController {
      * @param param 　 多个id 用 , 隔开
      * @return
      */
-    @MethodLog(desc = "删除数据", operModule = "角色信息", operType = OperateLogType.DELETE)
+    @ControllerMethodLog(desc = "删除数据", operModule = "角色信息", operType = OperateLogType.DELETE,  serviceClass = RoleInfoService.class, entityBeanClass = RoleInfo.class)
     @ApiOperation(value = "删除多条数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
@@ -154,7 +155,7 @@ public class RoleInfoController extends BaseController {
      * @param param
      * @return
      */
-    @MethodLog(desc = "修改数据状态", operModule = "角色信息", operType = OperateLogType.UPDATE, paramIsArray = true, serviceClass = "RoleInfoService", findDataMethod = "findByIdIn")
+    @ControllerMethodLog(desc = "修改数据状态", operModule = "角色信息", operType = OperateLogType.UPDATE, paramIsArray = true,  serviceClass = RoleInfoService.class, entityBeanClass = RoleInfo.class, findDataMethod = "findByIdIn")
     @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
