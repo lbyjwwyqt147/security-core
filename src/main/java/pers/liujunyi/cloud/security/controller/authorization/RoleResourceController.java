@@ -49,7 +49,7 @@ public class RoleResourceController extends BaseController {
              */
     @ApiOperation(value = "保存数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "resource", value = "resource",  required = true, dataType = "String"),
             @ApiImplicitParam(name = "resourceIds", value = "资源id 多个用,隔开",  required = true, dataType = "String")
 
@@ -70,7 +70,7 @@ public class RoleResourceController extends BaseController {
      */
     @ApiOperation(value = "根据 角色ID 资源PID 获取 资源tree 结构数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "roleId", value = "roleId",  required = true, dataType = "Long"),
             @ApiImplicitParam(name = "resourcePid", value = "resourcePid",  required = true, dataType = "Long")
     })
@@ -88,7 +88,7 @@ public class RoleResourceController extends BaseController {
      */
     @ApiOperation(value = "删除多条数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String")
     })
     @DeleteMapping(value = "verify/role/resource/d/b")
@@ -105,7 +105,7 @@ public class RoleResourceController extends BaseController {
      */
     @ApiOperation(value = "分页列表数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1")
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1")
     })
     @GetMapping(value = "table/role/resource/g")
     @ApiVersion(1)
@@ -121,7 +121,7 @@ public class RoleResourceController extends BaseController {
      */
     @ApiOperation(value = " 获取用户所分配的资源菜单")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "userId", value = "userId",  required = true, dataType = "Long")
     })
     @GetMapping(value = "tree/role/resource/menu")
@@ -138,7 +138,7 @@ public class RoleResourceController extends BaseController {
      */
     @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String"),
             @ApiImplicitParam(name = "status", value = "status",  required = true, dataType = "integer")
     })
@@ -156,7 +156,7 @@ public class RoleResourceController extends BaseController {
      */
     @ApiOperation(value = "同步数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
     })
     @PostMapping(value = "verify/role/resource/sync")
     @ApiVersion(1)

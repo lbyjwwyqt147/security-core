@@ -54,7 +54,7 @@ public class UserAccountsController extends BaseController {
     @ControllerMethodLog(desc = "注册账户", operModule = "用户账户", serviceClass = UserAccountsService.class, entityBeanClass = UserAccounts.class)
     @ApiOperation(value = "注册账户")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1")
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1")
     })
     @Encrypt
     @Decrypt
@@ -73,7 +73,7 @@ public class UserAccountsController extends BaseController {
     @ControllerMethodLog(desc = "删除数据", operModule = "用户账户", operType = OperateLogType.DELETE, serviceClass = UserAccountsService.class, entityBeanClass = UserAccounts.class)
     @ApiOperation(value = "单条删除数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "id", value = "id",  required = true, dataType = "Long")
     })
     @Encrypt
@@ -95,7 +95,7 @@ public class UserAccountsController extends BaseController {
     @ControllerMethodLog(desc = "删除数据", operModule = "用户账户", operType = OperateLogType.DELETE,  serviceClass = UserAccountsService.class, entityBeanClass = UserAccounts.class)
     @ApiOperation(value = "删除多条数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String")
     })
     @Decrypt
@@ -115,7 +115,7 @@ public class UserAccountsController extends BaseController {
     @ControllerMethodLog(desc = "修改数据状态", operModule = "用户账户", operType = OperateLogType.UPDATE, paramIsArray = true, serviceClass = UserAccountsService.class, entityBeanClass = UserAccounts.class, findDataMethod = "findByIdIn")
     @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String"),
             @ApiImplicitParam(name = "status", value = "status",  required = true, dataType = "integer")
     })
@@ -136,7 +136,7 @@ public class UserAccountsController extends BaseController {
     @ControllerMethodLog(desc = "修改数据状态", operModule = "用户账户", operType = OperateLogType.UPDATE, serviceClass = UserAccountsService.class, entityBeanClass = UserAccounts.class)
     @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "id", value = "id",  required = true, dataType = "String"),
             @ApiImplicitParam(name = "status", value = "status",  required = true, dataType = "integer")
     })
@@ -159,7 +159,7 @@ public class UserAccountsController extends BaseController {
     @ControllerMethodLog(desc = "重置密码", operModule = "用户账户", operType = OperateLogType.UPDATE,  serviceClass = UserAccountsService.class, entityBeanClass = UserAccounts.class)
     @ApiOperation(value = "修改重置密码")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "id", value = "id",  required = true, dataType = "integer"),
             @ApiImplicitParam(name = "historyPassWord", value = "原始密码",  required = true, dataType = "String"),
             @ApiImplicitParam(name = "currentPassWord", value = "新密码",  required = true, dataType = "String")
@@ -185,7 +185,7 @@ public class UserAccountsController extends BaseController {
 
     @ApiOperation(value = "分页列表数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1")
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1")
     })
     @GetMapping(value = "table/accounts/g")
     @ApiVersion(1)
@@ -201,11 +201,43 @@ public class UserAccountsController extends BaseController {
      */
     @ApiOperation(value = "同步数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1")
     })
     @PostMapping(value = "ignore/accounts/sync")
     @ApiVersion(1)
     public ResultInfo syncDataToMongo() {
         return this.userAccountsService.syncDataToMongo();
+    }
+
+    /**
+     *  根据token 获取用户详情
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "同步数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
+            @ApiImplicitParam(name = "token", value = "token", paramType = "query", required = true, dataType = "String")
+    })
+    @GetMapping(value = "ignore/accounts/token")
+    @ApiVersion(1)
+    public ResultInfo getUserByToken(String token) {
+        return this.userAccountsMongoService.getUserByToken(token);
+    }
+
+    /**
+     *  根据id获取用户详情
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "同步数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
+            @ApiImplicitParam(name = "id", value = "id", paramType = "query", required = true, dataType = "Long")
+    })
+    @GetMapping(value = "ignore/accounts/id")
+    @ApiVersion(1)
+    public ResultInfo getUserById(Long id) {
+        return this.userAccountsMongoService.getUserById(id);
     }
 }

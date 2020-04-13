@@ -56,4 +56,19 @@ public interface UserAccountsMongoService extends BaseMongoService<UserAccounts,
      * @return
      */
     ResultInfo findPageGird(UserAccountsQueryDto query);
+
+    /**
+     * 根据token 获取用户详情
+     * @param token
+     * @return
+     */
+    ResultInfo getUserByToken(String token);
+
+    /**
+     * 根据id获取用户详情
+     * @param id
+     * @return
+     */
+    ResultInfo getUserById(Long id);
+
 }

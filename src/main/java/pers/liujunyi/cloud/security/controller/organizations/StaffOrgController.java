@@ -52,7 +52,7 @@ public class StaffOrgController extends BaseController {
      */
     @ApiOperation(value = "保存数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "org", value = "机构 接收参数格式 json 字符串   {orgId=机构id,orgNumber=机构编号,fullParent=机构父id}",  required = true, dataType = "String"),
             @ApiImplicitParam(name = "staffIds", value = "人员id 多个用,隔开",  required = true, dataType = "String")
 
@@ -75,7 +75,7 @@ public class StaffOrgController extends BaseController {
      */
     @ApiOperation(value = "单条删除数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "id", value = "id",  required = true, dataType = "String")
     })
     @Encrypt
@@ -96,7 +96,7 @@ public class StaffOrgController extends BaseController {
      */
     @ApiOperation(value = "删除多条数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String")
     })
     @Encrypt
@@ -115,7 +115,7 @@ public class StaffOrgController extends BaseController {
      */
     @ApiOperation(value = "分页列表数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1")
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1")
     })
     @GetMapping(value = "table/staffOrg/g")
     @ApiVersion(1)
@@ -132,7 +132,7 @@ public class StaffOrgController extends BaseController {
      */
     @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String"),
             @ApiImplicitParam(name = "status", value = "status",  required = true, dataType = "integer")
     })
@@ -152,7 +152,7 @@ public class StaffOrgController extends BaseController {
      */
     @ApiOperation(value = "同步数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
     })
     @PostMapping(value = "verify/staffOrg/sync")
     @ApiVersion(1)

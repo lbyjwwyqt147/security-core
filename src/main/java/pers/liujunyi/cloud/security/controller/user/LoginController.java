@@ -112,6 +112,9 @@ public class LoginController extends BaseController {
     @ApiVersion(1)
     @Encrypt
     @Decrypt
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1")
+    })
     public ResultInfo userLogin(@Valid @RequestBody LoginDto loginDto) {
 
         //登录 身份认证
@@ -193,7 +196,7 @@ public class LoginController extends BaseController {
     @ControllerMethodLog(desc = "用户登录退出", operModule = "登录", logType = 4, serviceClass = UserAccountsService.class, entityBeanClass = UserAccounts.class)
     @ApiOperation(value = "用户登录退出")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "access_token", value = "access_token",  required = true, dataType = "String"),
     })
     @DeleteMapping(value = "user/out")

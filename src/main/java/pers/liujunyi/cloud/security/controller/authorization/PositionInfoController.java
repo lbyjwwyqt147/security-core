@@ -121,7 +121,7 @@ public class PositionInfoController extends BaseController {
      */
     @ApiOperation(value = "根据 pid 获取 岗位tree 结构数据 (包含禁用数据)")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "pid", value = "pid",  required = true, dataType = "Long")
     })
     @GetMapping(value = "tree/position/all/z")
@@ -138,7 +138,7 @@ public class PositionInfoController extends BaseController {
      */
     @ApiOperation(value = "根据 fullParentCode 获取 岗位tree 结构数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "code", value = "code",  required = true, dataType = "String")
     })
     @GetMapping(value = "tree/position/p/z")
@@ -157,7 +157,7 @@ public class PositionInfoController extends BaseController {
     @ControllerMethodLog(desc = "修改数据状态", operModule = "岗位信息", operType = OperateLogType.UPDATE, paramIsArray = true, serviceClass = PositionInfoService.class, entityBeanClass = PositionInfo.class, findDataMethod = "findByIdIn")
     @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String"),
             @ApiImplicitParam(name = "status", value = "status",  required = true, dataType = "integer")
     })
@@ -175,7 +175,7 @@ public class PositionInfoController extends BaseController {
      */
     @ApiOperation(value = "根据id 获取详细信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "id", value = "id", paramType = "path",   required = true, dataType = "Long")
     })
     @GetMapping(value = "table/position/g/{id}")
@@ -191,7 +191,7 @@ public class PositionInfoController extends BaseController {
      */
     @ApiOperation(value = "同步数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
     })
     @PostMapping(value = "verify/position/sync")
     @ApiVersion(1)

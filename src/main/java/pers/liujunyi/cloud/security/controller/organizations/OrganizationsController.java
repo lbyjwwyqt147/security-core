@@ -54,7 +54,7 @@ public class OrganizationsController extends BaseController {
     @ControllerMethodLog(desc = "保存数据", operModule = "组织结构", serviceClass = OrganizationsService.class, entityBeanClass = Organizations.class)
     @ApiOperation(value = "保存数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1")
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1")
     })
     @Decrypt
     @Encrypt
@@ -74,7 +74,7 @@ public class OrganizationsController extends BaseController {
     @ControllerMethodLog(desc = "删除数据", operModule = "组织结构", operType = OperateLogType.DELETE, serviceClass = OrganizationsService.class, entityBeanClass = Organizations.class)
     @ApiOperation(value = "删除多条数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String")
     })
     @Encrypt
@@ -93,7 +93,7 @@ public class OrganizationsController extends BaseController {
      */
     @ApiOperation(value = "分页列表数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1")
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1")
     })
     @GetMapping(value = "table/organization/g")
     @ApiVersion(1)
@@ -110,7 +110,7 @@ public class OrganizationsController extends BaseController {
      */
     @ApiOperation(value = "根据 pid 获取 组织结构tree 结构数据 (只包含正常数据 不包含禁用数据)")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "pid", value = "pid",  required = true, dataType = "Long")
     })
     @GetMapping(value = "tree/organization/z")
@@ -127,7 +127,7 @@ public class OrganizationsController extends BaseController {
      */
     @ApiOperation(value = "根据 pid 获取 组织结构tree 结构数据 (包含禁用数据)")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "pid", value = "pid",  required = true, dataType = "Long")
     })
     @GetMapping(value = "tree/organization/all/z")
@@ -144,7 +144,7 @@ public class OrganizationsController extends BaseController {
      */
     @ApiOperation(value = "根据 fullParentCode 获取 组织结构tree 结构数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "code", value = "code",  required = true, dataType = "String")
     })
     @GetMapping(value = "tree/organization/p/z")
@@ -163,7 +163,7 @@ public class OrganizationsController extends BaseController {
     @ControllerMethodLog(desc = "修改数据状态", operModule = "组织结构", operType = OperateLogType.UPDATE, paramIsArray = true, serviceClass = OrganizationsService.class, entityBeanClass = Organizations.class, findDataMethod = "findByIdIn")
     @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String"),
             @ApiImplicitParam(name = "status", value = "status",  required = true, dataType = "integer")
     })
@@ -183,7 +183,7 @@ public class OrganizationsController extends BaseController {
      */
     @ApiOperation(value = "根据id 获取详细信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "id", value = "id", paramType = "path",   required = true, dataType = "Long")
     })
     @Encrypt
@@ -200,7 +200,7 @@ public class OrganizationsController extends BaseController {
      */
     @ApiOperation(value = "同步数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
     })
     @PostMapping(value = "verify/organization/sync")
     @ApiVersion(1)

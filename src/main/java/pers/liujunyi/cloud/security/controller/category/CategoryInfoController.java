@@ -50,7 +50,7 @@ public class CategoryInfoController extends BaseController {
     @ControllerMethodLog(desc = "保存数据", operModule = "分类信息", serviceClass = CategoryInfoService.class, entityBeanClass = CategoryInfo.class)
     @ApiOperation(value = "保存数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1")
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1")
     })
     @PostMapping(value = "verify/category/info/s")
     @ApiVersion(1)
@@ -68,7 +68,7 @@ public class CategoryInfoController extends BaseController {
     @ControllerMethodLog(desc = "删除数据", operModule = "分类信息", operType = OperateLogType.DELETE, serviceClass = CategoryInfoService.class, entityBeanClass = CategoryInfo.class)
     @ApiOperation(value = "删除多条数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String")
     })
     @DeleteMapping(value = "verify/category/info/d/b")
@@ -85,7 +85,7 @@ public class CategoryInfoController extends BaseController {
      */
     @ApiOperation(value = "分页列表数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1")
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1")
     })
     @GetMapping(value = "table/category/info/g")
     @ApiVersion(1)
@@ -103,7 +103,7 @@ public class CategoryInfoController extends BaseController {
     @ControllerMethodLog(desc = "修改数据状态", operModule = "分类信息", operType = OperateLogType.UPDATE, paramIsArray = true, serviceClass = CategoryInfoService.class, entityBeanClass = CategoryInfo.class, findDataMethod = "findByIdIn")
     @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String"),
             @ApiImplicitParam(name = "status", value = "status",  required = true, dataType = "integer")
     })
@@ -121,7 +121,7 @@ public class CategoryInfoController extends BaseController {
      */
     @ApiOperation(value = "根据id 获取详细信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "id", value = "id", paramType = "path",   required = true, dataType = "Long")
     })
     @GetMapping(value = "table/category/info/{id}")
@@ -137,7 +137,7 @@ public class CategoryInfoController extends BaseController {
      */
     @ApiOperation(value = "分类下拉框数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
     })
     @GetMapping(value = "table/category/info/select")
     @ApiVersion(1)
@@ -152,7 +152,7 @@ public class CategoryInfoController extends BaseController {
      */
     @ApiOperation(value = "同步数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
     })
     @PostMapping(value = "verify/category/info/sync")
     @ApiVersion(1)
@@ -169,7 +169,7 @@ public class CategoryInfoController extends BaseController {
      */
     @ApiOperation(value = "验证 名称 是否存在")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "categoryName", value = "名称",  required = true, dataType = "String"),
             @ApiImplicitParam(name = "history", value = "历史名称",  required = false, dataType = "String"),
             @ApiImplicitParam(name = "categoryType", value = "类型",  required = true, dataType = "Int")

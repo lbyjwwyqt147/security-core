@@ -158,7 +158,7 @@ public class MenuResourceController extends BaseController {
     @ControllerMethodLog(desc = "修改数据状态", operModule = "资源信息", operType = OperateLogType.UPDATE, paramIsArray = true,  serviceClass = MenuResourceService.class, entityBeanClass = MenuResource.class, findDataMethod = "findByIdIn")
     @ApiOperation(value = "修改数据状态")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "ids", value = "ids",  required = true, dataType = "String"),
             @ApiImplicitParam(name = "status", value = "status",  required = true, dataType = "integer")
     })
@@ -176,7 +176,7 @@ public class MenuResourceController extends BaseController {
      */
     @ApiOperation(value = "根据id 获取详细信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
             @ApiImplicitParam(name = "id", value = "id", paramType = "path",   required = true, dataType = "Long")
     })
     @GetMapping(value = "table/menu/g/{id}")
@@ -192,7 +192,7 @@ public class MenuResourceController extends BaseController {
      */
     @ApiOperation(value = "同步数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "version", value = "版本号", paramType = "query", required = true, dataType = "integer", defaultValue = "v1"),
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1"),
     })
     @PostMapping(value = "verify/menu/sync")
     @ApiVersion(1)
