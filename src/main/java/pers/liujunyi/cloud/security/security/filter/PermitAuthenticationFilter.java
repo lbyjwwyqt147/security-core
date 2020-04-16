@@ -27,7 +27,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import pers.liujunyi.cloud.common.exception.DescribeException;
 import pers.liujunyi.cloud.common.redis.RedisTemplateUtils;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
-import pers.liujunyi.cloud.common.util.HttpClientUtils;
 import pers.liujunyi.cloud.common.util.TokenLocalContext;
 import pers.liujunyi.cloud.common.vo.BaseRedisKeys;
 import pers.liujunyi.cloud.security.domain.user.UserDetailsDto;
@@ -102,52 +101,51 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
         }
         String accessToken = null;
         try {
-            // 获取url携带的参数信息
-            Map<String, Object> params = HttpClientUtils.getAllRequestParam(httpServletRequest);
-            String curRequestURI = "当前访问的URL地址：" + servletPath + HttpClientUtils.paramsConvertUrl(params);
-            accessToken = httpServletRequest.getParameter("access_token");
-            String headerToken = httpServletRequest.getHeader(HEADER_AUTHORIZATION);
-            if (StringUtils.isNotBlank(headerToken) && StringUtils.isBlank(accessToken)) {
-                accessToken = headerToken.indexOf("bearer") != -1 ? headerToken.split(" ")[1] : "";
-            }
-            log.info(curRequestURI + "&access_token=" + accessToken);
-            UserDetailsDto currentUser = null;
-            if (StringUtils.isNotBlank(accessToken)) {
-                // 从token中获取用户
-                Object redisAuthentication = this.redisTemplateUtil.hget(BaseRedisKeys.USER_LOGIN_TOKNE, accessToken);
-                if (redisAuthentication != null) {
-                    currentUser = JSONObject.parseObject(redisAuthentication.toString(), UserDetailsDto.class);
-                    httpServletRequest.setAttribute(BaseRedisKeys.USER_ID, currentUser.getUserId());
-                    httpServletRequest.setAttribute(BaseRedisKeys.LESSEE, currentUser.getLessee());
-                    httpServletRequest.setAttribute(BaseRedisKeys.USER_INFO, JSON.toJSONString(currentUser));
+            if (!servletPath.equals("/heath")) {
+                accessToken = httpServletRequest.getParameter("access_token");
+                String headerToken = httpServletRequest.getHeader(HEADER_AUTHORIZATION);
+                if (StringUtils.isNotBlank(headerToken) && StringUtils.isBlank(accessToken)) {
+                    accessToken = headerToken.indexOf(BEARER_AUTHENTICATION) != -1 ? headerToken.split(" ")[1] : "";
                 }
-            }
-            //从request中解析PreAuthenticatedAuthenticationToken(注意这里并不是OAuth2Authentication)
-            Authentication authentication = this.tokenExtractor.extract(httpServletRequest);
-            // 不需要进行权限校验的url
-            String[] antMatchers = excludeAntMatchers.trim().split(",");
-            PathMatcher requestMatcher = new AntPathMatcher();
-            for (String matchers : antMatchers) {
-                boolean through = requestMatcher.match(matchers.trim(), servletPath);
-                if (through) {
-                    // this.setAuthentication(httpServletRequest, authentication, currentUser, accessToken);
-                    //log.info(curRequestURI + " 不进行权限校验....");
-                    filterChain.doFilter(httpServletRequest, httpServletResponse);
+
+                UserDetailsDto currentUser = null;
+                if (StringUtils.isNotBlank(accessToken)) {
+                    // 从token中获取用户
+                    Object redisAuthentication = this.redisTemplateUtil.hget(BaseRedisKeys.USER_LOGIN_TOKNE, accessToken);
+                    if (redisAuthentication != null) {
+                        currentUser = JSONObject.parseObject(redisAuthentication.toString(), UserDetailsDto.class);
+                        httpServletRequest.setAttribute(BaseRedisKeys.USER_ID, currentUser.getUserId());
+                        httpServletRequest.setAttribute(BaseRedisKeys.LESSEE, currentUser.getLessee());
+                        httpServletRequest.setAttribute(BaseRedisKeys.USER_INFO, JSON.toJSONString(currentUser));
+                    }
+                }
+                //从request中解析PreAuthenticatedAuthenticationToken(注意这里并不是OAuth2Authentication)
+                Authentication authentication = this.tokenExtractor.extract(httpServletRequest);
+                // 不需要进行权限校验的url
+                String[] antMatchers = excludeAntMatchers.trim().split(",");
+                PathMatcher requestMatcher = new AntPathMatcher();
+                for (String matchers : antMatchers) {
+                    boolean through = requestMatcher.match(matchers.trim(), servletPath);
+                    if (through) {
+                        // this.setAuthentication(httpServletRequest, authentication, currentUser, accessToken);
+                        //log.info(curRequestURI + " 不进行权限校验....");
+                        filterChain.doFilter(httpServletRequest, httpServletResponse);
+                        return;
+                    }
+                }
+                boolean legitimate = true;
+                if (authentication == null) {
+                    if (this.stateless && this.isAuthenticated()) {
+                        SecurityContextHolder.clearContext();
+                    }
+                    legitimate = false;
+                } else {
+                    legitimate = this.setAuthentication(httpServletRequest, authentication, currentUser, accessToken);
+                }
+                if (!legitimate) {
+                    this.validationMessage(servletPath, accessToken, httpServletResponse);
                     return;
                 }
-            }
-            boolean legitimate = true;
-            if (authentication == null) {
-                if (this.stateless && this.isAuthenticated()) {
-                    SecurityContextHolder.clearContext();
-                }
-                legitimate = false;
-            } else {
-                legitimate = this.setAuthentication(httpServletRequest, authentication, currentUser, accessToken);
-            }
-            if (!legitimate) {
-                this.validationMessage(servletPath, accessToken, httpServletResponse);
-                return;
             }
             filterChain.doFilter(httpServletRequest, httpServletResponse);
         } catch (Exception e) {
