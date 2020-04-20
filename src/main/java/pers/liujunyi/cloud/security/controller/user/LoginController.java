@@ -7,13 +7,11 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,8 +19,8 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.UnapprovedClientAuthenticationException;
 import org.springframework.security.oauth2.provider.*;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
+import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
-import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.web.bind.annotation.*;
 import pers.liujunyi.cloud.common.annotation.ApiVersion;
 import pers.liujunyi.cloud.common.annotation.ControllerMethodLog;
@@ -34,7 +32,6 @@ import pers.liujunyi.cloud.common.redis.RedisTemplateUtils;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
-import pers.liujunyi.cloud.common.util.HttpClientUtils;
 import pers.liujunyi.cloud.common.util.SecurityLocalContext;
 import pers.liujunyi.cloud.common.util.TokenLocalContext;
 import pers.liujunyi.cloud.common.vo.BaseRedisKeys;
@@ -51,8 +48,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.Date;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 
 /***
  * 文件名称: LoginController.java
@@ -89,7 +85,7 @@ public class LoginController extends BaseController {
     @Autowired
     private ClientDetailsService clientDetailsService;
     @Autowired
-    private TokenStore tokenStore;
+    private AuthorizationServerTokenServices authorizationServerTokenServices;
 
     /**
      * 退出
@@ -147,8 +143,7 @@ public class LoginController extends BaseController {
             // request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
             request.setAttribute(BaseRedisKeys.USER_ID, accounts.getId());
             request.setAttribute(BaseRedisKeys.LESSEE, accounts.getTenementId());
-            String token = this.decodeToken();
-          //  this.clientToken(authentication);
+            String token = this.clientToken(authentication);
             log.info("当前登录人【" + loginDto.getUserAccount() + "】的token:" + token);
             UserDetails userDetails = DozerBeanMapperUtil.copyProperties(accounts, UserDetails.class);
             userDetails.setUserId(accounts.getId());
@@ -165,7 +160,7 @@ public class LoginController extends BaseController {
             this.userAccountsService.setLoginTimeById(new Date(), accounts.getLoginTime(), accounts.getLoginCount(), accounts.getId(), accounts.getDataVersion());
 
             return ResultUtil.success(userDetails, token);
-        } catch (AuthenticationException e){
+        } catch (Exception e){
             e.printStackTrace();
             return ResultUtil.fail("用户或者密码错误.");
         }
@@ -218,21 +213,6 @@ public class LoginController extends BaseController {
         return ResultUtil.success();
     }
 
-    /**
-     * 获取 登录token 数据
-     */
-    private String decodeToken() {
-        String token = null;
-        String url = "http://127.0.0.1:" + curPort + "/oauth/token";
-        Map<String, Object> params = new ConcurrentHashMap<>();
-        params.put("grant_type", "client_credentials");
-        params.put("scope", "all");
-        params.put("client_id", SecurityConstant.CLIEN_ID);
-        params.put("client_secret", SecurityConstant.CLIENT_SECRET);
-        String tokenJson = HttpClientUtils.httpPost(url, params);
-        JSONObject jsonObject = JSONObject.parseObject(tokenJson);
-        return jsonObject.getString("access_token");
-    }
 
     /**
      * 获取 登录token 数据
@@ -242,19 +222,24 @@ public class LoginController extends BaseController {
         //获取clientId 和 clientSecret
         String clientId = SecurityConstant.CLIEN_ID;
         String clientSecret = SecurityConstant.CLIENT_SECRET;
-        //获取 ClientDetails
-        ClientDetails clientDetails = this.clientDetailsService.loadClientByClientId(clientId);
-        if (clientDetails == null){
-            throw new UnapprovedClientAuthenticationException("clientId 不存在" + clientId);
-        }else if (!bCryptPasswordEncoder.matches(clientSecret, clientDetails.getClientSecret())){
-            //判断  密码  是否一致
-            throw new UnapprovedClientAuthenticationException("clientSecret 不匹配 " + clientId);
+        TokenRequest tokenRequest = null;
+        // 2. 通过 ClientDetailsService 获取 ClientDetails
+        ClientDetails clientDetails = clientDetailsService.loadClientByClientId(clientId);
+        // 3. 校验 ClientId和 ClientSecret的正确性
+        if (clientDetails == null) {
+            throw new UnapprovedClientAuthenticationException("clientId:" + clientId + "对应的信息不存在");
+        } else if (!bCryptPasswordEncoder.matches(clientSecret, clientDetails.getClientSecret())) {
+            throw new UnapprovedClientAuthenticationException("clientSecret不正确");
+        } else {
+            // 4. 通过 TokenRequest构造器生成 TokenRequest
+            tokenRequest = new TokenRequest(new HashMap<>(), clientId, clientDetails.getScope(), "password");
         }
-        //密码模式 模式, 组建 authentication
-        TokenRequest tokenRequest = new TokenRequest(MapUtils.EMPTY_SORTED_MAP,clientId,clientDetails.getScope(),"password");
+        // 5. 通过 TokenRequest的 createOAuth2Request方法获取 OAuth2Request
         OAuth2Request oAuth2Request = tokenRequest.createOAuth2Request(clientDetails);
-        OAuth2Authentication oAuth2Authentication = new OAuth2Authentication(oAuth2Request, authentication);
-        OAuth2AccessToken accessToken = tokenStore.getAccessToken(oAuth2Authentication);
+        // 6. 通过 Authentication和 OAuth2Request构造出 OAuth2Authentication
+        OAuth2Authentication auth2Authentication = new OAuth2Authentication(oAuth2Request, authentication);
+        // 7. 通过 AuthorizationServerTokenServices 生成 OAuth2AccessToken
+        OAuth2AccessToken accessToken = authorizationServerTokenServices.createAccessToken(auth2Authentication);
         if (accessToken != null) {
             token = accessToken.getValue();
         }
