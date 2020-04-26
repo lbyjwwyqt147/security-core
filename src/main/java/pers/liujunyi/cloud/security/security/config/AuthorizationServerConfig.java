@@ -49,15 +49,15 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Autowired
     private MyUserDetailService myUserDetailService;
 
-    /** 资源所有者（即用户）密码模式 */
+    /** 资源所有者（即用户）密码模式 支持refresh token */
     private static final String GRANT_TYPE_PASSWORD = "password";
-    /** 授权码模式  授权码模式使用到了回调地址，是最为复杂的方式，通常网站中经常出现的微博，qq第三方登录，都会采用这个形式。 */
+    /** 授权码模式 支持refresh token 授权码模式使用到了回调地址，是最为复杂的方式，通常网站中经常出现的微博，qq第三方登录，都会采用这个形式。 */
     private static final String AUTHORIZATION_CODE = "authorization_code";
     /** 获取access token时附带的用于刷新新的token模式 */
     private static final String REFRESH_TOKEN = "refresh_token";
-    /** 简化授权模式 */
+    /** 简化授权模式 不支持refresh token */
     private static final String IMPLICIT = "implicit";
-    /** 客户端凭据（客户端ID以及Key）模式 */
+    /** 客户端凭据（客户端ID以及Key）模式 不支持refresh token */
     private static final String GRANT_TYPE = "client_credentials";
     private static final String SCOPE_READ = "read";
     private static final String SCOPE_WRITE = "write";
@@ -92,6 +92,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         // 用 BCrypt 对密码编码
         String secret = PasswordEncoderFactories.createDelegatingPasswordEncoder().encode(SecurityConstant.CLIENT_SECRET);
         //下面配置3个个客户端,一个用于password认证、一个用于client认证、一个用于authorization_code认证
+        // 客户端模式和简化模式不支持生成refresh_token, 授权码模式和密码模式支持refresh token
         // 使用in-memory存储
         clients.inMemory()
                 // 设置客户端用户
