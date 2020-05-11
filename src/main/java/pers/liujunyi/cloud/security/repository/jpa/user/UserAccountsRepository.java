@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 import pers.liujunyi.cloud.common.repository.jpa.BaseJpaRepository;
+import pers.liujunyi.cloud.common.util.BaseConstant;
 import pers.liujunyi.cloud.security.entity.user.UserAccounts;
 
 import java.util.Date;
@@ -28,7 +29,7 @@ public interface UserAccountsRepository extends BaseJpaRepository<UserAccounts, 
      * @param ids
      * @return
      */
-    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
+    @Transactional(value = BaseConstant.TRANSACTION_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
     @Query(value = "update user_accounts u set u.user_status = ?1, u.update_time = ?2, u.data_version = data_version+1 where u.id in (?3)", nativeQuery = true)
     int setUserStatusByIds(Byte userStatus, Date updateTime, List<Long> ids);
@@ -39,7 +40,7 @@ public interface UserAccountsRepository extends BaseJpaRepository<UserAccounts, 
      * @param id
      * @return
      */
-    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
+    @Transactional(value = BaseConstant.TRANSACTION_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
     @Query(value = "update user_accounts u set u.user_status = ?1, u.update_time = ?2, u.data_version = data_version+1 where u.id = ?3 and u.data_version = ?4", nativeQuery = true)
     int setUserStatusById(Byte userStatus, Date updateTime, Long id, Long version);
@@ -51,7 +52,7 @@ public interface UserAccountsRepository extends BaseJpaRepository<UserAccounts, 
      * @param id
      * @return
      */
-    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
+    @Transactional(value = BaseConstant.TRANSACTION_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
     @Query(value = "update user_accounts u set u.user_password = ?1, u.change_passwordTime = ?2, u.update_time = ?2, u.data_version = data_version+1 where u.id = ?3 and u.data_version = ?4 ", nativeQuery = true)
     int setUserPasswordById(String userPassword, Date time, Long id, Long version);
@@ -65,7 +66,7 @@ public interface UserAccountsRepository extends BaseJpaRepository<UserAccounts, 
      * @param version
      * @return
      */
-    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
+    @Transactional(value = BaseConstant.TRANSACTION_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
     @Query(value = "update user_accounts u set u.login_time = ?1, u.last_login_time = ?2,  u.login_count = ?3, u.data_version = data_version+1 where u.id = ?4 and u.data_version = ?5 ", nativeQuery = true)
     int setLoginTimeById(Date loginTime, Date lastLoginTime, Integer loginCount, Long id, Long version);

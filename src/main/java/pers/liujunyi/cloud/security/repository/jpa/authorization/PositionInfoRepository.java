@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import pers.liujunyi.cloud.common.repository.jpa.BaseJpaRepository;
+import pers.liujunyi.cloud.common.util.BaseConstant;
 import pers.liujunyi.cloud.security.entity.authorization.PositionInfo;
 
 import java.util.Date;
@@ -30,7 +31,7 @@ public interface PositionInfoRepository extends BaseJpaRepository<PositionInfo, 
      * @param ids
      * @return
      */
-    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
+    @Transactional(value = BaseConstant.TRANSACTION_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
     @Modifying(clearAutomatically = true)
     @Query(value = "update position_info u set u.post_status = ?1, u.update_time = ?2 where u.id in (?3)", nativeQuery = true)
     int setStatusByIds(Byte postStatus, Date updateTime, List<Long> ids);

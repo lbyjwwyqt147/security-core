@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Table;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import pers.liujunyi.cloud.common.annotation.CustomerField;
@@ -26,14 +27,14 @@ import javax.persistence.Entity;
  * @author ljy
  */
 @Data
-@Entity
+@Entity(name = "PositionInfo")
 @NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Document(collection = "position_info")
 @DynamicInsert
 @DynamicUpdate
-@org.hibernate.annotations.Table(appliesTo = "position_info", comment = "岗位信息表")
+@Table(appliesTo = "position_info", comment = "岗位信息表")
 public class PositionInfo extends BaseEntity {
 
     /** 岗位编号 */

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Table;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import pers.liujunyi.cloud.common.annotation.CustomerField;
@@ -30,14 +31,14 @@ import java.util.Date;
  * @author ljy
  */
 @Data
-@Entity
+@Entity(name = "UserAccounts")
 @NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Document(collection = "user_accounts")
 @DynamicInsert
 @DynamicUpdate
-@org.hibernate.annotations.Table(appliesTo = "user_accounts", comment = "用户账户表")
+@Table(appliesTo = "user_accounts", comment = "用户账户表")
 public class UserAccounts extends BaseEntity {
 
     /** 用户帐号 */

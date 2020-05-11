@@ -28,7 +28,7 @@ import javax.persistence.Version;
  * @author ljy
  */
 @Data
-@Entity
+@Entity(name = "Organizations")
 @NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)

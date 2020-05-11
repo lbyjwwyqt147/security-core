@@ -26,7 +26,7 @@ import javax.persistence.Entity;
  * @author ljy
  */
 @Data
-@Entity
+@Entity(name = "StaffOrg")
 @NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Table;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import pers.liujunyi.cloud.common.entity.BaseEntity;
@@ -25,14 +26,14 @@ import javax.persistence.Entity;
  * @author ljy
  */
 @Data
-@Entity
+@Entity(name = "RoleUser")
 @NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Document(collection = "role_user")
 @DynamicInsert
 @DynamicUpdate
-@org.hibernate.annotations.Table(appliesTo = "role_user", comment = "用户角色表")
+@Table(appliesTo = "role_user", comment = "用户角色表")
 public class RoleUser extends BaseEntity {
 
     /** 角色id */

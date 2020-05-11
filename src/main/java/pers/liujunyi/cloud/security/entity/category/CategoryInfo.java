@@ -27,7 +27,7 @@ import javax.persistence.Entity;
  * @author ljy
  */
 @Data
-@Entity
+@Entity(name = "CategoryInfo")
 @NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Table;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import pers.liujunyi.cloud.common.annotation.CustomerField;
@@ -26,14 +27,14 @@ import javax.persistence.Entity;
  * @author ljy
  */
 @Data
-@Entity
+@Entity(name = "MenuResource")
 @NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Document(collection = "menu_resource")
 @DynamicInsert
 @DynamicUpdate
-@org.hibernate.annotations.Table(appliesTo = "menu_resource", comment = "菜单资源表")
+@Table(appliesTo = "menu_resource", comment = "菜单资源表")
 public class MenuResource extends BaseEntity {
 
     /** 菜单资源编号 */
