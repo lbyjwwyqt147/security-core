@@ -7,8 +7,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 常量信息
@@ -92,4 +95,25 @@ public class SecurityConstant {
         }
         return matchers;
     }
+
+    /**
+     * 不需要保护的资源
+     * @param excludeAntMatchers
+     * @return
+     */
+    public static String[] antMatchers(String[] excludeAntMatchers) {
+        List<String> collect =  Arrays.asList(excludeAntMatchers).stream().map(String::trim).collect(Collectors.toList());
+        return collect.toArray(new String[collect.size()]);
+    }
+
+    /**
+     * 不需要保护的资源
+     * @param excludeAntMatchers
+     * @return
+     */
+    public static String[] antMatchers(List<String> excludeAntMatchers) {
+        List<String> collect =  excludeAntMatchers.stream().map(String::trim).collect(Collectors.toList());
+        return collect.toArray(new String[collect.size()]);
+    }
+
 }

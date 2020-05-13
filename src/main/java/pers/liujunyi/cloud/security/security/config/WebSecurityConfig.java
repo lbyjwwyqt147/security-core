@@ -2,9 +2,9 @@ package pers.liujunyi.cloud.security.security.config;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
@@ -23,6 +23,7 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.web.cors.CorsUtils;
+import pers.liujunyi.cloud.common.configuration.IgnoreSecurityConfig;
 import pers.liujunyi.cloud.security.security.filter.PermitAuthenticationFilter;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
@@ -46,12 +47,14 @@ import pers.liujunyi.cloud.security.util.SecurityConstant;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @Log4j2
+@Order(2)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private MyUserDetailService myUserDetailService;
-    @Value("${data.security.antMatchers}")
-    private String excludeAntMatchers;
+    /** 不需要权限认证的资源 */
+    @Autowired
+    private IgnoreSecurityConfig ignoreSecurityConfig;
     @Autowired
     private PermitAuthenticationFilter permitAuthenticationFilter;
     @Autowired
@@ -83,7 +86,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 //处理跨域请求中的Preflight请求
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 // 不需要保护的资源
-                .antMatchers(SecurityConstant.antMatchers(excludeAntMatchers)).permitAll()
+                .antMatchers(SecurityConstant.antMatchers(ignoreSecurityConfig.getAntMatchers())).permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/**").anonymous()
                 // 其他资源都需要保护
                 .anyRequest().authenticated();

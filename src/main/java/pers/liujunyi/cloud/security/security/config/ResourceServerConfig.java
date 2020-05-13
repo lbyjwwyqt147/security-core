@@ -2,8 +2,8 @@ package pers.liujunyi.cloud.security.security.config;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEn
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.web.cors.CorsUtils;
+import pers.liujunyi.cloud.common.configuration.IgnoreSecurityConfig;
 import pers.liujunyi.cloud.security.security.filter.PermitAuthenticationFilter;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
@@ -34,6 +35,7 @@ import pers.liujunyi.cloud.security.util.SecurityConstant;
 @Configuration
 @EnableResourceServer
 @Log4j2
+@Order(3)
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
     @Autowired
@@ -44,8 +46,10 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     private OAuth2AccessDeniedHandler customAccessDeniedHandler;
     @Autowired
     private OAuth2AuthenticationEntryPoint customAuthenticationEntryPoint;
-    @Value("${data.security.antMatchers}")
-    private String excludeAntMatchers;
+
+    /** 不需要权限认证的资源 */
+    @Autowired
+    private IgnoreSecurityConfig ignoreSecurityConfig;
 
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) {
@@ -71,7 +75,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 //处理跨域请求中的Preflight请求
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 // 配置不需要权限认证的资源
-                .antMatchers(SecurityConstant.antMatchers(excludeAntMatchers)).permitAll()
+                .antMatchers(SecurityConstant.antMatchers(ignoreSecurityConfig.getAntMatchers())).permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/**").anonymous()
                 // 其他资源都需要保护
                 .anyRequest().authenticated();

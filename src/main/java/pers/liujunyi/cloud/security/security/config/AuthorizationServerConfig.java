@@ -62,7 +62,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     private static final String SCOPE_READ = "read";
     private static final String SCOPE_WRITE = "write";
     private static final String TRUST = "trust";
-
+    private static final String SCOPE_ALL = "all";
+    private static final String REDIRECT_URL = "https://www.baidu.com";
 
     /**
      * OAuth2 token持久化到redis中
@@ -100,22 +101,20 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 .resourceIds(SecurityConstant.RESOURCE_ID)
                 //允许授权类型
                 .authorizedGrantTypes(AUTHORIZATION_CODE, GRANT_TYPE, REFRESH_TOKEN, GRANT_TYPE_PASSWORD, IMPLICIT)
-                //允许授权范围
-                .scopes(SCOPE_READ, SCOPE_WRITE, TRUST)
                 //客户端可以使用的权限
                 .authorities(SecurityConstant.RESOURCE_AUTHORITIES)
                 //secret客户端安全码
                 .secret(secret)
                 //指定可以接受令牌和授权码的重定向URIs authorization_code认证方法用到
-                //.redirectUris(REDIRECT_URL)
+                .redirectUris(REDIRECT_URL)
                 // 为true 则不会被重定向到授权的页面，也不需要手动给请求授权,直接自动授权成功返回code
                 .autoApprove(true)
                 // 客户端的access_token的有效时间值(单位:秒)  若不设定值则使用默认的有效时间值(60 * 60 * 12, 12小时).
                 .accessTokenValiditySeconds(SecurityConstant.ACCESS_TOKEN_VALIDITY_SECONDS)
                 // 客户端的refresh_token的有效时间值(单位:秒)      若不设定值则使用默认的有效时间值(60 * 60 * 24 * 30, 30天).
                 .refreshTokenValiditySeconds(SecurityConstant.REFRESH_TOKEN_VALIDITY_SECONDS)
-                // scopes的值就是all（全部权限），read，write等权限。就是第三方访问资源的一个权限，访问范围。
-                .scopes("all");
+                //允许授权范围 scopes的值就是all（全部权限），read，write等权限。就是第三方访问资源的一个权限，访问范围。
+                .scopes(SCOPE_ALL, SCOPE_READ, SCOPE_WRITE, TRUST);
         log.info(" >>>>> AuthorizationServerConfig Oauth2认证服务器 初始化完成. ");
     }
 
