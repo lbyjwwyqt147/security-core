@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import pers.liujunyi.cloud.common.annotation.ApiVersion;
 import pers.liujunyi.cloud.common.annotation.ControllerMethodLog;
 import pers.liujunyi.cloud.common.controller.BaseController;
+import pers.liujunyi.cloud.common.encrypt.AesEncryptUtils;
 import pers.liujunyi.cloud.common.encrypt.annotation.Decrypt;
 import pers.liujunyi.cloud.common.encrypt.annotation.Encrypt;
 import pers.liujunyi.cloud.common.exception.ErrorCodeEnum;
@@ -32,7 +33,8 @@ import pers.liujunyi.cloud.common.redis.RedisTemplateUtils;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.util.DozerBeanMapperUtil;
-import pers.liujunyi.cloud.common.util.SecurityLocalContext;
+import pers.liujunyi.cloud.common.util.SecurityAuthoritiesLocalContext;
+import pers.liujunyi.cloud.common.util.SystemUtils;
 import pers.liujunyi.cloud.common.util.TokenLocalContext;
 import pers.liujunyi.cloud.common.vo.BaseRedisKeys;
 import pers.liujunyi.cloud.common.vo.user.UserDetails;
@@ -74,6 +76,8 @@ public class LoginController extends BaseController {
     private ConsumerTokenServices consumerTokenServices;
     @Value("${server.port}")
     private Integer curPort;
+    @Value("${spring.encrypt.secretKey}")
+    private String secretKey;
     @Autowired
     private RedisTemplateUtils redisTemplateUtil;
     @Autowired
@@ -111,59 +115,27 @@ public class LoginController extends BaseController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1")
     })
-    public ResultInfo userLogin(@Valid @RequestBody LoginDto loginDto) {
+    public ResultInfo userLogin(@Valid @RequestBody LoginDto loginDto ) {
+        return this.login(loginDto);
+    }
 
-        //登录 身份认证
-        // 这句代码会自动执行咱们自定义的 "MyUserDetailService.java" 身份认证类
-        //1: 将用户名和密码封装成UsernamePasswordAuthenticationToken  new UsernamePasswordAuthenticationToken(userAccount, userPwd)
-        //2: 将UsernamePasswordAuthenticationToken传给AuthenticationManager进行身份认证   authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userAccount, userPwd));
-        //3: 认证完毕，返回一个认证后的身份： Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userAccount, userPwd));
-        //4: 认证后，存储到SecurityContext里   SecurityContext securityContext = SecurityContextHolder.getContext();securityContext.setAuthentication(authentication);
-
-
-        //UsernamePasswordAuthenticationToken继承AbstractAuthenticationToken实现Authentication
-        //当在页面中输入用户名和密码之后首先会进入到UsernamePasswordAuthenticationToken验证(Authentication)，注意用户名和登录名都是页面传来的值
-        //然后生成的Authentication会被交由AuthenticationManager来进行管理
-        //而AuthenticationManager管理一系列的AuthenticationProvider，
-        //而每一个Provider都会通UserDetailsService和UserDetail来返回一个
-        //以UsernamePasswordAuthenticationToken实现的带用户名和密码以及权限的Authentication
-        try {
-            UserAccounts accounts = this.userAccountsMongoRepository.findFirstByUserAccountsOrMobilePhoneOrUserNumber(loginDto.getUserAccount(), loginDto.getUserAccount(), loginDto.getUserAccount());
-            if (accounts == null || !bCryptPasswordEncoder.matches(loginDto.getUserPassword(), accounts.getUserPassword())) {
-                return ResultUtil.fail("用户或者密码错误.");
-            }
-            if (accounts.getUserStatus() == 1) {
-                return ResultUtil.info(ErrorCodeEnum.USER_LOCK.getCode(), ErrorCodeEnum.USER_LOCK.getMessage(), null, false);
-            }
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUserAccount(), loginDto.getUserPassword()));
-            //将身份 存储到SecurityContext里
-            SecurityContext securityContext = SecurityContextHolder.getContext();
-            securityContext.setAuthentication(authentication);
-            // 这个非常重要(非前后端分离情况下)，否则验证后将无法登陆
-            // request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
-            request.setAttribute(BaseRedisKeys.USER_ID, accounts.getId());
-            request.setAttribute(BaseRedisKeys.LESSEE, accounts.getTenementId());
-            String token = this.clientToken(authentication);
-            log.info("当前登录人【" + loginDto.getUserAccount() + "】的token:" + token);
-            UserDetails userDetails = DozerBeanMapperUtil.copyProperties(accounts, UserDetails.class);
-            userDetails.setUserId(accounts.getId());
-            userDetails.setToken(token);
-            UserDetailsDto detailsDto = DozerBeanMapperUtil.copyProperties(userDetails, UserDetailsDto.class);
-            detailsDto.setAuthorities(JSONObject.toJSONString(authentication.getAuthorities()));
-            detailsDto.setAuthenticated(true);
-            detailsDto.setCredentials(authentication.getCredentials());
-            detailsDto.setPrincipal(authentication.getPrincipal());
-            detailsDto.setSecret(loginDto.getUserPassword());
-            request.setAttribute(BaseRedisKeys.USER_INFO,  JSON.toJSONString(userDetails));
-            this.saveUserToRedis(token, detailsDto);
-            // 设置登录时间
-            this.userAccountsService.setLoginTimeById(new Date(), accounts.getLoginTime(), accounts.getLoginCount(), accounts.getId(), accounts.getDataVersion());
-
-            return ResultUtil.success(userDetails, token);
-        } catch (Exception e){
-            e.printStackTrace();
-            return ResultUtil.fail("用户或者密码错误.");
+    /**
+     * Oauth 用户登陆
+     * @param loginDto
+     * @return
+     */
+    @ControllerMethodLog(desc = "Oauth 用户登陆", operModule = "登录", logType = 3, serviceClass = UserAccountsService.class, entityBeanClass = UserAccounts.class)
+    @ApiOperation(value = "Oauth 用户登陆")
+    @PostMapping(value = "oauth/user/login")
+    @ApiVersion(1)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "version", value = "版本号", paramType = "path",  dataType = "String", defaultValue = "v1")
+    })
+    public ResultInfo oauthLogin(@Valid LoginDto loginDto ) {
+        if (SystemUtils.isBase64(loginDto.getUserPassword())) {
+            loginDto.setUserPassword(AesEncryptUtils.aesDecrypt(loginDto.getUserPassword(), this.secretKey.trim()));
         }
+        return this.login(loginDto);
     }
 
     /**
@@ -208,11 +180,73 @@ public class LoginController extends BaseController {
             request.removeAttribute(OAuth2AuthenticationDetails.ACCESS_TOKEN_VALUE);
             TokenLocalContext.remove();
             CustomInvocationSecurityMetadataSource.resourceMap = null;
-            SecurityLocalContext.remove();
+            SecurityAuthoritiesLocalContext.remove();
         }
         return ResultUtil.success();
     }
 
+
+    /**
+     * 登录
+     * @param loginDto
+     * @return
+     */
+    private ResultInfo login(LoginDto loginDto) {
+        //登录 身份认证
+        // 这句代码会自动执行咱们自定义的 "MyUserDetailService.java" 身份认证类
+        //1: 将用户名和密码封装成UsernamePasswordAuthenticationToken  new UsernamePasswordAuthenticationToken(userAccount, userPwd)
+        //2: 将UsernamePasswordAuthenticationToken传给AuthenticationManager进行身份认证   authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userAccount, userPwd));
+        //3: 认证完毕，返回一个认证后的身份： Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userAccount, userPwd));
+        //4: 认证后，存储到SecurityContext里   SecurityContext securityContext = SecurityContextHolder.getContext();securityContext.setAuthentication(authentication);
+
+
+        //UsernamePasswordAuthenticationToken继承AbstractAuthenticationToken实现Authentication
+        //当在页面中输入用户名和密码之后首先会进入到UsernamePasswordAuthenticationToken验证(Authentication)，注意用户名和登录名都是页面传来的值
+        //然后生成的Authentication会被交由AuthenticationManager来进行管理
+        //而AuthenticationManager管理一系列的AuthenticationProvider，
+        //而每一个Provider都会通UserDetailsService和UserDetail来返回一个
+        //以UsernamePasswordAuthenticationToken实现的带用户名和密码以及权限的Authentication
+        try {
+            UserAccounts accounts = this.userAccountsMongoRepository.findFirstByUserAccountsOrMobilePhoneOrUserNumber(loginDto.getUserAccount(), loginDto.getUserAccount(), loginDto.getUserAccount());
+            if (accounts == null  ) {
+                log.info("登录账户【" + loginDto.getUserAccount() + "】 在数据库中不存在." );
+                return ResultUtil.error(ErrorCodeEnum.USER_IS_EMPTY.getCode(), ErrorCodeEnum.USER_IS_EMPTY.getMessage());
+            } else if (!bCryptPasswordEncoder.matches(loginDto.getUserPassword(), accounts.getUserPassword())) {
+                log.info("登录账户【" + loginDto.getUserAccount() + "】 输入的密码错误." );
+                return ResultUtil.fail("用户或者密码错误.");
+            }
+            if (accounts.getUserStatus() == 1) {
+                return ResultUtil.info(ErrorCodeEnum.USER_LOCK.getCode(), ErrorCodeEnum.USER_LOCK.getMessage(), null, false);
+            }
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUserAccount(), loginDto.getUserPassword()));
+            //将身份 存储到SecurityContext里
+            SecurityContext securityContext = SecurityContextHolder.getContext();
+            securityContext.setAuthentication(authentication);
+            // 这个非常重要(非前后端分离情况下)，否则验证后将无法登陆
+            // request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
+            request.setAttribute(BaseRedisKeys.USER_ID, accounts.getId());
+            request.setAttribute(BaseRedisKeys.LESSEE, accounts.getTenementId());
+            String token = this.clientToken(authentication);
+            log.info("登录账户【" + loginDto.getUserAccount() + "】的token:" + token);
+            UserDetails userDetails = DozerBeanMapperUtil.copyProperties(accounts, UserDetails.class);
+            userDetails.setUserId(accounts.getId());
+            userDetails.setToken(token);
+            UserDetailsDto detailsDto = DozerBeanMapperUtil.copyProperties(userDetails, UserDetailsDto.class);
+            detailsDto.setAuthorities(JSONObject.toJSONString(authentication.getAuthorities()));
+            detailsDto.setAuthenticated(true);
+            detailsDto.setCredentials(authentication.getCredentials());
+            detailsDto.setPrincipal(authentication.getPrincipal());
+            detailsDto.setSecret(loginDto.getUserPassword());
+            request.setAttribute(BaseRedisKeys.USER_INFO,  JSON.toJSONString(userDetails));
+            this.saveUserToRedis(token, detailsDto);
+            // 设置登录时间
+            this.userAccountsService.setLoginTimeById(new Date(), accounts.getLoginTime(), accounts.getLoginCount(), accounts.getId(), accounts.getDataVersion());
+            return ResultUtil.success(userDetails, token);
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResultUtil.fail("用户或者密码错误.");
+        }
+    }
 
     /**
      * 获取 登录token 数据
@@ -266,4 +300,7 @@ public class LoginController extends BaseController {
         this.redisTemplateUtil.hset(BaseRedisKeys.USER_LOGIN_TOKNE, token, JSONObject.toJSONString(userDetails), SecurityConstant.ACCESS_TOKEN_VALIDITY_SECONDS.longValue());
         this.redisTemplateUtil.hset(BaseRedisKeys.USER_AUTHORITIES_TOKEN, token, userDetails.getAuthorities(), SecurityConstant.ACCESS_TOKEN_VALIDITY_SECONDS.longValue() );
     }
+
+
+
 }

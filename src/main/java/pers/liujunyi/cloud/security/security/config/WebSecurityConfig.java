@@ -14,17 +14,23 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHandler;
 import org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint;
+import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.cors.CorsUtils;
 import pers.liujunyi.cloud.common.configuration.IgnoreSecurityConfig;
-import pers.liujunyi.cloud.security.security.filter.PermitAuthenticationFilter;
+import pers.liujunyi.cloud.common.redis.RedisTemplateUtils;
+import pers.liujunyi.cloud.security.security.filter.CustomAccessDecisionManager;
+import pers.liujunyi.cloud.security.security.filter.CustomBaseAuthenticationFilter;
+import pers.liujunyi.cloud.security.security.filter.CustomFilterSecurityInterceptor;
+import pers.liujunyi.cloud.security.security.filter.CustomInvocationSecurityMetadataSource;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
 /***
@@ -56,30 +62,24 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private IgnoreSecurityConfig ignoreSecurityConfig;
     @Autowired
-    private PermitAuthenticationFilter permitAuthenticationFilter;
-    @Autowired
-    private AuthenticationFailureHandler customLoginFailHandler;
-    @Autowired
-    private AuthenticationSuccessHandler customLoginSuccessHandler;
-    @Autowired
-    private OAuth2AccessDeniedHandler customAccessDeniedHandler;
+    private AccessDeniedHandler customAccessDeniedHandler;
     @Autowired
     private OAuth2AuthenticationEntryPoint customAuthenticationEntryPoint;
-
-    @Autowired(required = false)
-    public void configAuthentication(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(myUserDetailService)
-                .passwordEncoder(bCryptPasswordEncoder());
-        auth.parentAuthenticationManager(authenticationManagerBean());
-    }
+    @Autowired
+    private CustomInvocationSecurityMetadataSource customInvocationSecurityMetadataSource;
+    @Autowired
+    private CustomAccessDecisionManager customAccessDecisionManager;
+    @Autowired
+    private TokenStore tokenStore;
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtil;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         // 关闭跨站请求防护
         http.cors().and().csrf().disable();
-        // 基于token，所以不需要session
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
+        // 基于token，所以不需要session 切记如果使用 oauth/authorize 授权时 下面代码需要注释，否不能正常跳转页面获取code
+        //http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         // 资源保护, 配置权限顺序为先配置需要放行的url 在配置需要权限的url，最后再配置.anyRequest().authenticated()
         // 使用authorizeRequests().antMatchers()是告诉你在antMatchers()中指定的一个或多个路径,比如执行permitAll()或hasRole()。他们在第一个http.antMatcher()匹配时就会生效。
         http.authorizeRequests()
@@ -93,19 +93,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         //表单登录方式
         http.formLogin()
-                 //指定登陆url  系统中我使用LoginController 中登录接口进行登录 /api/v1/user/login   不使用指定的 /api/user/login 登录接口  如果使用指定的 /api/user/login 登录请求触发后会直接进入MyUserDetailService中的MyUserDetailService方法 认证登录
-                 // 系统中由于使用LoginController 中登录接口 所以不会触发successHandler和failureHandler
-                .loginProcessingUrl("/api/user/login")
-                //未登录时 页面跳转 这里返回json
-                .loginPage("/api/v1/out")
+                //指定登陆url  系统中我使用LoginController 中登录接口进行登录 /api/v1/user/login   不使用指定的 /api/user/login 登录接口  如果使用指定的 /api/user/login 登录请求触发后会直接进入MyUserDetailService中的MyUserDetailService方法 认证登录
+                // 系统中由于使用LoginController 中登录接口 所以不会触发successHandler和failureHandler
+                // 如果不配置loginProcessingUrl 默认使用loginPage配置的参数
+                .loginProcessingUrl("/login")
+                // 表单登录页面
+                .loginPage("/login")
                 // 指定密码参数名称（对应前端传给后台参数名）
                 .passwordParameter("userPassword")
                 // 指定账号参数名称（对应前端传给后台参数名）
                 .usernameParameter("userAccount")
-                //登陆成功处理类
-                .successHandler(customLoginSuccessHandler)
-                //登陆失败处理类
-                .failureHandler(customLoginFailHandler)
+                //登陆失败处理
+                .failureUrl("/login?error=error")
                 // 允许任何人访问登录url
                 .permitAll();
 
@@ -122,8 +121,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // 禁用缓存
         http.headers().cacheControl();
         http.httpBasic();
-        // 添加 filter 验证其他请求的Token是否合法
-        http.addFilterBefore(permitAuthenticationFilter, FilterSecurityInterceptor.class);
+        //开启记住我功能
+        http.rememberMe().rememberMeParameter("remeber");
+
+        //自定义过滤器
+        CustomFilterSecurityInterceptor filterSecurityInterceptor = new CustomFilterSecurityInterceptor(customInvocationSecurityMetadataSource, customAccessDecisionManager, authenticationManagerBean());
+        http.addFilterBefore(filterSecurityInterceptor, FilterSecurityInterceptor.class);
+        http.addFilterBefore(new CustomBaseAuthenticationFilter(tokenStore, ignoreSecurityConfig, redisTemplateUtil, authenticationManagerBean()),
+                AbstractPreAuthenticatedProcessingFilter.class);
         // 加入自定义UsernamePasswordAuthenticationFilter替代原有Filter
         //  http.addFilterAt(customUsernamePasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         log.info(" >>>>> WebSecurityConfig 安全服务配置（Spring Security http URL拦截保护） 初始化完成. ");
@@ -133,6 +138,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(myUserDetailService).passwordEncoder(bCryptPasswordEncoder());
         auth.parentAuthenticationManager(authenticationManagerBean());
+        auth.authenticationProvider(preAuthenticatedAuthProvider());
     }
 
     /**
@@ -155,6 +161,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public PasswordEncoder bCryptPasswordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
+
+    @Bean
+    public PreAuthenticatedAuthenticationProvider preAuthenticatedAuthProvider() {
+        UserDetailsByNameServiceWrapper<PreAuthenticatedAuthenticationToken> wrapper =
+                new UserDetailsByNameServiceWrapper<> (myUserDetailService);
+
+        PreAuthenticatedAuthenticationProvider authProvider = new PreAuthenticatedAuthenticationProvider();
+        authProvider.setPreAuthenticatedUserDetailsService(wrapper);
+        return authProvider;
+    }
+
 
     @Override
     public void configure(WebSecurity web) throws Exception {

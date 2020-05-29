@@ -2,19 +2,19 @@ package pers.liujunyi.cloud.security.security.filter;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
 import org.springframework.security.access.intercept.InterceptorStatusToken;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
 import java.io.IOException;
 
 /***
  * 文件名称: CustomSecurityInterceptor.java
- * 文件描述: 过滤用户请求
+ * 文件描述: 过滤用户请求 （废弃）
  * 公 司:
  * 内容摘要:
  * 其他说明:　
@@ -22,17 +22,21 @@ import java.io.IOException;
  *         首先，登陆后，每次访问资源都会被这个拦截器拦截，会执行doFilter这个方法，这个方法调用了invoke方法，其中fi断点显示是一个url
  *         最重要的是beforeInvocation这个方法，它首先会调用MyInvocationSecurityMetadataSource类的getAttributes方法获取被拦截url所需的权限
  *         在调用MyAccessDecisionManager类decide方法判断用户是否具有权限,执行完后就会执行下一个拦截器
+ *         注意要注入权限类FilterInvocationSecurityMetadataSource和setAccessDecisionManager(AccessDecisionManager)
  * 完成日期:2018年10月13日
  * 修改记录:
  * @version 1.0
  * @author ljy
  */
 @Log4j2
-@Component
+@Deprecated
+//@Component
 public class CustomSecurityInterceptor extends AbstractSecurityInterceptor implements Filter{
 
     @Autowired
-    private FilterInvocationSecurityMetadataSource securityMetadataSource;
+    private FilterInvocationSecurityMetadataSource customInvocationSecurityMetadataSource;
+
+
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -44,10 +48,10 @@ public class CustomSecurityInterceptor extends AbstractSecurityInterceptor imple
      * @param customAccessDecisionManager
      */
     @Autowired
-    public void setAccessDecisionManager(CustomAccessDecisionManager customAccessDecisionManager) {
+    @Override
+    public void setAccessDecisionManager(AccessDecisionManager customAccessDecisionManager) {
         super.setAccessDecisionManager(customAccessDecisionManager);
     }
-
 
     /**
      * 登录后 每次请求都会调用这个拦截器进行请求过滤
@@ -75,7 +79,7 @@ public class CustomSecurityInterceptor extends AbstractSecurityInterceptor imple
 
     @Override
     public SecurityMetadataSource obtainSecurityMetadataSource() {
-        return this.securityMetadataSource;
+        return this.customInvocationSecurityMetadataSource;
     }
 
 

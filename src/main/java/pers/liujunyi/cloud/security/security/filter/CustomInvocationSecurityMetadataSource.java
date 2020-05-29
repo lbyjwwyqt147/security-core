@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.PathMatcher;
+import pers.liujunyi.cloud.common.util.BaseConstant;
 import pers.liujunyi.cloud.security.entity.authorization.MenuResource;
 import pers.liujunyi.cloud.security.entity.authorization.RoleInfo;
 import pers.liujunyi.cloud.security.repository.mongo.authorization.RoleInfoMongoRepository;
@@ -59,10 +60,10 @@ public class CustomInvocationSecurityMetadataSource implements FilterInvocationS
     @Override
     public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
         //取消这段代码注释 情况下 每次服务启动后请求后台只有到数据库中取一次权限   如果注释掉这段代码则每次请求都会到数据库中取权限
-        if (resourceMap == null){
+       // if (resourceMap == null){
             // 每次请求 都会去数据库查询权限  貌似很耗性能
              loadResourceDefine();
-        }
+       // }
         // object 是一个URL，被用户请求的url。
         FilterInvocation invocation = (FilterInvocation) object;
         String url = invocation.getRequestUrl();
@@ -81,7 +82,11 @@ public class CustomInvocationSecurityMetadataSource implements FilterInvocationS
                 return resourceMap.get(resURL);
             }
         }
-        return null ;
+        //防止数据库中没有数据，不能进行权限拦截， 如果直接返回null 则不能进入CustomAccessDecisionManager 进行权限拦截
+        Collection<ConfigAttribute> collection = new LinkedList<>();
+        ConfigAttribute configAttribute = new SecurityConfig("ROLE_NOT_AUTH");
+        collection.add(configAttribute);
+        return collection ;
     }
 
     @Override
@@ -100,7 +105,7 @@ public class CustomInvocationSecurityMetadataSource implements FilterInvocationS
      * 初始化资源 ,提取系统中的所有权限，加载所有url和权限（或角色）的对应关系， 以便拦截无权放访问的用户请求。  web容器启动就会执行
      */
     public void loadResourceDefine() {
-        if (resourceMap == null) {
+        if (resourceMap == null || resourceMap.size() == 0) {
             //应当是资源为key， 权限为value。 资源通常为url， 权限就是那些以ROLE_为前缀的角色。 一个资源可以由多个权限来访问。
             resourceMap = new ConcurrentHashMap<>();
             String prefix = SecurityConstant.ROLE_PREFIX;
@@ -118,6 +123,7 @@ public class CustomInvocationSecurityMetadataSource implements FilterInvocationS
                         List<MenuResource> resourceList = buttonResourceMap.get(role.getId());
                         if (!CollectionUtils.isEmpty(resourceList)) {
                             List<String> urlPatch = resourceList.stream().filter(r -> StringUtils.isNotBlank(r.getMenuPath())).map(MenuResource::getMenuPath).distinct().collect(Collectors.toList());
+                            urlPatch.add(BaseConstant.OAUTH_AUTHORIZE);
                             urlPatch.stream().forEach(item -> {
                                 // 判断资源文件和权限的对应关系，如果已经存在相关的资源url，则要通过该url为key提取出权限集合，将权限增加到权限集合中。
                                 if (resourceMap.containsKey(item)) {

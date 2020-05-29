@@ -1,18 +1,16 @@
 package pers.liujunyi.cloud.security.security.filter;
 
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.FilterInvocation;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.exception.ErrorCodeEnum;
-import pers.liujunyi.cloud.common.util.SecurityLocalContext;
-import pers.liujunyi.cloud.common.util.UserContext;
-import pers.liujunyi.cloud.common.vo.user.UserDetails;
+import pers.liujunyi.cloud.common.util.SecurityAuthoritiesLocalContext;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -48,6 +46,11 @@ public class CustomAccessDecisionManager implements AccessDecisionManager {
      */
     @Override
     public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes) throws AccessDeniedException, InsufficientAuthenticationException {
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof String ) {
+            //通过 oauth 获取的token，直接允许通过
+            return;
+        }
         // 判断有无权限访问
         if(!CollectionUtils.isEmpty(configAttributes)){
             // authentication 返回的权限信息是 AuthorizationServerConfig 类中configure方法配置的.authorities（客户端允许访问的权限）
@@ -58,24 +61,20 @@ public class CustomAccessDecisionManager implements AccessDecisionManager {
                 ConfigAttribute configAttribute = iterator.next();
                 String needRole = configAttribute.getAttribute();
                 // 为了解决 当前 Authentication authentication 无法获取当前登录人的角色权限信息，我把当前登录人的角色权限授权码 设置在了ThreadLocal 里面（不知这种方式是否正确）
-                String[] authorities = SecurityLocalContext.getAuthorities();
-                for(String authoritie : authorities){
-                    //authoritie 为用户所被赋予的权限。 needRole 为访问相应的资源应该具有的权限。
-                    //判断两个请求的url的权限和用户具有的权限是否相同，如相同，允许访问 权限就是那些以ROLE_为前缀的角色
-                    if (needRole.trim().equals(authoritie.trim())){
-                        //匹配到对应的角色，则允许通过
-                        return;
+                String[] authorities = SecurityAuthoritiesLocalContext.getAuthorities();
+                if (StringUtils.isNotBlank(needRole) && authorities != null) {
+                    for(String authoritie : authorities){
+                        //authoritie 为用户所被赋予的权限。 needRole 为访问相应的资源应该具有的权限。
+                        //判断两个请求的url的权限和用户具有的权限是否相同，如相同，允许访问 权限就是那些以ROLE_为前缀的角色
+                        if (needRole.trim().equals(authoritie.trim())){
+                            //匹配到对应的角色，则允许通过
+                            return;
+                        }
                     }
                 }
             }
         }
-        // object 是一个URL，被用户请求的url。
-        FilterInvocation invocation = (FilterInvocation) object;
-        String requestUrl = invocation.getRequestUrl();
-        UserDetails userDetails = UserContext.currentUser();
-        String unauthorize = "账户:【" + userDetails.getUserAccounts() + "】 无权限访问：" + requestUrl;
-        //该url具有访问权限，但是当前登录用户没有匹配到URL对应的权限，则抛出无权限错误
-        log.info(unauthorize);
+        // 抛出当前资源无权限访问异常
         throw new AccessDeniedException(ErrorCodeEnum.AUTHORITY.getMessage());
     }
 

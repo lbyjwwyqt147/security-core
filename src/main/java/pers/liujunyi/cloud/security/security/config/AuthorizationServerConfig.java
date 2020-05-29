@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.code.AuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import pers.liujunyi.cloud.security.security.hander.CustomWebResponseExceptionTranslator;
@@ -72,6 +73,15 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Bean
     public TokenStore tokenStore() {
         return new RedisTokenStore(connectionFactory);
+    }
+
+    /**
+     * 注册 自定义 生成 Authorization code 规则
+     * @return
+     */
+    @Bean
+    protected AuthorizationCodeServices authorizationCodeServices() {
+        return new CustomInMemoryAuthorizationCodeServices();
     }
 
     /**
@@ -134,6 +144,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 .reuseRefreshTokens(true)
                 //token相关服务
                 .tokenServices(defaultTokenServices())
+                // 配置自定义code
+                .authorizationCodeServices(authorizationCodeServices())
                 //客户端信息
                 .setClientDetailsService(endpoints.getClientDetailsService());
         //自定义 /oauth/token 异常处理

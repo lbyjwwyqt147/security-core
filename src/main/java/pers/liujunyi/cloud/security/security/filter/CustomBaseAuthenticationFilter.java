@@ -4,14 +4,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -20,13 +18,16 @@ import org.springframework.security.oauth2.provider.authentication.OAuth2Authent
 import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.filter.OncePerRequestFilter;
+import pers.liujunyi.cloud.common.configuration.IgnoreSecurityConfig;
 import pers.liujunyi.cloud.common.exception.DescribeException;
 import pers.liujunyi.cloud.common.redis.RedisTemplateUtils;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
+import pers.liujunyi.cloud.common.util.BaseConstant;
 import pers.liujunyi.cloud.common.util.TokenLocalContext;
 import pers.liujunyi.cloud.common.vo.BaseRedisKeys;
 import pers.liujunyi.cloud.security.domain.user.UserDetailsDto;
@@ -36,15 +37,17 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 
 /***
- * 文件名称: PermitAuthenticationFilter.java
+ * 文件名称: CustomBaseAuthenticationFilter.java
  * 文件描述: 自定义过滤器验证token 返回自定义数据格式
  * 公 司:
  * 内容摘要:
@@ -55,8 +58,7 @@ import java.util.Set;
  * @author ljy
  */
 @Log4j2
-@Component
-public class PermitAuthenticationFilter extends OncePerRequestFilter {
+public class CustomBaseAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String BEARER_AUTHENTICATION = "bearer ";
     private static final String HEADER_AUTHORIZATION = "Authorization";
@@ -66,23 +68,27 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
      * @Lazy 解决循环依赖 Requested bean is currently in creation: Is there an unresolvable circular reference
      * @Lazy 让spring 懒惰的初始化这个bean，给这个bean创建一个代理,当真正使用到这个bean时才会完全创建
      */
-    @Autowired
-    @Lazy
+
     private TokenStore tokenStore;
-    @Value("${data.security.antMatchers}")
-    private String excludeAntMatchers;
-    @Autowired
-    @Lazy
+    /** 不需要权限认证的资源 */
+    private IgnoreSecurityConfig ignoreSecurityConfig;
+
     private RedisTemplateUtils redisTemplateUtil;
-    @Autowired
-    @Lazy
+
     private AuthenticationManager authenticationManager;
+
+    public CustomBaseAuthenticationFilter(TokenStore tokenStore, IgnoreSecurityConfig ignoreSecurityConfig,  RedisTemplateUtils redisTemplateUtil, AuthenticationManager authenticationManager) {
+        this.tokenStore = tokenStore;
+        this.ignoreSecurityConfig = ignoreSecurityConfig;
+        this.redisTemplateUtil = redisTemplateUtil;
+        this.authenticationManager = authenticationManager;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-       this.executeFilter(httpServletRequest, httpServletResponse, filterChain );
+        this.executeFilter(httpServletRequest, httpServletResponse, filterChain );
     }
 
     @Override
@@ -91,7 +97,7 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void executeFilter(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
-                          FilterChain filterChain) throws IOException, ServletException {
+                               FilterChain filterChain) throws IOException, ServletException {
 
         String servletPath = httpServletRequest.getRequestURI();
         // 如果是OPTIONS则结束请求
@@ -101,7 +107,7 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
         }
         String accessToken = null;
         try {
-            if (!servletPath.equals("/heath")) {
+            if (!BaseConstant.HEALTH.equals(servletPath) && !BaseConstant.OAUTH_AUTHORIZE.equals(servletPath)  ) {
                 accessToken = httpServletRequest.getParameter("access_token");
                 String headerToken = httpServletRequest.getHeader(HEADER_AUTHORIZATION);
                 if (StringUtils.isNotBlank(headerToken) && StringUtils.isBlank(accessToken)) {
@@ -122,9 +128,9 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
                 //从request中解析PreAuthenticatedAuthenticationToken(注意这里并不是OAuth2Authentication)
                 Authentication authentication = this.tokenExtractor.extract(httpServletRequest);
                 // 不需要进行权限校验的url
-                String[] antMatchers = excludeAntMatchers.trim().split(",");
+                List<String> ignoreAntMatchers = ignoreSecurityConfig.getAntMatchers();
                 PathMatcher requestMatcher = new AntPathMatcher();
-                for (String matchers : antMatchers) {
+                for (String matchers : ignoreAntMatchers) {
                     boolean through = requestMatcher.match(matchers.trim(), servletPath);
                     if (through) {
                         // this.setAuthentication(httpServletRequest, authentication, currentUser, accessToken);
@@ -149,12 +155,12 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
             }
             filterChain.doFilter(httpServletRequest, httpServletResponse);
         } catch (Exception e) {
-             e.printStackTrace();
-             if (e instanceof InternalAuthenticationServiceException) {
-                 this.validationMessage(servletPath, accessToken, httpServletResponse);
-             } else {
-                 throw new DescribeException(e.getMessage());
-             }
+            e.printStackTrace();
+            if (e instanceof InternalAuthenticationServiceException) {
+                this.validationMessage(servletPath, accessToken, httpServletResponse);
+            } else {
+                throw new DescribeException(e.getMessage());
+            }
 
         }
     }
@@ -172,6 +178,7 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
             httpServletRequest.setAttribute(OAuth2AuthenticationDetails.ACCESS_TOKEN_VALUE, authentication.getPrincipal());
             OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(accessToken);
             if (oAuth2AccessToken != null) {
+                ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
                 if(authentication instanceof AbstractAuthenticationToken) {
                     if (currentUser != null) {
                         // 当前登录人权限信息
@@ -187,8 +194,22 @@ public class PermitAuthenticationFilter extends OncePerRequestFilter {
                         authenticated = true;
                         TokenLocalContext.remove();
                         TokenLocalContext.setToken(accessToken);
-                    }
+                    } else {
+                        authenticated = true;
+                        List<GrantedAuthority> authorities = AuthorityUtils
+                                .createAuthorityList("ROLE_ANONYMOUS");
+                        AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken("anonymousUser", authentication.getPrincipal(), authorities);
+                        auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(
+                                httpServletRequest));
+                        SecurityContext securityContext = SecurityContextHolder.getContext();
+                        authentication.setAuthenticated(true);
+                        securityContext.setAuthentication(auth);
+                        TokenLocalContext.remove();
+                        TokenLocalContext.setToken(accessToken);
+                        HttpSession session = attributes.getRequest().getSession(true);
+                        session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());}
                 }
+
             }
         }
         return authenticated;

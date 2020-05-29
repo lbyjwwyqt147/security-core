@@ -2,7 +2,10 @@ package pers.liujunyi.cloud.security.security.hander;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHandler;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 import pers.liujunyi.cloud.common.exception.ErrorCodeEnum;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
@@ -28,12 +31,24 @@ import java.util.Map;
  */
 @Component
 @Log4j2
-public class CustomAccessDenieHandler extends OAuth2AccessDeniedHandler {
+public class CustomAccessDenieHandler implements  AccessDeniedHandler {
+
     @Override
     public void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AccessDeniedException authException) throws IOException, ServletException {
-        log.info("http请求url：" + httpServletRequest.getRequestURI() + " 权限认证失败.");
-        log.info(authException.getMessage());
-        authException.printStackTrace();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = null;
+        String userType = "用户";
+        if (authentication != null) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof User) {
+                User user = (User) principal;
+                userName = user.getUsername();
+            } else {
+                userName = (String) principal;
+                userType = "token";
+            }
+        }
+        log.info("权限认证失败； " + userType + "【"+ userName +"】：无权限访问：" + httpServletRequest.getRequestURI() );
         Map<String, Object> map =  new HashMap<>();
         map.put("success", false);
         map.put("status", ErrorCodeEnum.AUTHORITY.getCode());

@@ -6,17 +6,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
-import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHandler;
 import org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
-import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.web.cors.CorsUtils;
 import pers.liujunyi.cloud.common.configuration.IgnoreSecurityConfig;
-import pers.liujunyi.cloud.security.security.filter.PermitAuthenticationFilter;
 import pers.liujunyi.cloud.security.util.SecurityConstant;
 
 /***
@@ -41,9 +38,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Autowired
     private DefaultTokenServices tokenServices;
     @Autowired
-    private PermitAuthenticationFilter permitAuthenticationFilter;
-    @Autowired
-    private OAuth2AccessDeniedHandler customAccessDeniedHandler;
+    private AccessDeniedHandler customAccessDeniedHandler;
     @Autowired
     private OAuth2AuthenticationEntryPoint customAuthenticationEntryPoint;
 
@@ -63,7 +58,6 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     public void configure(HttpSecurity http) throws Exception {
         //关闭跨站请求防护
         http.cors().and().csrf().disable();
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         // 资源保护配置
         // http.antMatcher表明这个 HttpSecurity 只适用于以 /api/开头的URL。
         //antMatcher()``是HttpSecurity的一个方法，他只告诉了Spring我只配置了一个我这个Adapter能处理哪个的url，它与authorizeRequests()没有任何关系。
@@ -80,17 +74,6 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 // 其他资源都需要保护
                 .anyRequest().authenticated();
 
-        // 资源异常信息处理
-        http.exceptionHandling()
-                //权限认证失败业务处理
-                .accessDeniedHandler(customAccessDeniedHandler)
-                //身份认证失败的业务处理
-                .authenticationEntryPoint(customAuthenticationEntryPoint);
-
-        http.formLogin().permitAll();
-        http.httpBasic();
-        // OAuth2受保护资源的预认证过滤器
-        http.addFilterBefore(permitAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class);
         log.info(" >>>>> ResourceServerConfig 资源服务器(保护受保护的资源) 初始化完成. ");
     }
 

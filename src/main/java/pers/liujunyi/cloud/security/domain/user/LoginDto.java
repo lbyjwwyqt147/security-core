@@ -20,4 +20,6 @@ public class LoginDto implements Serializable {
     @NotNull(message = "密码不能为空")
     private String userPassword;
 
+    /** 客户端  1 或者 空：ajax 请求   -1: form表单提交  */
+    private Byte client;
 }
