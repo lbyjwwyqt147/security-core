@@ -34,7 +34,7 @@ public class CustomWebResponseExceptionTranslator  implements WebResponseExcepti
         if (exception instanceof BadClientCredentialsException) {
             BadClientCredentialsException clientRegistrationException = (BadClientCredentialsException) exception;
             body.setMessage(clientRegistrationException.getMessage());
-            body.setStatus(HttpStatus.UNAUTHORIZED.value());
+            body.setStatus(HttpStatus.FORBIDDEN.value());
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(body);
