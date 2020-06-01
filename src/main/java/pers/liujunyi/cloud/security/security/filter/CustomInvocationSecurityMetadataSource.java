@@ -67,6 +67,9 @@ public class CustomInvocationSecurityMetadataSource implements FilterInvocationS
         // object 是一个URL，被用户请求的url。
         FilterInvocation invocation = (FilterInvocation) object;
         String url = invocation.getRequestUrl();
+        if (url.equals(BaseConstant.HEALTH)) {
+            return null;
+        }
         int firstQuestionMarkIndex = url.indexOf("?");
         if (firstQuestionMarkIndex != -1) {
             url = url.substring(0, firstQuestionMarkIndex);
