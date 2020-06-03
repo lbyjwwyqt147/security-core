@@ -127,6 +127,7 @@ public class CustomInvocationSecurityMetadataSource implements FilterInvocationS
                         if (!CollectionUtils.isEmpty(resourceList)) {
                             List<String> urlPatch = resourceList.stream().filter(r -> StringUtils.isNotBlank(r.getMenuPath())).map(MenuResource::getMenuPath).distinct().collect(Collectors.toList());
                             urlPatch.add(BaseConstant.OAUTH_AUTHORIZE);
+                            urlPatch.add("/api/*/authority/authentication");
                             urlPatch.stream().forEach(item -> {
                                 // 判断资源文件和权限的对应关系，如果已经存在相关的资源url，则要通过该url为key提取出权限集合，将权限增加到权限集合中。
                                 if (resourceMap.containsKey(item)) {
